@@ -27,6 +27,7 @@ public class AppStateMachine : MonoBehaviour
         HandleStateTransition(old, newState);
 
         OnStateChanged?.Invoke(old, newState);
+        EventBus.Publish(new AppStateChangedEvent(old, newState));
     }
 
     private void HandleStateTransition(AppState from, AppState to)
