@@ -62,6 +62,12 @@ public class WaveSpawner : MonoBehaviour
             var pos = GetSpawnPosition(group.Position);
             var go = Instantiate(_enemyPrefab, pos, Quaternion.identity);
             var ai = go.GetComponent<EnemyAI>();
+            if (ai == null)
+            {
+                Debug.LogError("[WaveSpawner] EnemyAI component not found on prefab.");
+                Destroy(go);
+                yield break;
+            }
             ai.Initialize(enemyData, _player);
 
             yield return new WaitForSeconds(group.SpawnInterval);
