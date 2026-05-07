@@ -120,11 +120,11 @@ public class DataManager : MonoBehaviour
             }
             catch (IOException ex)
             {
-                Debug.LogWarning($"[DataManager] Failed to copy default data ({fileName}): {ex.Message}");
+                Debug.LogWarning($"[DataManager] I/O error while copying default data ({fileName}): {ex.Message}");
             }
             catch (System.UnauthorizedAccessException ex)
             {
-                Debug.LogWarning($"[DataManager] Failed to copy default data ({fileName}): {ex.Message}");
+                Debug.LogWarning($"[DataManager] Permission denied while copying default data ({fileName}): {ex.Message}");
             }
         }
     }
