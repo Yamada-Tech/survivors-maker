@@ -66,9 +66,8 @@ public class ModeToggle : MonoBehaviour
         }
     }
 
-    private void HandleStateChanged(AppState oldState, AppState newState)
+    private void HandleStateChanged(AppState _oldState, AppState newState)
     {
-        _ = oldState;
         UpdateLabel(newState);
     }
 
