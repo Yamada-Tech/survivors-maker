@@ -35,16 +35,33 @@ public class AppStateMachine : MonoBehaviour
         switch (to)
         {
             case AppState.Play:
-                // TODO: プレイモード初期化
+                EventBus.Publish(new PlayModeStartedEvent());
                 Time.timeScale = 1f;
                 break;
             case AppState.Pause:
                 Time.timeScale = 0f;
                 break;
             case AppState.Editor:
-                // TODO: エディタモード復帰処理
+                EventBus.Publish(new EditorModeRestoredEvent());
+                DestroyPlayTaggedObjects();
                 Time.timeScale = 1f;
                 break;
+        }
+    }
+
+    private static void DestroyPlayTaggedObjects()
+    {
+        try
+        {
+            var playObjects = GameObject.FindGameObjectsWithTag("PlayObject");
+            foreach (var playObject in playObjects)
+            {
+                Destroy(playObject);
+            }
+        }
+        catch (UnityException ex)
+        {
+            Debug.LogWarning($"[AppStateMachine] Cleanup skipped because PlayObject tag is not defined in Tag Manager: {ex.Message}");
         }
     }
 }

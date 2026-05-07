@@ -50,6 +50,12 @@ public class MapEditor : MonoBehaviour
 
         BuildUi();
         RefreshAll();
+        EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
     }
 
     public void PlaceTile(int x, int y)
@@ -113,6 +119,11 @@ public class MapEditor : MonoBehaviour
         }
 
         DataManager.Instance.Save(_mapData, MapFileName);
+    }
+
+    private void OnSaveAllRequested(SaveAllRequestedEvent _)
+    {
+        Save();
     }
 
     public void Load()

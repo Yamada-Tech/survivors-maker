@@ -56,6 +56,12 @@ public class WaveEditor : MonoBehaviour
 
         BuildUI();
         RefreshAll();
+        EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
     }
 
     private void BuildUI()
@@ -324,6 +330,11 @@ public class WaveEditor : MonoBehaviour
         }
 
         DataManager.Instance.Save(_waveList, WaveFileName);
+    }
+
+    private void OnSaveAllRequested(SaveAllRequestedEvent _)
+    {
+        Save();
     }
 
     private void ApplyJson()
