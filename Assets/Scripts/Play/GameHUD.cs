@@ -1,57 +1,20 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GameHUD : MonoBehaviour
 {
-    private Label _hpLabel;
-    private Label _levelLabel;
-    private Label _timerLabel;
-    private Label _killLabel;
-    private Label _gameOverLabel;
-    private ProgressBar _hpBar;
-
     [SerializeField] private PlayerController _player;
-    private AppStateMachine _stateMachine;
+
     private float _elapsed;
     private int _killCount;
-    private int _displayLevel;
+    private int _displayLevel = 1;
+    private bool _gameOver;
+    private string _gameOverText;
+
+    private GUIStyle _labelStyle;
+    private GUIStyle _gameOverStyle;
 
     private void OnEnable()
     {
-        var doc = GetComponent<UIDocument>();
-        if (doc == null)
-        {
-            Debug.LogWarning("[GameHUD] UIDocument not found – HUD display disabled.");
-            if (_player == null)
-                _player = FindFirstObjectByType<PlayerController>();
-            _stateMachine = AppStateMachine.Instance;
-            if (_player != null)
-                _displayLevel = _player.Level;
-            EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
-            EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
-            EventBus.Subscribe<GameOverEvent>(OnGameOver);
-            return;
-        }
-        var root = doc.rootVisualElement;
-        _hpLabel = root.Q<Label>("HpLabel");
-        _levelLabel = root.Q<Label>("LevelLabel");
-        _timerLabel = root.Q<Label>("TimerLabel");
-        _killLabel = root.Q<Label>("KillLabel");
-        _hpBar = root.Q<ProgressBar>("HpBar");
-        _gameOverLabel = root.Q<Label>("GameOverLabel");
-        if (_gameOverLabel == null)
-        {
-            _gameOverLabel = new Label { name = "GameOverLabel" };
-            root.Add(_gameOverLabel);
-        }
-        _gameOverLabel.style.display = DisplayStyle.None;
-
-        if (_player == null)
-            _player = FindFirstObjectByType<PlayerController>();
-        _stateMachine = AppStateMachine.Instance;
-        if (_player != null)
-            _displayLevel = _player.Level;
-
         EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Subscribe<GameOverEvent>(OnGameOver);
@@ -64,47 +27,67 @@ public class GameHUD : MonoBehaviour
         EventBus.Unsubscribe<GameOverEvent>(OnGameOver);
     }
 
+    private void Start()
+    {
+        if (_player == null)
+            _player = FindAnyObjectByType<PlayerController>();
+    }
+
     private void Update()
     {
+        if (!_gameOver)
+            _elapsed += Time.deltaTime;
+    }
+
+    private void OnGUI()
+    {
+        // スタイル初期化（初回のみ）
+        if (_labelStyle == null)
+        {
+            _labelStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 22,
+                fontStyle = FontStyle.Bold,
+                normal = { textColor = Color.white }
+            };
+            _gameOverStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 36,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = Color.red }
+            };
+        }
+
+        if (_gameOver)
+        {
+            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), _gameOverText, _gameOverStyle);
+            return;
+        }
+
         if (_player == null) return;
 
-        if (_stateMachine != null && _stateMachine.CurrentState == AppState.Play)
-            _elapsed += Time.deltaTime;
+        int min = Mathf.FloorToInt(_elapsed / 60f);
+        int sec = Mathf.FloorToInt(_elapsed % 60f);
 
-        if (_hpLabel != null) _hpLabel.text = $"HP: {_player.CurrentHp}";
-        if (_levelLabel != null) _levelLabel.text = $"Lv: {_displayLevel}";
-        if (_timerLabel != null) _timerLabel.text = FormatTime(_elapsed);
-        if (_killLabel != null) _killLabel.text = $"Kills: {_killCount}";
+        // 背景（半透明黒）
+        GUI.color = new Color(0, 0, 0, 0.45f);
+        GUI.DrawTexture(new Rect(8, 8, 260, 110), Texture2D.whiteTexture);
+        GUI.color = Color.white;
 
-        if (_hpBar != null)
-        {
-            _hpBar.value = _player.CurrentHp;
-            _hpBar.highValue = _player.MaxHp;
-        }
+        GUI.Label(new Rect(16, 12,  250, 30), $"❤  HP   {_player.CurrentHp} / {_player.MaxHp}", _labelStyle);
+        GUI.Label(new Rect(16, 40,  250, 30), $"⭐ Lv   {_displayLevel}", _labelStyle);
+        GUI.Label(new Rect(16, 68,  250, 30), $"⏱  {min:00}:{sec:00}   💀 {_killCount}", _labelStyle);
     }
 
     private void OnEnemyKilled(EnemyKilledEvent _) => _killCount++;
-    private void OnLevelUp(LevelUpEvent evt)
-    {
-        _displayLevel = evt.NewLevel;
-    }
+
+    private void OnLevelUp(LevelUpEvent evt) => _displayLevel = evt.NewLevel;
 
     private void OnGameOver(GameOverEvent evt)
     {
-        if (_gameOverLabel == null) return;
-
-        var survived = Mathf.FloorToInt(_elapsed);
-        var kills = _killCount;
-        var level = evt.ReachedLevel > 0 ? evt.ReachedLevel : _displayLevel;
-
-        _gameOverLabel.text = $"GAME OVER\nTime: {survived / 60:00}:{survived % 60:00}\nKills: {kills}\nLv: {level}";
-        _gameOverLabel.style.display = DisplayStyle.Flex;
-    }
-
-    private static string FormatTime(float t)
-    {
-        var min = Mathf.FloorToInt(t / 60f);
-        var sec = Mathf.FloorToInt(t % 60f);
-        return $"{min:00}:{sec:00}";
+        _gameOver = true;
+        int survived = Mathf.FloorToInt(_elapsed);
+        _gameOverText = $"GAME OVER\n\nTime: {survived / 60:00}:{survived % 60:00}   Kills: {_killCount}   Lv: {evt.ReachedLevel}";
     }
 }
