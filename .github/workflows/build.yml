@@ -41,6 +41,7 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
           buildName: SurvivorsMaker
+          unityVersion: 6000.4.1f1
           buildPath: Builds/${{ matrix.targetPlatform }}
 
       - uses: actions/upload-artifact@v4

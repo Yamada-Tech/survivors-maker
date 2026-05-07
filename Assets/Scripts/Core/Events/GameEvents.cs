@@ -59,3 +59,11 @@ public struct PlayModeStartedEvent
 public struct EditorModeRestoredEvent
 {
 }
+
+// ゲームオーバー
+public struct GameOverEvent
+{
+    public int SurvivedTimeSec;
+    public int KillCount;
+    public int ReachedLevel;
+}

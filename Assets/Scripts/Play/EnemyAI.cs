@@ -8,6 +8,11 @@ public class EnemyAI : MonoBehaviour
     private Transform _player;
     private Rigidbody2D _rb;
 
+    private void Awake()
+    {
+        gameObject.tag = "PlayObject";
+    }
+
     public void Initialize(EnemyData data, Transform player)
     {
         _data = data;

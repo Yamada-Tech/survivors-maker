@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
@@ -7,6 +8,7 @@ using UnityEngine;
 
 public static class BuildScript
 {
+    private const string RequiredUnityVersion = "6000.4.1f1";
     private static readonly string[] Scenes = { "Assets/Scenes/SampleScene.unity" };
 
     private static readonly string[] DefaultProjectFiles =
@@ -38,6 +40,7 @@ public static class BuildScript
 
     private static void Build(BuildTarget target, string outputPath)
     {
+        EnsureUnityVersion();
         EnsureDefaultStreamingAssetsDataExists();
         Directory.CreateDirectory(Path.GetDirectoryName(outputPath) ?? "Builds");
 
@@ -73,6 +76,15 @@ public static class BuildScript
             {
                 throw new BuildFailedException($"Default data file not found: {path}");
             }
+        }
+    }
+
+    private static void EnsureUnityVersion()
+    {
+        if (!string.Equals(Application.unityVersion, RequiredUnityVersion, StringComparison.Ordinal))
+        {
+            throw new BuildFailedException(
+                $"Unsupported Unity version: {Application.unityVersion}. Required: {RequiredUnityVersion}");
         }
     }
 }
