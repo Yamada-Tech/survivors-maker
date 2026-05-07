@@ -9,6 +9,9 @@ public class WaveEditor : MonoBehaviour
     private const string DefaultEnemyId = "Enemy_001";
     private const int DefaultSpawnCount = 5;
     private const float DefaultSpawnInterval = 0.5f;
+    private const int MinSpawnCount = 1;
+    private const float MinStartTimeSec = 0f;
+    private const float MinSpawnIntervalSec = 0f;
 
     private WaveListData _waveList = new();
 
@@ -130,7 +133,7 @@ public class WaveEditor : MonoBehaviour
                 if (wave == null) return;
 
                 RecordUndoState();
-                wave.StartTimeSec = Mathf.Max(0f, evt.newValue);
+                wave.StartTimeSec = Mathf.Max(MinStartTimeSec, evt.newValue);
                 RefreshAfterWaveMutation();
             });
         }
@@ -158,7 +161,7 @@ public class WaveEditor : MonoBehaviour
                 if (group == null) return;
 
                 RecordUndoState();
-                group.Count = Mathf.Max(1, evt.newValue);
+                group.Count = Mathf.Max(MinSpawnCount, evt.newValue);
                 RefreshAfterSpawnGroupMutation();
             });
         }
@@ -172,7 +175,7 @@ public class WaveEditor : MonoBehaviour
                 if (group == null) return;
 
                 RecordUndoState();
-                group.SpawnInterval = Mathf.Max(0f, evt.newValue);
+                group.SpawnInterval = Mathf.Max(MinSpawnIntervalSec, evt.newValue);
                 RefreshAfterSpawnGroupMutation();
             });
         }
@@ -485,9 +488,9 @@ public class WaveEditor : MonoBehaviour
         {
             return Deserialize(json);
         }
-        catch
+        catch (System.ArgumentException ex)
         {
-            Debug.LogWarning("[WaveEditor] Failed to restore state from JSON.");
+            Debug.LogWarning($"[WaveEditor] Failed to restore state from JSON: {ex.Message}");
             return null;
         }
     }
@@ -505,8 +508,8 @@ public class WaveEditor : MonoBehaviour
             {
                 if (group == null) continue;
                 group.EnemyId ??= string.Empty;
-                group.Count = Mathf.Max(1, group.Count);
-                group.SpawnInterval = Mathf.Max(0f, group.SpawnInterval);
+                group.Count = Mathf.Max(MinSpawnCount, group.Count);
+                group.SpawnInterval = Mathf.Max(MinSpawnIntervalSec, group.SpawnInterval);
             }
         }
     }
