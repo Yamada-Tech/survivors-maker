@@ -5,7 +5,9 @@ public class EnemyAI : MonoBehaviour
 {
     private EnemyData _data;
     private int _currentHp;
+    private float _shootTimer;
     private Transform _player;
+    private GameObject _projectilePrefab;
     private Rigidbody2D _rb;
 
     private void Awake()
@@ -13,11 +15,13 @@ public class EnemyAI : MonoBehaviour
         gameObject.tag = "PlayObject";
     }
 
-    public void Initialize(EnemyData data, Transform player)
+    public void Initialize(EnemyData data, Transform player, GameObject projectilePrefab = null)
     {
         _data = data;
         _currentHp = data.Hp;
+        _shootTimer = 0f;
         _player = player;
+        _projectilePrefab = projectilePrefab;
         _rb = GetComponent<Rigidbody2D>();
     }
 
@@ -31,8 +35,7 @@ public class EnemyAI : MonoBehaviour
                 ChasePlayer();
                 break;
             case EnemyType.Ranged:
-                // TODO: 一定距離で止まって攻撃
-                ChasePlayer();
+                RangedBehavior();
                 break;
             case EnemyType.Stationary:
                 // 動かない
@@ -47,6 +50,43 @@ public class EnemyAI : MonoBehaviour
     {
         var dir = ((Vector2)_player.position - (Vector2)transform.position).normalized;
         _rb.linearVelocity = dir * _data.MoveSpeed;
+    }
+
+    private void RangedBehavior()
+    {
+        float dist = Vector2.Distance(_player.position, transform.position);
+        float fleeThreshold = _data.AttackRange * 0.6f;
+
+        if (dist < fleeThreshold)
+        {
+            var fleeDir = ((Vector2)transform.position - (Vector2)_player.position).normalized;
+            _rb.linearVelocity = fleeDir * _data.MoveSpeed;
+        }
+        else if (dist > _data.AttackRange)
+        {
+            ChasePlayer();
+        }
+        else
+        {
+            _rb.linearVelocity = Vector2.zero;
+            _shootTimer -= Time.fixedDeltaTime;
+            if (_shootTimer <= 0f)
+            {
+                ShootAtPlayer();
+                _shootTimer = _data.ShootCooldown;
+            }
+        }
+    }
+
+    private void ShootAtPlayer()
+    {
+        if (_projectilePrefab == null) return;
+
+        var dir = ((Vector2)_player.position - (Vector2)transform.position).normalized;
+        var go = Instantiate(_projectilePrefab, transform.position, Quaternion.identity);
+        var proj = go.GetComponent<EnemyProjectile>();
+        if (proj != null)
+            proj.Initialize(_data.ProjectileDamage, dir, _data.ProjectileSpeed, _data.AttackRange);
     }
 
     public void TakeDamage(int damage, Vector2 knockbackDir)
