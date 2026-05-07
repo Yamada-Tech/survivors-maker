@@ -9,6 +9,8 @@ public class MapEditor : MonoBehaviour
     private const int DefaultMapSize = 32;
     private const int TileSize = 32;
     private const int DefaultPaletteMax = 9;
+    private const float TileHueMultiplier = 0.11f;
+    private static readonly Color CellBorderColor = new(0.2f, 0.2f, 0.2f);
 
     [SerializeField] private int _mapWidth = DefaultMapSize;
     [SerializeField] private int _mapHeight = DefaultMapSize;
@@ -17,8 +19,8 @@ public class MapEditor : MonoBehaviour
     private int _selectedTileId = 1;
     private int _activeLayerIndex;
 
-    private readonly Stack<MapCommand> _undoStack = new();
-    private readonly Stack<MapCommand> _redoStack = new();
+    private readonly Stack<IMapCommand> _undoStack = new();
+    private readonly Stack<IMapCommand> _redoStack = new();
 
     private UIDocument _uiDocument;
     private DropdownField _layerDropdown;
@@ -34,7 +36,7 @@ public class MapEditor : MonoBehaviour
     public void Initialize(MapData data)
     {
         _mapData = data ?? CreateDefaultMapData();
-        EnsureMapDataValidity(_mapData);
+        _mapData = EnsureMapDataValidity(_mapData);
         BuildUi();
         RefreshAll();
     }
@@ -46,7 +48,7 @@ public class MapEditor : MonoBehaviour
             _mapData = DataManager.Instance != null
                 ? DataManager.Instance.Load<MapData>(MapFileName)
                 : CreateDefaultMapData();
-            EnsureMapDataValidity(_mapData);
+            _mapData = EnsureMapDataValidity(_mapData);
         }
 
         BuildUi();
@@ -80,7 +82,7 @@ public class MapEditor : MonoBehaviour
         var cmd = _undoStack.Pop();
         cmd.Undo();
         _redoStack.Push(cmd);
-        UpdateCellVisual(cmd.Index);
+        RefreshGridVisuals();
     }
 
     public void Redo()
@@ -89,7 +91,7 @@ public class MapEditor : MonoBehaviour
         var cmd = _redoStack.Pop();
         cmd.Execute();
         _undoStack.Push(cmd);
-        UpdateCellVisual(cmd.Index);
+        RefreshGridVisuals();
     }
 
     public void Clear()
@@ -98,12 +100,9 @@ public class MapEditor : MonoBehaviour
         if (_activeLayerIndex < 0 || _activeLayerIndex >= _mapData.Layers.Count) return;
 
         var layer = _mapData.Layers[_activeLayerIndex];
-        for (var i = 0; i < layer.Tiles.Length; i++)
-        {
-            layer.Tiles[i] = 0;
-        }
-
-        _undoStack.Clear();
+        var clearCmd = new ClearLayerCommand(layer);
+        clearCmd.Execute();
+        _undoStack.Push(clearCmd);
         _redoStack.Clear();
         RefreshGridVisuals();
     }
@@ -128,7 +127,7 @@ public class MapEditor : MonoBehaviour
         }
 
         _mapData = DataManager.Instance.Load<MapData>(MapFileName);
-        EnsureMapDataValidity(_mapData);
+        _mapData = EnsureMapDataValidity(_mapData);
         _undoStack.Clear();
         _redoStack.Clear();
         RefreshAll();
@@ -281,10 +280,10 @@ public class MapEditor : MonoBehaviour
                 cell.style.borderRightWidth = 1;
                 cell.style.borderTopWidth = 1;
                 cell.style.borderBottomWidth = 1;
-                cell.style.borderLeftColor = new Color(0.2f, 0.2f, 0.2f);
-                cell.style.borderRightColor = new Color(0.2f, 0.2f, 0.2f);
-                cell.style.borderTopColor = new Color(0.2f, 0.2f, 0.2f);
-                cell.style.borderBottomColor = new Color(0.2f, 0.2f, 0.2f);
+                cell.style.borderLeftColor = CellBorderColor;
+                cell.style.borderRightColor = CellBorderColor;
+                cell.style.borderTopColor = CellBorderColor;
+                cell.style.borderBottomColor = CellBorderColor;
                 cell.style.unityTextAlign = TextAnchor.MiddleCenter;
                 cell.style.fontSize = 10;
 
@@ -411,7 +410,7 @@ public class MapEditor : MonoBehaviour
 
     private static Color GetTileColor(int tileId, int layerIndex)
     {
-        var baseHue = (tileId * 0.11f) % 1f;
+        var baseHue = (tileId * TileHueMultiplier) % 1f;
         var saturation = Mathf.Clamp01(0.35f + layerIndex * 0.2f);
         var value = Mathf.Clamp01(0.45f + layerIndex * 0.12f);
         return Color.HSVToRGB(baseHue, saturation, value);
@@ -431,7 +430,7 @@ public class MapEditor : MonoBehaviour
         };
     }
 
-    private void EnsureMapDataValidity(MapData data)
+    private MapData EnsureMapDataValidity(MapData data)
     {
         data ??= CreateDefaultMapData();
 
@@ -446,6 +445,7 @@ public class MapEditor : MonoBehaviour
         EnsureLayer(data, 0, "Ground");
         EnsureLayer(data, 1, "Object");
         EnsureLayer(data, 2, "Event");
+        return data;
     }
 
     private void EnsureLayer(MapData data, int index, string defaultName)
@@ -487,7 +487,13 @@ public class MapEditor : MonoBehaviour
     }
 }
 
-public class MapCommand
+public interface IMapCommand
+{
+    void Execute();
+    void Undo();
+}
+
+public class MapCommand : IMapCommand
 {
     private readonly int _index;
     private readonly int _oldTile;
@@ -512,5 +518,33 @@ public class MapCommand
     public void Undo()
     {
         _layer.Tiles[_index] = _oldTile;
+    }
+}
+
+public class ClearLayerCommand : IMapCommand
+{
+    private readonly TileLayer _layer;
+    private readonly int[] _oldTiles;
+
+    public ClearLayerCommand(TileLayer layer)
+    {
+        _layer = layer;
+        _oldTiles = (int[])layer.Tiles.Clone();
+    }
+
+    public void Execute()
+    {
+        for (var i = 0; i < _layer.Tiles.Length; i++)
+        {
+            _layer.Tiles[i] = 0;
+        }
+    }
+
+    public void Undo()
+    {
+        for (var i = 0; i < _layer.Tiles.Length; i++)
+        {
+            _layer.Tiles[i] = _oldTiles[i];
+        }
     }
 }
