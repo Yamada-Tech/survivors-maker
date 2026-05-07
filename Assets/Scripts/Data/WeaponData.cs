@@ -13,7 +13,7 @@ public class WeaponData
     public string SpriteId;             // 32×32
 }
 
-public enum WeaponType { Melee, Projectile, Area }
+public enum WeaponType { Melee, Projectile, Area, Unique }
 
 [System.Serializable]
 public class WeaponListData
