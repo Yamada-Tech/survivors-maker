@@ -82,6 +82,11 @@ public class AssetManager : MonoBehaviour
 
     public string ImportAudio(string sourcePath)
     {
+        return ImportBgm(sourcePath);
+    }
+
+    public string ImportBgm(string sourcePath)
+    {
         return ImportAsset(sourcePath, AssetKind.Bgm);
     }
 
@@ -309,7 +314,7 @@ public class AssetManager : MonoBehaviour
             if (knownFiles.Contains(fileName)) continue;
 
             var ext = Path.GetExtension(fileName);
-            var kind = DetectKind(ext);
+            var kind = DetectKind(ext, fileName);
             if (kind == AssetKind.Unknown) continue;
 
             var guidCandidate = Path.GetFileNameWithoutExtension(fileName);
@@ -415,7 +420,7 @@ public class AssetManager : MonoBehaviour
         return Convert.ToHexString(sha.ComputeHash(stream));
     }
 
-    private static AssetKind DetectKind(string extension)
+    private static AssetKind DetectKind(string extension, string fileName = null)
     {
         switch (extension.ToLowerInvariant())
         {
@@ -426,6 +431,9 @@ public class AssetManager : MonoBehaviour
             case ".mp3":
             case ".ogg":
             case ".wav":
+                if (!string.IsNullOrWhiteSpace(fileName) &&
+                    fileName.IndexOf("se", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return AssetKind.Se;
                 return AssetKind.Bgm;
             case ".ttf":
             case ".otf":
@@ -603,7 +611,7 @@ public class AssetManagerPanel : MonoBehaviour
                 guid = AssetManager.Instance.ImportTexture(sourcePath);
                 break;
             case AssetKind.Bgm:
-                guid = AssetManager.Instance.ImportAudio(sourcePath);
+                guid = AssetManager.Instance.ImportBgm(sourcePath);
                 break;
             case AssetKind.Se:
                 guid = AssetManager.Instance.ImportSe(sourcePath);
