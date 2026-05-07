@@ -53,6 +53,7 @@ public static class SceneSetupEditor
         cam.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
         camGo.AddComponent<AudioListener>();
         var camFollow = camGo.AddComponent<CameraFollow>();
+        camGo.AddComponent<CameraZoom>();
 
         // プレイヤー（シーンに直接作成）
         var playerGo = BuildPlayerGO(defaultSprite);
@@ -158,6 +159,7 @@ public static class SceneSetupEditor
         col.radius = 0.4f;
 
         var ctrl = go.AddComponent<PlayerController>();
+        go.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
 
         // PlayerData のインラインフィールドを設定（ScriptableObject不要）
         var so = new SerializedObject(ctrl);
@@ -187,6 +189,7 @@ public static class SceneSetupEditor
         col.radius = 0.4f;
 
         go.AddComponent<EnemyAI>();
+        go.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
         return go;
     }
 
@@ -251,6 +254,7 @@ public static class SceneSetupEditor
         var hudSO = new SerializedObject(hud);
         hudSO.FindProperty("_player").objectReferenceValue = player;
         hudSO.ApplyModifiedProperties();
+        // UIDocumentは不要（OnGUIで描画するため）
     }
 }
 #endif
