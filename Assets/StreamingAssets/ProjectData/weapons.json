@@ -1,0 +1,24 @@
+{
+    "Weapons": [
+        {
+            "Id": "sword_basic",
+            "Name": "ショートソード",
+            "Type": 0,
+            "Damage": 10,
+            "Cooldown": 1.0,
+            "Range": 1.5,
+            "ProjectileSpeed": 0,
+            "SpriteId": "weapon_sword"
+        },
+        {
+            "Id": "fireball",
+            "Name": "ファイアボール",
+            "Type": 1,
+            "Damage": 15,
+            "Cooldown": 2.0,
+            "Range": 6.0,
+            "ProjectileSpeed": 8.0,
+            "SpriteId": "weapon_fireball"
+        }
+    ]
+}

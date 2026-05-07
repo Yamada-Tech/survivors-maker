@@ -1,0 +1,8 @@
+{
+    "Id": "player_default",
+    "Name": "勇者",
+    "MaxHp": 100,
+    "MoveSpeed": 5.0,
+    "BaseAtk": 10,
+    "SpriteId": "player_sprite"
+}

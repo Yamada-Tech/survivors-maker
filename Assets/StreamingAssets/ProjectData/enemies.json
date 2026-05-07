@@ -1,0 +1,37 @@
+{
+    "Enemies": [
+        {
+            "Id": "slime_green",
+            "Name": "グリーンスライム",
+            "Type": 0,
+            "Hp": 20,
+            "Atk": 3,
+            "MoveSpeed": 1.5,
+            "DropRate": 0.8,
+            "ExpValue": 5,
+            "SpriteId": "enemy_slime"
+        },
+        {
+            "Id": "bat_red",
+            "Name": "レッドバット",
+            "Type": 0,
+            "Hp": 15,
+            "Atk": 5,
+            "MoveSpeed": 3.0,
+            "DropRate": 0.6,
+            "ExpValue": 8,
+            "SpriteId": "enemy_bat"
+        },
+        {
+            "Id": "golem_stone",
+            "Name": "ストーンゴーレム",
+            "Type": 3,
+            "Hp": 100,
+            "Atk": 15,
+            "MoveSpeed": 0.5,
+            "DropRate": 1.0,
+            "ExpValue": 30,
+            "SpriteId": "enemy_golem"
+        }
+    ]
+}
