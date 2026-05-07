@@ -65,6 +65,8 @@ public class PlayerController : MonoBehaviour
         {
             EventBus.Publish(new GameOverEvent
             {
+                SurvivedTimeSec = -1,
+                KillCount = -1,
                 ReachedLevel = Level,
             });
             AppStateMachine.Instance?.ChangeState(AppState.Editor);

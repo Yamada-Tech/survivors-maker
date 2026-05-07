@@ -30,8 +30,7 @@ public class GameHUD : MonoBehaviour
             _gameOverLabel = new Label { name = "GameOverLabel" };
             root.Add(_gameOverLabel);
         }
-        if (_gameOverLabel != null)
-            _gameOverLabel.style.display = DisplayStyle.None;
+        _gameOverLabel.style.display = DisplayStyle.None;
 
         if (_player == null)
             _player = FindFirstObjectByType<PlayerController>();
@@ -80,8 +79,8 @@ public class GameHUD : MonoBehaviour
     {
         if (_gameOverLabel == null) return;
 
-        var survived = evt.SurvivedTimeSec > 0 ? evt.SurvivedTimeSec : Mathf.FloorToInt(_elapsed);
-        var kills = evt.KillCount > 0 ? evt.KillCount : _killCount;
+        var survived = evt.SurvivedTimeSec >= 0 ? evt.SurvivedTimeSec : Mathf.FloorToInt(_elapsed);
+        var kills = evt.KillCount >= 0 ? evt.KillCount : _killCount;
         var level = evt.ReachedLevel > 0 ? evt.ReachedLevel : _displayLevel;
 
         _gameOverLabel.text = $"GAME OVER\nTime: {survived / 60:00}:{survived % 60:00}\nKills: {kills}\nLv: {level}";
