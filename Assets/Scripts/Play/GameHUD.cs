@@ -9,7 +9,7 @@ public class GameHUD : MonoBehaviour
     private Label _killLabel;
     private ProgressBar _hpBar;
 
-    private PlayerController _player;
+    [SerializeField] private PlayerController _player;
     private float _elapsed;
     private int _killCount;
 
@@ -22,7 +22,8 @@ public class GameHUD : MonoBehaviour
         _killLabel = root.Q<Label>("KillLabel");
         _hpBar = root.Q<ProgressBar>("HpBar");
 
-        _player = FindFirstObjectByType<PlayerController>();
+        if (_player == null)
+            _player = FindFirstObjectByType<PlayerController>();
 
         EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
@@ -54,7 +55,11 @@ public class GameHUD : MonoBehaviour
     }
 
     private void OnEnemyKilled(EnemyKilledEvent _) => _killCount++;
-    private void OnLevelUp(LevelUpEvent _) { }
+    private void OnLevelUp(LevelUpEvent evt)
+    {
+        if (_levelLabel != null)
+            _levelLabel.text = $"Lv: {evt.NewLevel}";
+    }
 
     private static string FormatTime(float t)
     {
