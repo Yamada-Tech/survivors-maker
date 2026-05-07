@@ -113,8 +113,19 @@ public class DataManager : MonoBehaviour
                 continue;
             }
 
-            File.Copy(sourcePath, targetPath);
-            Debug.Log($"[DataManager] Copied default data → {targetPath}");
+            try
+            {
+                File.Copy(sourcePath, targetPath);
+                Debug.Log($"[DataManager] Copied default data → {targetPath}");
+            }
+            catch (IOException ex)
+            {
+                Debug.LogWarning($"[DataManager] Failed to copy default data ({fileName}): {ex.Message}");
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+                Debug.LogWarning($"[DataManager] Failed to copy default data ({fileName}): {ex.Message}");
+            }
         }
     }
 }
