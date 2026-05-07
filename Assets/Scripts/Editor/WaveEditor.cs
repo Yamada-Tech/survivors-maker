@@ -199,6 +199,7 @@ public class WaveEditor : MonoBehaviour
         _selectedWaveIndex = _waveList.Waves.Count - 1;
         _selectedSpawnGroupIndex = 0;
         RefreshAll();
+        ShowWaveDetail(_selectedWaveIndex);
     }
 
     private void DeleteWave()
@@ -210,8 +211,9 @@ public class WaveEditor : MonoBehaviour
         RecordUndoState();
         _waveList.Waves.RemoveAt(idx);
 
-        _selectedWaveIndex = Mathf.Clamp(idx, 0, _waveList.Waves.Count - 1);
-        if (_waveList.Waves.Count == 0) _selectedWaveIndex = -1;
+        _selectedWaveIndex = _waveList.Waves.Count == 0
+            ? -1
+            : Mathf.Clamp(idx, 0, _waveList.Waves.Count - 1);
         _selectedSpawnGroupIndex = -1;
 
         RefreshAll();
@@ -248,8 +250,9 @@ public class WaveEditor : MonoBehaviour
         RecordUndoState();
         wave.SpawnGroups.RemoveAt(idx);
 
-        _selectedSpawnGroupIndex = Mathf.Clamp(idx, 0, wave.SpawnGroups.Count - 1);
-        if (wave.SpawnGroups.Count == 0) _selectedSpawnGroupIndex = -1;
+        _selectedSpawnGroupIndex = wave.SpawnGroups.Count == 0
+            ? -1
+            : Mathf.Clamp(idx, 0, wave.SpawnGroups.Count - 1);
 
         RefreshAfterSpawnGroupMutation();
     }
@@ -257,9 +260,9 @@ public class WaveEditor : MonoBehaviour
     private void ShowWaveDetail(int index)
     {
         _selectedWaveIndex = index;
-        _selectedSpawnGroupIndex = 0;
 
         var wave = GetSelectedWave();
+        _selectedSpawnGroupIndex = wave?.SpawnGroups != null && wave.SpawnGroups.Count > 0 ? 0 : -1;
         _isBinding = true;
 
         if (_waveNumberField != null)
@@ -332,8 +335,17 @@ public class WaveEditor : MonoBehaviour
     {
         if (_undoStack.Count == 0) return;
 
-        _redoStack.Push(Serialize(_waveList));
-        _waveList = Deserialize(_undoStack.Pop());
+        var current = Serialize(_waveList);
+        var previous = _undoStack.Pop();
+        var deserialized = TryDeserialize(previous);
+        if (deserialized == null)
+        {
+            _undoStack.Push(previous);
+            return;
+        }
+
+        _redoStack.Push(current);
+        _waveList = deserialized;
         _selectedWaveIndex = -1;
         _selectedSpawnGroupIndex = -1;
         RefreshAll();
@@ -343,8 +355,17 @@ public class WaveEditor : MonoBehaviour
     {
         if (_redoStack.Count == 0) return;
 
-        _undoStack.Push(Serialize(_waveList));
-        _waveList = Deserialize(_redoStack.Pop());
+        var current = Serialize(_waveList);
+        var next = _redoStack.Pop();
+        var deserialized = TryDeserialize(next);
+        if (deserialized == null)
+        {
+            _redoStack.Push(next);
+            return;
+        }
+
+        _undoStack.Push(current);
+        _waveList = deserialized;
         _selectedWaveIndex = -1;
         _selectedSpawnGroupIndex = -1;
         RefreshAll();
@@ -442,6 +463,19 @@ public class WaveEditor : MonoBehaviour
         parsed ??= new WaveListData();
         EnsureDataValidity(parsed);
         return parsed;
+    }
+
+    private static WaveListData TryDeserialize(string json)
+    {
+        try
+        {
+            return Deserialize(json);
+        }
+        catch
+        {
+            Debug.LogWarning("[WaveEditor] Failed to restore state from JSON.");
+            return null;
+        }
     }
 
     private static void EnsureDataValidity(WaveListData data)
