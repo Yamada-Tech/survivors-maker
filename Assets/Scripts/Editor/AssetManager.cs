@@ -417,7 +417,7 @@ public class AssetManager : MonoBehaviour
     {
         using var sha = SHA256.Create();
         using var stream = File.OpenRead(path);
-        return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLower();
+        return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
     }
 
     private static AssetKind DetectKind(string extension, string fileName = null)
