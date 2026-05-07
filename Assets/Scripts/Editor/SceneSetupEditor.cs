@@ -6,6 +6,13 @@ public static class SceneSetupEditor
 {
     private const string PrefabsFolder = "Assets/GeneratedPrefabs";
 
+    // デフォルトプレイヤーパラメータ
+    private const int DefaultPlayerMaxHp = 100;
+    private const float DefaultPlayerMoveSpeed = 4f;
+
+    // カメラ設定
+    private const float DefaultCameraSize = 10f;
+
     [MenuItem("SurvivorsMaker/\U0001f3ae Setup Scene (初回セットアップ)")]
     public static void SetupScene()
     {
@@ -42,7 +49,7 @@ public static class SceneSetupEditor
         camGo.tag = "MainCamera";
         var cam = camGo.AddComponent<Camera>();
         cam.orthographic = true;
-        cam.orthographicSize = 10f;
+        cam.orthographicSize = DefaultCameraSize;
         cam.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
         camGo.AddComponent<AudioListener>();
         var camFollow = camGo.AddComponent<CameraFollow>();
@@ -157,8 +164,8 @@ public static class SceneSetupEditor
         var dataProp = so.FindProperty("_data");
         if (dataProp != null)
         {
-            dataProp.FindPropertyRelative("MaxHp").intValue = 100;
-            dataProp.FindPropertyRelative("MoveSpeed").floatValue = 4f;
+            dataProp.FindPropertyRelative("MaxHp").intValue = DefaultPlayerMaxHp;
+            dataProp.FindPropertyRelative("MoveSpeed").floatValue = DefaultPlayerMoveSpeed;
             so.ApplyModifiedProperties();
         }
 
