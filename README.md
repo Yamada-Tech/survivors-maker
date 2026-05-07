@@ -41,11 +41,15 @@ Survivors Makerは、Vampire Survivorsライクなローグライト・サバイ
    - `Build/Build Linux`
 3. ビルド成果物は `Builds/` 配下に出力されます
 
-`Assets/Scripts/Build/BuildScript.cs` で、ビルド前に `Assets/StreamingAssets/ProjectData` のデフォルトデータ一式（`player.json` / `map.json` / `enemies.json` / `weapons.json` / `waves.json`）の存在確認を行います。
+`Assets/Scripts/Build/BuildScript.cs` で、ビルド前に `Assets/StreamingAssets/ProjectData` のデフォルトデータ一式（`player.json` / `map.json` / `enemies.json` / `weapons.json` / `waves.json`）の存在確認を行います。不足がある場合は `BuildFailedException` でビルドを中断します。
 
 ### CI/CDビルド（GitHub Actions）
 
 - `.github/workflows/build.yml` により `main` ブランチへの `push` / `pull_request` をトリガーに自動ビルドを実行
+- リポジトリの `Settings > Secrets and variables > Actions` に以下を登録
+  - `UNITY_LICENSE`
+  - `UNITY_EMAIL`
+  - `UNITY_PASSWORD`
 - 対象プラットフォーム
   - `StandaloneWindows64`
   - `StandaloneOSX`
