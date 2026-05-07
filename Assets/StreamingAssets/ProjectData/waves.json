@@ -1,0 +1,52 @@
+{
+    "Waves": [
+        {
+            "WaveNumber": 1,
+            "StartTimeSec": 0,
+            "SpawnGroups": [
+                {
+                    "EnemyId": "slime_green",
+                    "Count": 10,
+                    "SpawnInterval": 0.5,
+                    "Position": 0
+                }
+            ]
+        },
+        {
+            "WaveNumber": 2,
+            "StartTimeSec": 30,
+            "SpawnGroups": [
+                {
+                    "EnemyId": "slime_green",
+                    "Count": 15,
+                    "SpawnInterval": 0.3,
+                    "Position": 0
+                },
+                {
+                    "EnemyId": "bat_red",
+                    "Count": 5,
+                    "SpawnInterval": 0.8,
+                    "Position": 0
+                }
+            ]
+        },
+        {
+            "WaveNumber": 3,
+            "StartTimeSec": 60,
+            "SpawnGroups": [
+                {
+                    "EnemyId": "bat_red",
+                    "Count": 20,
+                    "SpawnInterval": 0.3,
+                    "Position": 0
+                },
+                {
+                    "EnemyId": "golem_stone",
+                    "Count": 2,
+                    "SpawnInterval": 3.0,
+                    "Position": 0
+                }
+            ]
+        }
+    ]
+}
