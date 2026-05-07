@@ -175,11 +175,16 @@ public class MapEditor : MonoBehaviour
             });
         }
 
-        root.Q<Button>("SaveBtn")?.clicked += Save;
-        root.Q<Button>("LoadBtn")?.clicked += Load;
-        root.Q<Button>("UndoBtn")?.clicked += Undo;
-        root.Q<Button>("RedoBtn")?.clicked += Redo;
-        root.Q<Button>("ClearBtn")?.clicked += Clear;
+        var saveBtn = root.Q<Button>("SaveBtn");
+        if (saveBtn != null) saveBtn.clicked += Save;
+        var loadBtn = root.Q<Button>("LoadBtn");
+        if (loadBtn != null) loadBtn.clicked += Load;
+        var undoBtn = root.Q<Button>("UndoBtn");
+        if (undoBtn != null) undoBtn.clicked += Undo;
+        var redoBtn = root.Q<Button>("RedoBtn");
+        if (redoBtn != null) redoBtn.clicked += Redo;
+        var clearBtn = root.Q<Button>("ClearBtn");
+        if (clearBtn != null) clearBtn.clicked += Clear;
 
         BuildPalette();
         BuildGrid();

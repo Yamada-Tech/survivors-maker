@@ -90,9 +90,12 @@ public class WeaponEditor : MonoBehaviour
 
         RegisterCallbacks();
 
-        root.Q<Button>("AddBtn")?.clicked += AddWeapon;
-        root.Q<Button>("DeleteBtn")?.clicked += DeleteWeapon;
-        root.Q<Button>("SaveBtn")?.clicked += Save;
+        var addBtn = root.Q<Button>("AddBtn");
+        if (addBtn != null) addBtn.clicked += AddWeapon;
+        var deleteBtn = root.Q<Button>("DeleteBtn");
+        if (deleteBtn != null) deleteBtn.clicked += DeleteWeapon;
+        var saveBtn = root.Q<Button>("SaveBtn");
+        if (saveBtn != null) saveBtn.clicked += Save;
 
         _isUiBuilt = true;
     }
