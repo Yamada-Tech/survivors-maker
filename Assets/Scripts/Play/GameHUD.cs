@@ -10,8 +10,10 @@ public class GameHUD : MonoBehaviour
     private ProgressBar _hpBar;
 
     [SerializeField] private PlayerController _player;
+    private AppStateMachine _stateMachine;
     private float _elapsed;
     private int _killCount;
+    private int _displayLevel;
 
     private void OnEnable()
     {
@@ -24,6 +26,9 @@ public class GameHUD : MonoBehaviour
 
         if (_player == null)
             _player = FindFirstObjectByType<PlayerController>();
+        _stateMachine = AppStateMachine.Instance;
+        if (_player != null)
+            _displayLevel = _player.Level;
 
         EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
@@ -39,11 +44,11 @@ public class GameHUD : MonoBehaviour
     {
         if (_player == null) return;
 
-        if (AppStateMachine.Instance != null && AppStateMachine.Instance.CurrentState == AppState.Play)
+        if (_stateMachine != null && _stateMachine.CurrentState == AppState.Play)
             _elapsed += Time.deltaTime;
 
         if (_hpLabel != null) _hpLabel.text = $"HP: {_player.CurrentHp}";
-        if (_levelLabel != null) _levelLabel.text = $"Lv: {_player.Level}";
+        if (_levelLabel != null) _levelLabel.text = $"Lv: {_displayLevel}";
         if (_timerLabel != null) _timerLabel.text = FormatTime(_elapsed);
         if (_killLabel != null) _killLabel.text = $"Kills: {_killCount}";
 
@@ -57,8 +62,7 @@ public class GameHUD : MonoBehaviour
     private void OnEnemyKilled(EnemyKilledEvent _) => _killCount++;
     private void OnLevelUp(LevelUpEvent evt)
     {
-        if (_levelLabel != null)
-            _levelLabel.text = $"Lv: {evt.NewLevel}";
+        _displayLevel = evt.NewLevel;
     }
 
     private static string FormatTime(float t)
