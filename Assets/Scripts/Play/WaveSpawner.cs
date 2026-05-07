@@ -5,6 +5,7 @@ using UnityEngine;
 public class WaveSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject _enemyPrefab;
+    [SerializeField] private GameObject _enemyProjectilePrefab;
     [SerializeField] private Transform _player;
 
     private WaveListData _waveData;
@@ -68,7 +69,7 @@ public class WaveSpawner : MonoBehaviour
                 Destroy(go);
                 yield break;
             }
-            ai.Initialize(enemyData, _player);
+            ai.Initialize(enemyData, _player, _enemyProjectilePrefab);
 
             yield return new WaitForSeconds(group.SpawnInterval);
         }
