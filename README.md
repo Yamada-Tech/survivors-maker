@@ -21,7 +21,7 @@ Survivors Makerは、Vampire Survivorsライクなローグライト・サバイ
 | レンダリング | URP (2D Renderer) |
 | UI | UI Toolkit |
 | データ形式 | JSON |
-| プラットフォーム | Windows |
+| プラットフォーム | Windows / macOS / Linux |
 
 ## セットアップ
 
@@ -29,6 +29,28 @@ Survivors Makerは、Vampire Survivorsライクなローグライト・サバイ
 2. このリポジトリをクローン
 3. Unity Hub で `Add project from disk` → クローンしたフォルダを指定
 4. URP 2D テンプレートの設定が自動適用されます
+
+## ビルド手順
+
+### ローカルビルド（Unity Editor）
+
+1. Unityでプロジェクトを開く
+2. メニューから以下を選択してビルドする
+   - `Build/Build Windows`
+   - `Build/Build macOS`
+   - `Build/Build Linux`
+3. ビルド成果物は `Builds/` 配下に出力されます
+
+`Assets/Scripts/Build/BuildScript.cs` で、ビルド前に `Assets/StreamingAssets/ProjectData` のデフォルトデータ一式（`player.json` / `map.json` / `enemies.json` / `weapons.json` / `waves.json`）の存在確認を行います。
+
+### CI/CDビルド（GitHub Actions）
+
+- `.github/workflows/build.yml` により `main` ブランチへの `push` / `pull_request` をトリガーに自動ビルドを実行
+- 対象プラットフォーム
+  - `StandaloneWindows64`
+  - `StandaloneOSX`
+  - `StandaloneLinux64`
+- ビルド成果物は `Builds/<targetPlatform>` に出力され、Actionsのartifactとしてアップロードされます
 
 ## ライセンス
 
