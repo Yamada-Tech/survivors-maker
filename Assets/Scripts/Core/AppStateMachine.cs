@@ -56,13 +56,12 @@ public class AppStateMachine : MonoBehaviour
             var playObjects = GameObject.FindGameObjectsWithTag("PlayObject");
             foreach (var playObject in playObjects)
             {
-                if (playObject != null)
-                    Destroy(playObject);
+                Destroy(playObject);
             }
         }
-        catch (UnityException)
+        catch (UnityException ex)
         {
-            // Tag未定義時はスキップ
+            Debug.LogWarning($"[AppStateMachine] Cleanup skipped: {ex.Message}");
         }
     }
 }
