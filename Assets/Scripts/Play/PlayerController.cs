@@ -7,11 +7,12 @@ public class PlayerController : MonoBehaviour
     [Header("データ")]
     [SerializeField] private PlayerData _data;
 
-    [Header("ランタイム")]
-    public int CurrentHp;
-    public int Level = 1;
-    public int Exp = 0;
-    public int ExpToNext = 100;
+    [field: Header("ランタイム")]
+    [field: SerializeField] public int CurrentHp { get; private set; }
+    [field: SerializeField] public int Level { get; private set; } = 1;
+    [field: SerializeField] public int Exp { get; private set; } = 0;
+    [field: SerializeField] public int ExpToNext { get; private set; } = 100;
+    public int MaxHp => _data != null ? _data.MaxHp : 0;
 
     private Rigidbody2D _rb;
     private Vector2 _moveInput;
