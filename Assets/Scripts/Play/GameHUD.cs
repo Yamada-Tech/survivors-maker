@@ -18,7 +18,21 @@ public class GameHUD : MonoBehaviour
 
     private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
+        var doc = GetComponent<UIDocument>();
+        if (doc == null)
+        {
+            Debug.LogWarning("[GameHUD] UIDocument not found – HUD display disabled.");
+            if (_player == null)
+                _player = FindFirstObjectByType<PlayerController>();
+            _stateMachine = AppStateMachine.Instance;
+            if (_player != null)
+                _displayLevel = _player.Level;
+            EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
+            EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
+            EventBus.Subscribe<GameOverEvent>(OnGameOver);
+            return;
+        }
+        var root = doc.rootVisualElement;
         _hpLabel = root.Q<Label>("HpLabel");
         _levelLabel = root.Q<Label>("LevelLabel");
         _timerLabel = root.Q<Label>("TimerLabel");
