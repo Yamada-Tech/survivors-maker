@@ -456,10 +456,7 @@ public class MapEditor : MonoBehaviour
             if (layer.Tiles != null)
             {
                 var copyLength = Mathf.Min(layer.Tiles.Length, newTiles.Length);
-                for (var i = 0; i < copyLength; i++)
-                {
-                    newTiles[i] = layer.Tiles[i];
-                }
+                System.Array.Copy(layer.Tiles, newTiles, copyLength);
             }
 
             layer.Tiles = newTiles;
