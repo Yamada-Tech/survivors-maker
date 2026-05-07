@@ -6,6 +6,9 @@ using UnityEngine.UIElements;
 public class WaveEditor : MonoBehaviour
 {
     private const string WaveFileName = "waves.json";
+    private const string DefaultEnemyId = "Enemy_001";
+    private const int DefaultSpawnCount = 5;
+    private const float DefaultSpawnInterval = 0.5f;
 
     private WaveListData _waveList = new();
 
@@ -70,6 +73,12 @@ public class WaveEditor : MonoBehaviour
             _waveListView.bindItem = (e, i) =>
             {
                 var wave = _waveList.Waves[i];
+                if (wave == null)
+                {
+                    (e as Label).text = "-";
+                    return;
+                }
+
                 (e as Label).text = $"Wave {wave.WaveNumber} - {wave.StartTimeSec:0.##}s";
             };
             _waveListView.selectionType = SelectionType.Single;
@@ -192,7 +201,12 @@ public class WaveEditor : MonoBehaviour
             StartTimeSec = _waveList.Waves.Count * 30f,
             SpawnGroups = new List<SpawnGroup>
             {
-                new SpawnGroup { EnemyId = "Enemy_001", Count = 5, SpawnInterval = 0.5f }
+                new SpawnGroup
+                {
+                    EnemyId = DefaultEnemyId,
+                    Count = DefaultSpawnCount,
+                    SpawnInterval = DefaultSpawnInterval
+                }
             }
         });
 
@@ -229,9 +243,9 @@ public class WaveEditor : MonoBehaviour
         wave.SpawnGroups ??= new List<SpawnGroup>();
         wave.SpawnGroups.Add(new SpawnGroup
         {
-            EnemyId = "Enemy_001",
-            Count = 5,
-            SpawnInterval = 0.5f,
+            EnemyId = DefaultEnemyId,
+            Count = DefaultSpawnCount,
+            SpawnInterval = DefaultSpawnInterval,
             Position = SpawnPosition.RandomEdge
         });
 
