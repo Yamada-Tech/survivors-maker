@@ -44,3 +44,18 @@ public struct DataSavedEvent
 {
     public string FileName;
 }
+
+// エディタ全体保存要求
+public struct SaveAllRequestedEvent
+{
+}
+
+// プレイモード開始
+public struct PlayModeStartedEvent
+{
+}
+
+// エディタモード復帰
+public struct EditorModeRestoredEvent
+{
+}

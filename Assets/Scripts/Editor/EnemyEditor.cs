@@ -45,6 +45,12 @@ public class EnemyEditor : MonoBehaviour
         EnsureEnemyList();
         BuildUI();
         RefreshList();
+        EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
     }
 
     private void BuildUI()
@@ -282,6 +288,11 @@ public class EnemyEditor : MonoBehaviour
         }
 
         DataManager.Instance.Save(_enemyList, EnemyFileName);
+    }
+
+    private void OnSaveAllRequested(SaveAllRequestedEvent _)
+    {
+        Save();
     }
 
     private void EnsureEnemyList()
