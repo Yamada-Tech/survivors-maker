@@ -313,7 +313,7 @@ public class AssetManager : MonoBehaviour
             if (kind == AssetKind.Unknown) continue;
 
             var guidCandidate = Path.GetFileNameWithoutExtension(fileName);
-            if (guidCandidate.Length != 32 || !guidCandidate.All(Uri.IsHexDigit))
+            if (guidCandidate.Length != 32 || !guidCandidate.All(IsHexDigit))
                 guidCandidate = System.Guid.NewGuid().ToString("N");
 
             _manifest.Assets.Add(new AssetRecord
@@ -446,6 +446,13 @@ public class AssetManager : MonoBehaviour
             AssetKind.Font => normalized == ".ttf" || normalized == ".otf",
             _ => false
         };
+    }
+
+    private static bool IsHexDigit(char c)
+    {
+        return (c >= '0' && c <= '9')
+               || (c >= 'a' && c <= 'f')
+               || (c >= 'A' && c <= 'F');
     }
 
     private static AudioType GetAudioTypeFromExtension(string extension)
