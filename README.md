@@ -46,7 +46,7 @@ Survivors Makerは、Vampire Survivorsライクなローグライト・サバイ
 ### CI/CDビルド（GitHub Actions）
 
 - `.github/workflows/build.yml` により `main` ブランチへの `push` / `pull_request` をトリガーに自動ビルドを実行
-- リポジトリの `Settings > Secrets and variables > GitHub Actions` に以下を登録
+- リポジトリの `Settings > Secrets and Variables > GitHub Actions` に以下を登録
   - `UNITY_LICENSE`
   - `UNITY_EMAIL`
   - `UNITY_PASSWORD`
