@@ -7,6 +7,7 @@ public class GameHUD : MonoBehaviour
     private Label _levelLabel;
     private Label _timerLabel;
     private Label _killLabel;
+    private Label _gameOverLabel;
     private ProgressBar _hpBar;
 
     [SerializeField] private PlayerController _player;
@@ -23,6 +24,13 @@ public class GameHUD : MonoBehaviour
         _timerLabel = root.Q<Label>("TimerLabel");
         _killLabel = root.Q<Label>("KillLabel");
         _hpBar = root.Q<ProgressBar>("HpBar");
+        _gameOverLabel = root.Q<Label>("GameOverLabel");
+        if (_gameOverLabel == null)
+        {
+            _gameOverLabel = new Label { name = "GameOverLabel" };
+            root.Add(_gameOverLabel);
+        }
+        _gameOverLabel.style.display = DisplayStyle.None;
 
         if (_player == null)
             _player = FindFirstObjectByType<PlayerController>();
@@ -32,12 +40,14 @@ public class GameHUD : MonoBehaviour
 
         EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
+        EventBus.Subscribe<GameOverEvent>(OnGameOver);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Unsubscribe<LevelUpEvent>(OnLevelUp);
+        EventBus.Unsubscribe<GameOverEvent>(OnGameOver);
     }
 
     private void Update()
@@ -63,6 +73,18 @@ public class GameHUD : MonoBehaviour
     private void OnLevelUp(LevelUpEvent evt)
     {
         _displayLevel = evt.NewLevel;
+    }
+
+    private void OnGameOver(GameOverEvent evt)
+    {
+        if (_gameOverLabel == null) return;
+
+        var survived = Mathf.FloorToInt(_elapsed);
+        var kills = _killCount;
+        var level = evt.ReachedLevel > 0 ? evt.ReachedLevel : _displayLevel;
+
+        _gameOverLabel.text = $"GAME OVER\nTime: {survived / 60:00}:{survived % 60:00}\nKills: {kills}\nLv: {level}";
+        _gameOverLabel.style.display = DisplayStyle.Flex;
     }
 
     private static string FormatTime(float t)

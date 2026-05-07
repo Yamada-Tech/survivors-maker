@@ -8,6 +8,11 @@ public class WeaponSystem : MonoBehaviour
 
     private readonly List<WeaponRuntime> _equipped = new();
 
+    private void Awake()
+    {
+        gameObject.tag = "PlayObject";
+    }
+
     public void EquipWeapon(WeaponData data)
     {
         _equipped.Add(new WeaponRuntime { Data = data, CooldownTimer = 0f });

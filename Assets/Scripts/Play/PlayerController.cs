@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        gameObject.tag = "PlayObject";
         _rb = GetComponent<Rigidbody2D>();
         CurrentHp = _data.MaxHp;
     }
@@ -62,8 +63,11 @@ public class PlayerController : MonoBehaviour
         CurrentHp = Mathf.Max(0, CurrentHp - amount);
         if (CurrentHp <= 0)
         {
-            // TODO: ゲームオーバー処理
-            Debug.Log("[Player] Dead");
+            EventBus.Publish(new GameOverEvent
+            {
+                ReachedLevel = Level,
+            });
+            AppStateMachine.Instance?.ChangeState(AppState.Editor);
         }
     }
 
