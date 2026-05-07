@@ -12,9 +12,6 @@ public class MapEditor : MonoBehaviour
     private const float TileHueMultiplier = 0.11f;
     private static readonly Color CellBorderColor = new(0.2f, 0.2f, 0.2f);
 
-    [SerializeField] private int _mapWidth = DefaultMapSize;
-    [SerializeField] private int _mapHeight = DefaultMapSize;
-
     private MapData _mapData;
     private int _selectedTileId = 1;
     private int _activeLayerIndex;
@@ -215,8 +212,8 @@ public class MapEditor : MonoBehaviour
 
         _gridRoot ??= new VisualElement { name = "MapGrid" };
         _gridRoot.style.flexDirection = FlexDirection.Column;
-        _gridRoot.style.width = _mapWidth * TileSize;
-        _gridRoot.style.height = _mapHeight * TileSize;
+        _gridRoot.style.width = DefaultMapSize * TileSize;
+        _gridRoot.style.height = DefaultMapSize * TileSize;
         root.Add(_gridRoot);
     }
 
@@ -418,13 +415,10 @@ public class MapEditor : MonoBehaviour
 
     private MapData CreateDefaultMapData()
     {
-        _mapWidth = DefaultMapSize;
-        _mapHeight = DefaultMapSize;
-
         return new MapData
         {
-            Width = _mapWidth,
-            Height = _mapHeight,
+            Width = DefaultMapSize,
+            Height = DefaultMapSize,
             TileSize = TileSize,
             Layers = new List<TileLayer>()
         };
@@ -434,11 +428,8 @@ public class MapEditor : MonoBehaviour
     {
         data ??= CreateDefaultMapData();
 
-        _mapWidth = DefaultMapSize;
-        _mapHeight = DefaultMapSize;
-
-        data.Width = _mapWidth;
-        data.Height = _mapHeight;
+        data.Width = DefaultMapSize;
+        data.Height = DefaultMapSize;
         data.TileSize = TileSize;
         data.Layers ??= new List<TileLayer>();
 
@@ -499,8 +490,6 @@ public class MapCommand : IMapCommand
     private readonly int _oldTile;
     private readonly int _newTile;
     private readonly TileLayer _layer;
-
-    public int Index => _index;
 
     public MapCommand(int index, int oldTile, int newTile, TileLayer layer)
     {
