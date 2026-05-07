@@ -42,8 +42,8 @@ public class AppStateMachine : MonoBehaviour
                 Time.timeScale = 0f;
                 break;
             case AppState.Editor:
-                DestroyPlayTaggedObjects();
                 EventBus.Publish(new EditorModeRestoredEvent());
+                DestroyPlayTaggedObjects();
                 Time.timeScale = 1f;
                 break;
         }
@@ -61,7 +61,7 @@ public class AppStateMachine : MonoBehaviour
         }
         catch (UnityException ex)
         {
-            Debug.LogWarning($"[AppStateMachine] Cleanup skipped because PlayObject tag is unavailable: {ex.Message}");
+            Debug.LogWarning($"[AppStateMachine] Cleanup skipped because PlayObject tag is not defined in Tag Manager: {ex.Message}");
         }
     }
 }
