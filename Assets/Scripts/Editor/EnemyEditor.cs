@@ -93,9 +93,12 @@ public class EnemyEditor : MonoBehaviour
 
         RegisterCallbacks();
 
-        root.Q<Button>("AddBtn")?.clicked += AddEnemy;
-        root.Q<Button>("DeleteBtn")?.clicked += DeleteEnemy;
-        root.Q<Button>("SaveBtn")?.clicked += Save;
+        var addBtn = root.Q<Button>("AddBtn");
+        if (addBtn != null) addBtn.clicked += AddEnemy;
+        var deleteBtn = root.Q<Button>("DeleteBtn");
+        if (deleteBtn != null) deleteBtn.clicked += DeleteEnemy;
+        var saveBtn = root.Q<Button>("SaveBtn");
+        if (saveBtn != null) saveBtn.clicked += Save;
 
         _isUiBuilt = true;
     }

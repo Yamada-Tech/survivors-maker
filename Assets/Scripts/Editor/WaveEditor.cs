@@ -186,15 +186,23 @@ public class WaveEditor : MonoBehaviour
             });
         }
 
-        root.Q<Button>("AddWaveBtn")?.clicked += AddWave;
-        root.Q<Button>("DeleteWaveBtn")?.clicked += DeleteWave;
-        root.Q<Button>("AddSpawnGroupBtn")?.clicked += AddSpawnGroup;
-        root.Q<Button>("DeleteSpawnGroupBtn")?.clicked += DeleteSpawnGroup;
-        root.Q<Button>("SaveBtn")?.clicked += Save;
-        root.Q<Button>("UndoBtn")?.clicked += Undo;
-        root.Q<Button>("RedoBtn")?.clicked += Redo;
+        var addWaveBtn = root.Q<Button>("AddWaveBtn");
+        if (addWaveBtn != null) addWaveBtn.clicked += AddWave;
+        var deleteWaveBtn = root.Q<Button>("DeleteWaveBtn");
+        if (deleteWaveBtn != null) deleteWaveBtn.clicked += DeleteWave;
+        var addSpawnGroupBtn = root.Q<Button>("AddSpawnGroupBtn");
+        if (addSpawnGroupBtn != null) addSpawnGroupBtn.clicked += AddSpawnGroup;
+        var deleteSpawnGroupBtn = root.Q<Button>("DeleteSpawnGroupBtn");
+        if (deleteSpawnGroupBtn != null) deleteSpawnGroupBtn.clicked += DeleteSpawnGroup;
+        var saveBtn = root.Q<Button>("SaveBtn");
+        if (saveBtn != null) saveBtn.clicked += Save;
+        var undoBtn = root.Q<Button>("UndoBtn");
+        if (undoBtn != null) undoBtn.clicked += Undo;
+        var redoBtn = root.Q<Button>("RedoBtn");
+        if (redoBtn != null) redoBtn.clicked += Redo;
 
-        root.Q<Button>("ApplyJsonBtn")?.clicked += ApplyJson;
+        var applyJsonBtn = root.Q<Button>("ApplyJsonBtn");
+        if (applyJsonBtn != null) applyJsonBtn.clicked += ApplyJson;
         root.RegisterCallback<KeyDownEvent>(OnKeyDown);
 
         _isUiBuilt = true;

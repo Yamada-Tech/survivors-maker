@@ -417,7 +417,7 @@ public class AssetManager : MonoBehaviour
     {
         using var sha = SHA256.Create();
         using var stream = File.OpenRead(path);
-        return Convert.ToHexString(sha.ComputeHash(stream));
+        return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLower();
     }
 
     private static AssetKind DetectKind(string extension, string fileName = null)
@@ -507,7 +507,7 @@ public class AssetManagerPanel : MonoBehaviour
     {
         if (AssetManager.Instance != null) return;
 
-        var manager = FindFirstObjectByType<AssetManager>();
+        var manager = FindAnyObjectByType<AssetManager>();
         if (manager == null)
         {
             var go = new GameObject("AssetManager");
