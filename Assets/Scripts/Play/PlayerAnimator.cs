@@ -35,10 +35,10 @@ public class PlayerAnimator : MonoBehaviour
     [SerializeField] private Sprite[] _dieFrames;
 
     [Header("再生速度（秒/フレーム）")]
-    [SerializeField] private float _idleFps = 0.2f;
-    [SerializeField] private float _walkFps = 0.1f;
-    [SerializeField] private float _hitFps = 0.1f;
-    [SerializeField] private float _dieFps = 0.12f;
+    [SerializeField] private float _idleFrameDuration = 0.2f;
+    [SerializeField] private float _walkFrameDuration = 0.1f;
+    [SerializeField] private float _hitFrameDuration = 0.1f;
+    [SerializeField] private float _dieFrameDuration = 0.12f;
 
     private SpriteRenderer _sr;
     private AnimState _currentState = AnimState.Idle;
@@ -56,12 +56,12 @@ public class PlayerAnimator : MonoBehaviour
         Sprite[] frames = GetFrames(_currentState);
         if (frames == null || frames.Length == 0) return;
 
-        float fps = GetFps(_currentState);
+        float frameDuration = GetFrameDuration(_currentState);
         _frameTimer += Time.deltaTime;
 
-        if (_frameTimer >= fps)
+        if (_frameTimer >= frameDuration)
         {
-            _frameTimer -= fps;
+            _frameTimer -= frameDuration;
             _frameIndex++;
 
             if (_currentState == AnimState.Die)
@@ -138,12 +138,12 @@ public class PlayerAnimator : MonoBehaviour
         _ => _idleFrames
     };
 
-    private float GetFps(AnimState state) => state switch
+    private float GetFrameDuration(AnimState state) => state switch
     {
-        AnimState.Idle => _idleFps,
-        AnimState.Walk => _walkFps,
-        AnimState.Hit => _hitFps,
-        AnimState.Die => _dieFps,
-        _ => _idleFps
+        AnimState.Idle => _idleFrameDuration,
+        AnimState.Walk => _walkFrameDuration,
+        AnimState.Hit => _hitFrameDuration,
+        AnimState.Die => _dieFrameDuration,
+        _ => _idleFrameDuration
     };
 }
