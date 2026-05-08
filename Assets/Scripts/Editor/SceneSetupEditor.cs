@@ -29,6 +29,7 @@ public static class SceneSetupEditor
         DestroyIfExists("Player");
         DestroyIfExists("WaveSpawner");
         DestroyIfExists("WeaponSystem");
+        DestroyIfExists("PassiveSystem");
         DestroyIfExists("ExpDropper");
         DestroyIfExists("GameHUD");
         DestroyIfExists("LevelUpUI");
@@ -101,6 +102,9 @@ public static class SceneSetupEditor
         weaponSO.FindProperty("_player").objectReferenceValue = playerGo.transform;
         weaponSO.FindProperty("_projectilePrefab").objectReferenceValue = projectilePrefab;
         weaponSO.ApplyModifiedProperties();
+
+        var passiveGo = new GameObject("PassiveSystem");
+        passiveGo.AddComponent<PassiveSystem>();
 
         // WaveSpawner
         var spawnerGo = new GameObject("WaveSpawner");
