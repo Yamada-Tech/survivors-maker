@@ -114,9 +114,11 @@ public class GameHUD : MonoBehaviour
         float displayTime = _countDown ? Mathf.Max(0f, _timeLimitSec - _elapsed) : _elapsed;
         int min = Mathf.FloorToInt(displayTime / 60f);
         int sec = Mathf.FloorToInt(displayTime % 60f);
+        const float hudHeightDefault = 110f;
+        const float hudHeightWithExp = 145f;
 
         // 背景（半透明黒）
-        float hudHeight = (_showExpBar || _showExpNumbers) ? 145f : 110f;
+        float hudHeight = (_showExpBar || _showExpNumbers) ? hudHeightWithExp : hudHeightDefault;
         GUI.color = new Color(0, 0, 0, 0.45f);
         GUI.DrawTexture(new Rect(8, 8, 260, hudHeight), Texture2D.whiteTexture);
         GUI.color = Color.white;

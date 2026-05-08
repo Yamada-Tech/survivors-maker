@@ -68,20 +68,26 @@ public class GameManager : MonoBehaviour
 
     private WaveListData CreateDefaultWaveData()
     {
+        const int loopWaveCount = 60;
+        const float loopWaveIntervalSec = 30f;
+        const float scaleIntervalSec = 600f;
+        const float maxDifficultyScale = 3f;
+        const float lateGameThresholdSec = 300f;
+
         var waveList = new WaveListData();
         var waves = new System.Collections.Generic.List<WaveEntry>();
 
         // --- 基本ループウェーブ (0秒〜最大1800秒、30秒ごと) ---
-        for (int i = 0; i < 60; i++)
+        for (int i = 0; i < loopWaveCount; i++)
         {
-            float t = i * 30f;
-            float scale = 1f + (t / 600f);
-            scale = Mathf.Clamp(scale, 1f, 3f);
+            float t = i * loopWaveIntervalSec;
+            float scale = 1f + (t / scaleIntervalSec);
+            scale = Mathf.Clamp(scale, 1f, maxDifficultyScale);
 
             int meleeCount = Mathf.RoundToInt(6 * scale);
             float meleeInterval = Mathf.Max(0.2f, 0.8f / scale);
 
-            if (_timeLimitSec - t <= 300f)
+            if (_timeLimitSec - t <= lateGameThresholdSec)
                 meleeCount *= 2;
 
             var groups = new System.Collections.Generic.List<SpawnGroup>
@@ -99,7 +105,7 @@ public class GameManager : MonoBehaviour
             if (t >= 60f)
             {
                 int rangedCount = Mathf.RoundToInt(2 * scale);
-                if (_timeLimitSec - t <= 300f)
+                if (_timeLimitSec - t <= lateGameThresholdSec)
                     rangedCount *= 2;
 
                 groups.Add(new SpawnGroup
