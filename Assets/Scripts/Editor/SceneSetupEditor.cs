@@ -29,6 +29,8 @@ public static class SceneSetupEditor
         DestroyIfExists("GameHUD");
         DestroyIfExists("LevelUpUI");
         DestroyIfExists("Main Camera");
+        DestroyIfExists("MapGenerator");
+        DestroyIfExists("DamageNumberSpawner");
 
         // プレハブ保存先フォルダを確保
         if (!AssetDatabase.IsValidFolder(PrefabsFolder))
@@ -44,6 +46,15 @@ public static class SceneSetupEditor
         var expGemPrefab         = SavePrefabAsset(BuildExpGemGO(defaultSprite),         "ExpGemPrefab");
 
         // ---- シーン構築 ----
+
+        // MapGenerator
+        var mapGo = new GameObject("MapGenerator");
+        var mapGen = mapGo.AddComponent<MapGenerator>();
+        mapGen.Generate();
+
+        // DamageNumberSpawner
+        var dnsGo = new GameObject("DamageNumberSpawner");
+        dnsGo.AddComponent<DamageNumberSpawner>();
 
         // カメラ
         var camGo = new GameObject("Main Camera");
