@@ -65,6 +65,13 @@ public class MapGenerator : MonoBehaviour
                     // MapObjectコンポーネントを追加（プレイヤーは壁で止まる、敵は通過）
                     var mapObj = go.AddComponent<MapObject>();
                     mapObj.SetCollisionConfig(blockPlayer: true, blockEnemy: false);
+
+                    // Wall レイヤーを設定（Enemy・Projectileとの衝突をLayerで制御）
+                    int wallLayer = LayerMask.NameToLayer("Wall");
+                    if (wallLayer >= 0)
+                        go.layer = wallLayer;
+                    else
+                        go.layer = 11; // フォールバック
                 }
                 else
                 {

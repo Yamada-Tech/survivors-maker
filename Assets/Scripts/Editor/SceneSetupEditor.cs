@@ -47,13 +47,21 @@ public static class SceneSetupEditor
 
         // ---- シーン構築 ----
 
-        // レイヤー設定（Player=8, Enemy=9）
+        // レイヤー設定（Player=8, Enemy=9, Projectile=10, Wall=11）
         EnsureLayers();
 
-        // Physics2D: 敵レイヤーと壁レイヤー（Default）の衝突を無効化
-        Physics2D.IgnoreLayerCollision(9, LayerMask.NameToLayer("Default"), true);
-        // 敵同士の衝突も無効化（パフォーマンス向上）
-        Physics2D.IgnoreLayerCollision(9, 9, true);
+        int wallLayer = 11;       // Wall
+        int enemyLayer = 9;       // Enemy
+        int projectileLayer = 10; // Projectile
+
+        // 敵↔壁 のみ無効化（矢は当たる）
+        Physics2D.IgnoreLayerCollision(enemyLayer, wallLayer, true);
+        // 敵同士の衝突を無効化（パフォーマンス向上）
+        Physics2D.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
+        // 矢↔壁 も無効化（矢が壁を貫通）
+        Physics2D.IgnoreLayerCollision(projectileLayer, wallLayer, true);
+        // 矢↔プレイヤー の衝突を無効化（自分の矢で自分がダメージを受けない）
+        Physics2D.IgnoreLayerCollision(projectileLayer, 8, true);
 
         // MapGenerator
         var mapGo = new GameObject("MapGenerator");
@@ -164,6 +172,8 @@ public static class SceneSetupEditor
 
         EnsureLayer(layersProp, 8, "Player");
         EnsureLayer(layersProp, 9, "Enemy");
+        EnsureLayer(layersProp, 10, "Projectile");
+        EnsureLayer(layersProp, 11, "Wall");
 
         tagManager.ApplyModifiedProperties();
     }
@@ -254,6 +264,7 @@ public static class SceneSetupEditor
         col.isTrigger = true;
 
         go.AddComponent<Projectile>();
+        go.layer = 10; // Projectile layer
         return go;
     }
 
