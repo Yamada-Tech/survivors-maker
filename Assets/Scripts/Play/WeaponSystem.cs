@@ -7,11 +7,27 @@ public class WeaponSystem : MonoBehaviour
     [SerializeField] private GameObject _projectilePrefab;
 
     private readonly List<WeaponRuntime> _equipped = new();
+    private bool _frozen;
 
     private void Awake()
     {
         gameObject.tag = "PlayObject";
     }
+
+    private void OnEnable()
+    {
+        EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
+        EventBus.Subscribe<TimeLimitReachedEvent>(OnGameEnded);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
+        EventBus.Unsubscribe<TimeLimitReachedEvent>(OnGameEnded);
+    }
+
+    private void OnPlayerDied(PlayerDiedEvent _) => _frozen = true;
+    private void OnGameEnded(TimeLimitReachedEvent _) => _frozen = true;
 
     public void EquipWeapon(WeaponData data)
     {
@@ -21,6 +37,8 @@ public class WeaponSystem : MonoBehaviour
 
     private void Update()
     {
+        if (_frozen) return;
+
         for (int i = 0; i < _equipped.Count; i++)
         {
             var w = _equipped[i];
@@ -59,7 +77,6 @@ public class WeaponSystem : MonoBehaviour
 
     private void MeleeAttack(WeaponData data, Vector2 dir)
     {
-        // 近接: Range内の敵全員にダメージ
         var hits = Physics2D.CircleCastAll(
             _player.position, data.Range, dir, 0f);
 
@@ -86,7 +103,6 @@ public class WeaponSystem : MonoBehaviour
 
     private void AreaAttack(WeaponData data)
     {
-        // 範囲: プレイヤー周囲のRange内の全敵にダメージ
         var hits = Physics2D.OverlapCircleAll(_player.position, data.Range);
         foreach (var col in hits)
         {
