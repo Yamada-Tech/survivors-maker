@@ -54,7 +54,7 @@ public static class SceneSetupEditor
         // レイヤー設定（Player=8, Enemy=9, Projectile=10, Wall=11）
         EnsureLayers();
 
-        // 敵↔壁 のみ無効化（矢は当たる）
+        // 敵↔壁 のみ無効化（矢は敵に当たる）
         Physics2D.IgnoreLayerCollision(EnemyLayer, WallLayer, true);
         // 敵同士の衝突を無効化（パフォーマンス向上）
         Physics2D.IgnoreLayerCollision(EnemyLayer, EnemyLayer, true);
