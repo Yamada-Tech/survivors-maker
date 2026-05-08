@@ -32,6 +32,7 @@ public class LevelUpUI : MonoBehaviour
         EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Subscribe<GameOverEvent>(OnGameEnded);
         EventBus.Subscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
+        EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
     }
 
     private void OnDisable()
@@ -39,6 +40,7 @@ public class LevelUpUI : MonoBehaviour
         EventBus.Unsubscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Unsubscribe<GameOverEvent>(OnGameEnded);
         EventBus.Unsubscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
+        EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
     }
 
     private void Start()
@@ -76,6 +78,11 @@ public class LevelUpUI : MonoBehaviour
     }
 
     private void OnTimeLimitReached(TimeLimitReachedEvent evt)
+    {
+        HandleGameEnded();
+    }
+
+    private void OnPlayerDied(PlayerDiedEvent evt)
     {
         HandleGameEnded();
     }

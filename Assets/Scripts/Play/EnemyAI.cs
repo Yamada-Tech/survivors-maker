@@ -9,10 +9,22 @@ public class EnemyAI : MonoBehaviour
     private Transform _player;
     private GameObject _projectilePrefab;
     private Rigidbody2D _rb;
+    private bool _frozen;
 
     private void Awake()
     {
         gameObject.tag = "PlayObject";
+        _rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void OnEnable()
+    {
+        EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
     }
 
     public void Initialize(EnemyData data, Transform player, GameObject projectilePrefab = null)
@@ -22,12 +34,12 @@ public class EnemyAI : MonoBehaviour
         _shootTimer = 0f;
         _player = player;
         _projectilePrefab = projectilePrefab;
-        _rb = GetComponent<Rigidbody2D>();
+        _frozen = false;
     }
 
     private void FixedUpdate()
     {
-        if (_data == null || _player == null) return;
+        if (_frozen || _data == null || _player == null) return;
 
         switch (_data.Type)
         {
@@ -87,6 +99,13 @@ public class EnemyAI : MonoBehaviour
         var proj = go.GetComponent<EnemyProjectile>();
         if (proj != null)
             proj.Initialize(_data.ProjectileDamage, dir, _data.ProjectileSpeed, _data.AttackRange);
+    }
+
+    private void OnPlayerDied(PlayerDiedEvent _)
+    {
+        _frozen = true;
+        if (_rb != null)
+            _rb.linearVelocity = Vector2.zero;
     }
 
     public void TakeDamage(int damage, Vector2 knockbackDir)

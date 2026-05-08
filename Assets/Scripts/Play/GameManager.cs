@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float _timeLimitSec = 1800f;
     [SerializeField] private bool _countDown = true;
     [SerializeField] private GameHUD _gameHUD;
+    [Header("死亡演出設定")]
+    [SerializeField] private float _deathDelaySec = 0.8f;
 
     private bool _gameStarted;
 
@@ -25,6 +28,7 @@ public class GameManager : MonoBehaviour
     {
         EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
         EventBus.Subscribe<RestartRequestedEvent>(OnRestartRequested);
+        EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
         // Playモードで直接Playした場合は即ゲーム開始
         Invoke(nameof(StartGame), 0.1f);
     }
@@ -33,6 +37,7 @@ public class GameManager : MonoBehaviour
     {
         EventBus.Unsubscribe<AppStateChangedEvent>(OnStateChanged);
         EventBus.Unsubscribe<RestartRequestedEvent>(OnRestartRequested);
+        EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
     }
 
     private void OnStateChanged(AppStateChangedEvent evt)
@@ -73,6 +78,25 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private void OnPlayerDied(PlayerDiedEvent evt)
+    {
+        StartCoroutine(DeathSequence(evt.ReachedLevel));
+    }
+
+    private IEnumerator DeathSequence(int reachedLevel)
+    {
+        yield return new WaitForSeconds(_deathDelaySec);
+
+        EventBus.Publish(new GameOverEvent
+        {
+            SurvivedTimeSec = Mathf.FloorToInt(_waveSpawner != null ? _waveSpawner.ElapsedTime : 0f),
+            KillCount = 0,
+            ReachedLevel = reachedLevel,
+        });
+
+        AppStateMachine.Instance?.ChangeState(AppState.Editor);
     }
 
     private WaveListData CreateDefaultWaveData()
