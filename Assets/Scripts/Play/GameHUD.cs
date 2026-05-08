@@ -11,6 +11,7 @@ public class GameHUD : MonoBehaviour
     private int _displayLevel = 1;
     private bool _gameOver;
     private bool _clearMode;
+    private bool _timeLimitReached;
     private string _gameOverText;
 
     private GUIStyle _labelStyle;
@@ -45,8 +46,9 @@ public class GameHUD : MonoBehaviour
 
         _elapsed += Time.deltaTime;
 
-        if (_countDown && _elapsed >= _timeLimitSec)
+        if (_countDown && !_timeLimitReached && _elapsed >= _timeLimitSec)
         {
+            _timeLimitReached = true;
             _elapsed = _timeLimitSec;
             EventBus.Publish(new TimeLimitReachedEvent
             {
@@ -134,5 +136,6 @@ public class GameHUD : MonoBehaviour
     {
         _timeLimitSec = timeLimitSec;
         _countDown = countDown;
+        _timeLimitReached = false;
     }
 }
