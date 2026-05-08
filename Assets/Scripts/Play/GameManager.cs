@@ -68,16 +68,16 @@ public class GameManager : MonoBehaviour
 
     private WaveListData CreateDefaultWaveData()
     {
-        const int loopWaveCount = 60;
-        const float loopWaveIntervalSec = 30f;
-        const float scaleIntervalSec = 600f;
-        const float maxDifficultyScale = 3f;
-        const float lateGameThresholdSec = 300f;
+        const float loopWaveIntervalSec = 30f;  // 30秒ごと
+        const float scaleIntervalSec = 600f;    // 10分で2倍
+        const float maxDifficultyScale = 3f;    // 最大3倍
+        const float lateGameThresholdSec = 300f; // 残り5分
 
         var waveList = new WaveListData();
         var waves = new System.Collections.Generic.List<WaveEntry>();
+        int loopWaveCount = Mathf.Max(1, Mathf.CeilToInt(_timeLimitSec / loopWaveIntervalSec));
 
-        // --- 基本ループウェーブ (0秒〜最大1800秒、30秒ごと) ---
+        // --- 基本ループウェーブ (0秒〜ゲーム制限時間まで、30秒ごと) ---
         for (int i = 0; i < loopWaveCount; i++)
         {
             float t = i * loopWaveIntervalSec;

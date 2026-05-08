@@ -115,10 +115,20 @@ public class GameHUD : MonoBehaviour
         int min = Mathf.FloorToInt(displayTime / 60f);
         int sec = Mathf.FloorToInt(displayTime % 60f);
         const float hudHeightDefault = 110f;
-        const float hudHeightWithExp = 145f;
+        const float hudHeightWithExpMin = 145f;
+        float hudHeight = hudHeightDefault;
+
+        if (_showExpBar || _showExpNumbers)
+        {
+            float expBottom = 0f;
+            if (_showExpNumbers)
+                expBottom = Mathf.Max(expBottom, 96f + Mathf.Max(24f, _expFontSize + 4f));
+            if (_showExpBar)
+                expBottom = Mathf.Max(expBottom, 122f + _expBarSize.y);
+            hudHeight = Mathf.Max(hudHeightWithExpMin, expBottom + 9f);
+        }
 
         // 背景（半透明黒）
-        float hudHeight = (_showExpBar || _showExpNumbers) ? hudHeightWithExp : hudHeightDefault;
         GUI.color = new Color(0, 0, 0, 0.45f);
         GUI.DrawTexture(new Rect(8, 8, 260, hudHeight), Texture2D.whiteTexture);
         GUI.color = Color.white;
