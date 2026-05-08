@@ -27,6 +27,7 @@ public static class SceneSetupEditor
         DestroyIfExists("WeaponSystem");
         DestroyIfExists("ExpDropper");
         DestroyIfExists("GameHUD");
+        DestroyIfExists("LevelUpUI");
         DestroyIfExists("Main Camera");
 
         // プレハブ保存先フォルダを確保
@@ -92,6 +93,7 @@ public static class SceneSetupEditor
 
         // GameHUD
         var hud = SetupHUD(playerCtrl);
+        SetupLevelUpUI(weaponSys);
 
         // GameManager
         var gmGo = new GameObject("GameManager");
@@ -257,6 +259,15 @@ public static class SceneSetupEditor
         hudSO.ApplyModifiedProperties();
         // UIDocumentは不要（OnGUIで描画するため）
         return hud;
+    }
+
+    private static void SetupLevelUpUI(WeaponSystem weaponSystem)
+    {
+        var levelUpGo = new GameObject("LevelUpUI");
+        var levelUpUI = levelUpGo.AddComponent<LevelUpUI>();
+        var levelUpSO = new SerializedObject(levelUpUI);
+        levelUpSO.FindProperty("_weaponSystem").objectReferenceValue = weaponSystem;
+        levelUpSO.ApplyModifiedProperties();
     }
 }
 #endif

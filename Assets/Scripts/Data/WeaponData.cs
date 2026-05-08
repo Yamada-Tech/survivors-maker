@@ -10,6 +10,7 @@ public class WeaponData
     public float Cooldown = 1.0f;       // 秒
     public float Range = 2f;            // タイル単位
     public float ProjectileSpeed = 8f;  // 投射時のみ
+    public string Description = "";
     public string SpriteId;             // 32×32
 }
 
