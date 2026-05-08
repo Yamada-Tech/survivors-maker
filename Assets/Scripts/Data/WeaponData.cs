@@ -11,6 +11,7 @@ public class WeaponData
     public float Range = 2f;            // タイル単位
     public float ProjectileSpeed = 8f;  // 投射時のみ
     public string SpriteId;             // 32×32
+    public string Description = "";
 }
 
 public enum WeaponType { Melee, Projectile, Area, Unique }

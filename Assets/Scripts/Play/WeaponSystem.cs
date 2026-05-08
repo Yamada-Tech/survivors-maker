@@ -15,8 +15,32 @@ public class WeaponSystem : MonoBehaviour
 
     public void EquipWeapon(WeaponData data)
     {
-        _equipped.Add(new WeaponRuntime { Data = data, CooldownTimer = 0f });
+        for (int i = 0; i < _equipped.Count; i++)
+        {
+            var weapon = _equipped[i];
+            if (weapon.Data.Id != data.Id)
+                continue;
+
+            weapon.Data = UpgradeWeaponData(weapon.Data);
+            weapon.Level++;
+            _equipped[i] = weapon;
+            EventBus.Publish(new WeaponEquippedEvent { WeaponId = data.Id });
+            return;
+        }
+
+        _equipped.Add(new WeaponRuntime { Data = CloneWeaponData(data), CooldownTimer = 0f, Level = 1 });
         EventBus.Publish(new WeaponEquippedEvent { WeaponId = data.Id });
+    }
+
+    public bool HasWeapon(string weaponId)
+    {
+        for (int i = 0; i < _equipped.Count; i++)
+        {
+            if (_equipped[i].Data.Id == weaponId)
+                return true;
+        }
+
+        return false;
     }
 
     private void Update()
@@ -120,5 +144,32 @@ public class WeaponSystem : MonoBehaviour
     {
         public WeaponData Data;
         public float CooldownTimer;
+        public int Level;
+    }
+
+    private static WeaponData CloneWeaponData(WeaponData data)
+    {
+        return new WeaponData
+        {
+            Id = data.Id,
+            Name = data.Name,
+            Type = data.Type,
+            Damage = data.Damage,
+            Cooldown = data.Cooldown,
+            Range = data.Range,
+            ProjectileSpeed = data.ProjectileSpeed,
+            SpriteId = data.SpriteId,
+            Description = data.Description
+        };
+    }
+
+    private static WeaponData UpgradeWeaponData(WeaponData data)
+    {
+        var upgraded = CloneWeaponData(data);
+        upgraded.Damage += Mathf.Max(1, Mathf.RoundToInt(upgraded.Damage * 0.25f));
+        upgraded.Cooldown = Mathf.Max(0.1f, upgraded.Cooldown * 0.9f);
+        upgraded.Range += 0.2f;
+        upgraded.ProjectileSpeed += 0.5f;
+        return upgraded;
     }
 }

@@ -86,6 +86,7 @@ public class GameHUD : MonoBehaviour
 
     private void OnGameOver(GameOverEvent evt)
     {
+        Time.timeScale = 1f;
         _gameOver = true;
         int survived = Mathf.FloorToInt(_elapsed);
         _gameOverText = $"GAME OVER\n\nTime: {survived / 60:00}:{survived % 60:00}   Kills: {_killCount}   Lv: {evt.ReachedLevel}";
