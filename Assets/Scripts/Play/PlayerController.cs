@@ -14,6 +14,9 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public int ExpToNext { get; private set; } = 100;
     public int MaxHp => _data != null ? _data.MaxHp : 0;
 
+    [Header("被弾エフェクト")]
+    [SerializeField] private GameObject _hitEffectPrefab; // nullの場合はデフォルトエフェクト
+
     private Rigidbody2D _rb;
     private Vector2 _moveInput;
     private bool _dead;
@@ -69,6 +72,12 @@ public class PlayerController : MonoBehaviour
     {
         if (_dead) return;
 
+        // ダメージ数字
+        DamageNumberSpawner.Instance?.SpawnPlayerDamage(amount, transform.position);
+
+        // 被弾エフェクト
+        SpawnHitEffect(transform.position);
+
         CurrentHp = Mathf.Max(0, CurrentHp - amount);
         if (CurrentHp <= 0)
         {
@@ -79,6 +88,43 @@ public class PlayerController : MonoBehaviour
                 ReachedLevel = Level,
             });
         }
+    }
+
+    private void SpawnHitEffect(Vector3 pos)
+    {
+        if (_hitEffectPrefab != null)
+        {
+            Instantiate(_hitEffectPrefab, pos, Quaternion.identity);
+            return;
+        }
+
+        // デフォルトエフェクト（赤いスプライト、コード生成）
+        var go = new GameObject("HitEffect_Default");
+        go.transform.position = pos;
+        go.transform.localScale = Vector3.one * 0.8f;
+
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = GetDefaultSprite();
+        sr.color  = new Color(1f, 0.1f, 0.1f, 0.85f);
+        sr.sortingOrder = 10;
+
+        go.AddComponent<HitEffect>();
+    }
+
+    private static Sprite _defaultSprite;
+
+    private static Sprite GetDefaultSprite()
+    {
+        if (_defaultSprite != null) return _defaultSprite;
+#if UNITY_EDITOR
+        _defaultSprite = UnityEditor.AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+#else
+        var tex = new Texture2D(1, 1);
+        tex.SetPixel(0, 0, Color.white);
+        tex.Apply();
+        _defaultSprite = Sprite.Create(tex, new Rect(0, 0, 1, 1), Vector2.one * 0.5f);
+#endif
+        return _defaultSprite;
     }
 
     public void GainExp(int amount)

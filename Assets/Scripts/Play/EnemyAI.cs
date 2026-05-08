@@ -113,6 +113,9 @@ public class EnemyAI : MonoBehaviour
     {
         _currentHp -= damage;
 
+        // ダメージ数字
+        DamageNumberSpawner.Instance?.SpawnEnemyDamage(damage, transform.position);
+
         // ノックバック
         _rb.AddForce(knockbackDir.normalized * 3f, ForceMode2D.Impulse);
 
