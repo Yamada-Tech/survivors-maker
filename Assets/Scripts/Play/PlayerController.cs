@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    private const float MoveInputThreshold = 0.01f;
+
     [Header("データ")]
     [SerializeField] private PlayerData _data;
 
@@ -25,11 +27,13 @@ public class PlayerController : MonoBehaviour
     private int _maxHpBonus;
     private float _moveSpeedMultiplier = 1f;
     private float _expMultiplier = 1f;
+    private PlayerAnimator _animator;
 
     private void Awake()
     {
         gameObject.tag = "PlayObject";
         _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<PlayerAnimator>();
         CurrentHp = _data.MaxHp;
     }
 
@@ -64,8 +68,16 @@ public class PlayerController : MonoBehaviour
             if (kb.aKey.isPressed) kbInput.x -= 1;
             if (kb.dKey.isPressed) kbInput.x += 1;
 
-            if (kbInput.sqrMagnitude > 0.01f)
+            if (kbInput.sqrMagnitude > MoveInputThreshold)
                 _moveInput = kbInput.normalized;
+        }
+
+        if (_animator != null && !_dead)
+        {
+            _animator.SetFacing(_moveInput);
+            _animator.SetState(_moveInput.sqrMagnitude > MoveInputThreshold
+                ? PlayerAnimator.AnimState.Walk
+                : PlayerAnimator.AnimState.Idle);
         }
     }
 
@@ -89,6 +101,8 @@ public class PlayerController : MonoBehaviour
         // ダメージ数字
         DamageNumberSpawner.Instance?.SpawnPlayerDamage(amount, transform.position);
 
+        _animator?.SetState(PlayerAnimator.AnimState.Hit);
+
         // 被弾エフェクト
         SpawnHitEffect(transform.position);
 
@@ -96,6 +110,7 @@ public class PlayerController : MonoBehaviour
         if (CurrentHp <= 0)
         {
             _dead = true;
+            _animator?.SetState(PlayerAnimator.AnimState.Die);
             _moveInput = Vector2.zero;
             EventBus.Publish(new PlayerDiedEvent
             {

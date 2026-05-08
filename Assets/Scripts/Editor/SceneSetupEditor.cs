@@ -206,6 +206,7 @@ public static class SceneSetupEditor
         var go = new GameObject("Player");
         var sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
+        // スプライトシートを使用する場合は Color.white に変更してください
         sr.color = Color.cyan;
 
         var rb = go.AddComponent<Rigidbody2D>();
@@ -216,6 +217,7 @@ public static class SceneSetupEditor
         col.radius = 0.4f;
 
         var ctrl = go.AddComponent<PlayerController>();
+        go.AddComponent<PlayerAnimator>();
         go.layer = PlayerLayer; // Player layer
         go.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
 
