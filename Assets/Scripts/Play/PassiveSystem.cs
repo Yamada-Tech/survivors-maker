@@ -14,6 +14,7 @@ public class PassiveSystem : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); return; }
         Instance = this;
+        _player = FindAnyObjectByType<PlayerController>();
     }
 
     private void OnDestroy()
@@ -21,13 +22,10 @@ public class PassiveSystem : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    private void Start()
-    {
-        _player = FindAnyObjectByType<PlayerController>();
-    }
-
     public void ApplyPassive(PassiveData data)
     {
+        if (_player == null)
+            _player = FindAnyObjectByType<PlayerController>();
         if (_player == null || data == null) return;
 
         switch (data.Type)

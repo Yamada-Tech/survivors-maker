@@ -158,8 +158,10 @@ public class PlayerController : MonoBehaviour
 
     public void AddMaxHp(int amount)
     {
+        if (amount <= 0) return;
+        int newMaxHp = MaxHp + amount;
         _maxHpBonus += amount;
-        CurrentHp = Mathf.Min(CurrentHp + amount, MaxHp);
+        CurrentHp = Mathf.Min(CurrentHp + amount, newMaxHp);
     }
 
     public void Heal(int amount)

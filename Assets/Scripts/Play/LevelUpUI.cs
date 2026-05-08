@@ -160,11 +160,11 @@ public class LevelUpUI : MonoBehaviour
 
     private List<object> PickRandomChoices(int count)
     {
-        var weaponPool = new List<object>(System.Array.ConvertAll(WeaponPool, weapon => (object)weapon));
-        var passivePool = new List<object>(System.Array.ConvertAll(PassivePool, passive => (object)passive));
-        var allPool = new List<object>();
-        allPool.AddRange(weaponPool);
-        allPool.AddRange(passivePool);
+        var allPool = new List<object>(WeaponPool.Length + PassivePool.Length);
+        foreach (var weapon in WeaponPool)
+            allPool.Add(weapon);
+        foreach (var passive in PassivePool)
+            allPool.Add(passive);
 
         var result = new List<object>();
         count = Mathf.Min(count, allPool.Count);

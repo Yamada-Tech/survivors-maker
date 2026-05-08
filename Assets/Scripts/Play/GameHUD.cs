@@ -205,8 +205,8 @@ public class GameHUD : MonoBehaviour
         GUI.color = Color.white;
 
         string title = _clearMode ? "🎉 STAGE CLEAR!" : "💀 GAME OVER";
-        var titleStyle = _clearMode ? _resultClearTitleStyle : _resultGameOverTitleStyle;
-        GUI.Label(new Rect(px, py + 16f, panelW, 50f), title, titleStyle);
+        _resultTitleStyle = _clearMode ? _resultClearTitleStyle : _resultGameOverTitleStyle;
+        GUI.Label(new Rect(px, py + 16f, panelW, 50f), title, _resultTitleStyle);
 
         GUI.color = new Color(1f, 1f, 1f, 0.2f);
         GUI.DrawTexture(new Rect(px + 20f, py + 70f, panelW - 40f, 2f), Texture2D.whiteTexture);
@@ -224,10 +224,12 @@ public class GameHUD : MonoBehaviour
         DrawStatRow(labelX, valueX, valueW, rowY, "⏱  生存時間", $"{min:00}:{sec:00}");
         DrawStatRow(labelX, valueX, valueW, rowY + rowH, "💀 キル数", $"{_finalKillCount}");
         DrawStatRow(labelX, valueX, valueW, rowY + rowH * 2f, "⭐ 到達レベル", $"Lv. {_finalLevel}");
+        DrawStatRow(labelX, valueX, valueW, rowY + rowH * 3f, "⚡ 最大ダメージ", $"{_maxDamageDealt}");
 
         GUI.color = new Color(1f, 1f, 1f, 0.2f);
-        GUI.DrawTexture(new Rect(px + 20f, py + 260f, panelW - 40f, 2f), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(px + 20f, py + 278f, panelW - 40f, 2f), Texture2D.whiteTexture);
         GUI.color = Color.white;
+        GUI.Label(new Rect(px, py + 282f, panelW, 24f), "RESULT", _resultSubStyle);
 
         InitRestartButtonStyle();
         const float btnW = 280f;
@@ -274,8 +276,13 @@ public class GameHUD : MonoBehaviour
             alignment = TextAnchor.MiddleRight,
             normal = { textColor = Color.white }
         };
-        _resultTitleStyle = _resultClearTitleStyle;
-        _resultSubStyle = _resultStatStyle;
+        _resultSubStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 14,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            normal = { textColor = new Color(0.7f, 0.7f, 0.8f, 0.9f) }
+        };
     }
 
     private void InitRestartButtonStyle()
