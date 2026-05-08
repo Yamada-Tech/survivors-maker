@@ -29,6 +29,7 @@ public class EnemyAI : MonoBehaviour
 
     public void Initialize(EnemyData data, Transform player, GameObject projectilePrefab = null)
     {
+        _rb ??= GetComponent<Rigidbody2D>();
         _data = data;
         _currentHp = data.Hp;
         _shootTimer = 0f;
