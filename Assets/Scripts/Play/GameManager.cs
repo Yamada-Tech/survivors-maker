@@ -68,41 +68,94 @@ public class GameManager : MonoBehaviour
 
     private WaveListData CreateDefaultWaveData()
     {
+        const float loopWaveIntervalSec = 30f;  // 30秒ごと
+        const float scaleIntervalSec = 600f;    // 10分で2倍
+        const float maxDifficultyScale = 3f;    // 最大3倍
+        const float lateGameThresholdSec = 300f; // 残り5分
+
         var waveList = new WaveListData();
+        var waves = new System.Collections.Generic.List<WaveEntry>();
+        int loopWaveCount = Mathf.Max(1, Mathf.CeilToInt(_timeLimitSec / loopWaveIntervalSec));
 
-        // Wave 1: 0秒から開始
-        var wave1 = new WaveEntry
+        void AddEliteWave(float startTimeSec, System.Collections.Generic.List<SpawnGroup> spawnGroups)
         {
-            StartTimeSec = 0f,
-            SpawnGroups = new System.Collections.Generic.List<SpawnGroup>
+            if (startTimeSec > _timeLimitSec) return;
+            waves.Add(new WaveEntry
             {
-                new SpawnGroup { EnemyId = "enemy_melee_01", Count = 5, SpawnInterval = 1f, Position = SpawnPosition.RandomEdge }
-            }
-        };
+                StartTimeSec = startTimeSec,
+                SpawnGroups = spawnGroups
+            });
+        }
 
-        // Wave 2: 20秒から
-        var wave2 = new WaveEntry
+        // --- 基本ループウェーブ (0秒〜ゲーム制限時間まで、30秒ごと) ---
+        for (int i = 0; i < loopWaveCount; i++)
         {
-            StartTimeSec = 20f,
-            SpawnGroups = new System.Collections.Generic.List<SpawnGroup>
-            {
-                new SpawnGroup { EnemyId = "enemy_melee_01", Count = 8, SpawnInterval = 0.8f, Position = SpawnPosition.RandomEdge },
-                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 3, SpawnInterval = 2f, Position = SpawnPosition.North }
-            }
-        };
+            float t = i * loopWaveIntervalSec;
+            float scale = 1f + (t / scaleIntervalSec);
+            scale = Mathf.Clamp(scale, 1f, maxDifficultyScale);
 
-        // Wave 3: 45秒から
-        var wave3 = new WaveEntry
-        {
-            StartTimeSec = 45f,
-            SpawnGroups = new System.Collections.Generic.List<SpawnGroup>
-            {
-                new SpawnGroup { EnemyId = "enemy_melee_01", Count = 15, SpawnInterval = 0.5f, Position = SpawnPosition.RandomEdge },
-                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 5, SpawnInterval = 1.5f, Position = SpawnPosition.South }
-            }
-        };
+            int meleeCount = Mathf.RoundToInt(6 * scale);
+            float meleeInterval = Mathf.Max(0.2f, 0.8f / scale);
 
-        waveList.Waves = new System.Collections.Generic.List<WaveEntry> { wave1, wave2, wave3 };
+            if (_timeLimitSec - t <= lateGameThresholdSec)
+                meleeCount *= 2;
+
+            var groups = new System.Collections.Generic.List<SpawnGroup>
+            {
+                new SpawnGroup
+                {
+                    EnemyId = "enemy_melee_01",
+                    Count = meleeCount,
+                    SpawnInterval = meleeInterval,
+                    Position = SpawnPosition.RandomEdge
+                }
+            };
+
+            // 60秒以降はRanged敵も追加
+            if (t >= 60f)
+            {
+                int rangedCount = Mathf.RoundToInt(2 * scale);
+                if (_timeLimitSec - t <= lateGameThresholdSec)
+                    rangedCount *= 2;
+
+                groups.Add(new SpawnGroup
+                {
+                    EnemyId = "enemy_ranged_01",
+                    Count = rangedCount,
+                    SpawnInterval = Mathf.Max(0.5f, 1.5f / scale),
+                    Position = SpawnPosition.RandomEdge
+                });
+            }
+
+            waves.Add(new WaveEntry { StartTimeSec = t, SpawnGroups = groups });
+        }
+
+        // --- エリートウェーブ（大量スポーン） ---
+        AddEliteWave(600f, new System.Collections.Generic.List<SpawnGroup>
+            {
+                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 30, SpawnInterval = 0.15f, Position = SpawnPosition.RandomEdge },
+                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 10, SpawnInterval = 0.5f,  Position = SpawnPosition.RandomEdge }
+            });
+
+        AddEliteWave(900f, new System.Collections.Generic.List<SpawnGroup>
+            {
+                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 50, SpawnInterval = 0.1f,  Position = SpawnPosition.RandomEdge },
+                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 20, SpawnInterval = 0.3f,  Position = SpawnPosition.RandomEdge }
+            });
+
+        AddEliteWave(1200f, new System.Collections.Generic.List<SpawnGroup>
+            {
+                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 80, SpawnInterval = 0.08f, Position = SpawnPosition.RandomEdge },
+                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 30, SpawnInterval = 0.2f,  Position = SpawnPosition.RandomEdge }
+            });
+
+        AddEliteWave(1500f, new System.Collections.Generic.List<SpawnGroup>
+            {
+                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 120, SpawnInterval = 0.05f, Position = SpawnPosition.RandomEdge },
+                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 50,  SpawnInterval = 0.15f, Position = SpawnPosition.RandomEdge }
+            });
+
+        waveList.Waves = waves;
         return waveList;
     }
 
