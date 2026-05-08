@@ -11,6 +11,9 @@ public class LevelUpUI : MonoBehaviour
     private GUIStyle _titleStyle;
     private GUIStyle _buttonStyle;
     private bool _stylesInitialized;
+    private Texture2D _buttonNormalTexture;
+    private Texture2D _buttonHoverTexture;
+    private Texture2D _buttonActiveTexture;
 
     private static readonly WeaponData[] WeaponPool =
     {
@@ -32,6 +35,13 @@ public class LevelUpUI : MonoBehaviour
     {
         EventBus.Unsubscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Unsubscribe<AppStateChangedEvent>(OnAppStateChanged);
+    }
+
+    private void OnDestroy()
+    {
+        DestroyTexture(ref _buttonNormalTexture);
+        DestroyTexture(ref _buttonHoverTexture);
+        DestroyTexture(ref _buttonActiveTexture);
     }
 
     private void Start()
@@ -147,6 +157,10 @@ public class LevelUpUI : MonoBehaviour
             normal = { textColor = new Color(1f, 0.9f, 0.3f) }
         };
 
+        _buttonNormalTexture = MakeTex(new Color(0.2f, 0.25f, 0.4f));
+        _buttonHoverTexture = MakeTex(new Color(0.3f, 0.4f, 0.65f));
+        _buttonActiveTexture = MakeTex(new Color(0.4f, 0.55f, 0.85f));
+
         _buttonStyle = new GUIStyle(GUI.skin.button)
         {
             fontSize = 15,
@@ -154,9 +168,9 @@ public class LevelUpUI : MonoBehaviour
             alignment = TextAnchor.MiddleCenter,
             wordWrap = true,
             richText = true,
-            normal = { textColor = Color.white, background = MakeTex(new Color(0.2f, 0.25f, 0.4f)) },
-            hover = { textColor = Color.white, background = MakeTex(new Color(0.3f, 0.4f, 0.65f)) },
-            active = { textColor = Color.white, background = MakeTex(new Color(0.4f, 0.55f, 0.85f)) },
+            normal = { textColor = Color.white, background = _buttonNormalTexture },
+            hover = { textColor = Color.white, background = _buttonHoverTexture },
+            active = { textColor = Color.white, background = _buttonActiveTexture },
         };
         _buttonStyle.padding = new RectOffset(10, 10, 10, 10);
     }
@@ -167,5 +181,14 @@ public class LevelUpUI : MonoBehaviour
         tex.SetPixel(0, 0, color);
         tex.Apply();
         return tex;
+    }
+
+    private static void DestroyTexture(ref Texture2D texture)
+    {
+        if (texture == null)
+            return;
+
+        Destroy(texture);
+        texture = null;
     }
 }
