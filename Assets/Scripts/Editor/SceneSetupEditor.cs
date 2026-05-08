@@ -47,6 +47,14 @@ public static class SceneSetupEditor
 
         // ---- シーン構築 ----
 
+        // レイヤー設定（Player=8, Enemy=9）
+        EnsureLayers();
+
+        // Physics2D: 敵レイヤーと壁レイヤー（Default）の衝突を無効化
+        Physics2D.IgnoreLayerCollision(9, LayerMask.NameToLayer("Default"), true);
+        // 敵同士の衝突も無効化（パフォーマンス向上）
+        Physics2D.IgnoreLayerCollision(9, 9, true);
+
         // MapGenerator
         var mapGo = new GameObject("MapGenerator");
         var mapGen = mapGo.AddComponent<MapGenerator>();
@@ -146,6 +154,27 @@ public static class SceneSetupEditor
         if (go != null) Object.DestroyImmediate(go);
     }
 
+    // ---- ヘルパー: レイヤー自動追加 ----
+
+    private static void EnsureLayers()
+    {
+        var tagManager = new SerializedObject(
+            AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+        var layersProp = tagManager.FindProperty("layers");
+
+        EnsureLayer(layersProp, 8, "Player");
+        EnsureLayer(layersProp, 9, "Enemy");
+
+        tagManager.ApplyModifiedProperties();
+    }
+
+    private static void EnsureLayer(SerializedProperty layersProp, int index, string name)
+    {
+        var element = layersProp.GetArrayElementAtIndex(index);
+        if (string.IsNullOrEmpty(element.stringValue))
+            element.stringValue = name;
+    }
+
     // ---- ヘルパー: GameObject → Prefabアセットとして保存 ----
 
     private static GameObject SavePrefabAsset(GameObject go, string prefabName)
@@ -173,6 +202,7 @@ public static class SceneSetupEditor
         col.radius = 0.4f;
 
         var ctrl = go.AddComponent<PlayerController>();
+        go.layer = 8; // Player layer
         go.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
 
         // PlayerData のインラインフィールドを設定（ScriptableObject不要）
@@ -203,6 +233,7 @@ public static class SceneSetupEditor
         col.radius = 0.4f;
 
         go.AddComponent<EnemyAI>();
+        go.layer = 9; // Enemy layer
         go.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
         return go;
     }

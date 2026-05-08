@@ -7,8 +7,8 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     [Header("マップサイズ（タイル数）")]
-    [SerializeField] private int _mapWidth  = 40;   // 横タイル数
-    [SerializeField] private int _mapHeight = 40;   // 縦タイル数
+    [SerializeField] private int _mapWidth  = 120;  // 横タイル数
+    [SerializeField] private int _mapHeight = 120;  // 縦タイル数
 
     [Header("色設定")]
     [SerializeField] private Color _floorColorA    = new Color(0.15f, 0.15f, 0.20f); // 床タイルA（暗）
@@ -62,6 +62,9 @@ public class MapGenerator : MonoBehaviour
                     // 壁にColliderを追加
                     var col = go.AddComponent<BoxCollider2D>();
                     col.size = Vector2.one;
+                    // MapObjectコンポーネントを追加（プレイヤーは壁で止まる、敵は通過）
+                    var mapObj = go.AddComponent<MapObject>();
+                    mapObj.SetCollisionConfig(blockPlayer: true, blockEnemy: false);
                 }
                 else
                 {

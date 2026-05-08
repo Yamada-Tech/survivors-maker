@@ -108,8 +108,8 @@ public class WaveSpawner : MonoBehaviour
 
     private Vector3 GetSpawnPosition(SpawnPosition position)
     {
-        // カメラ外周からスポーン (仮: ±15タイル)
-        float range = 15f;
+        // カメラ外周からスポーン (±18タイル)
+        float range = 18f;
         var playerPos = _player != null ? _player.position : Vector3.zero;
 
         switch (position)
