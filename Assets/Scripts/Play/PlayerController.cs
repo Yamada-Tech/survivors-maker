@@ -14,12 +14,14 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public int ExpToNext { get; private set; } = 100;
     public int MaxHp => _data != null ? _data.MaxHp : 0;
 
-    [Header("被弾エフェクト")]
-    [SerializeField] private GameObject _hitEffectPrefab; // nullの場合はデフォルトエフェクト
+    [Header("被弾設定")]
+    [SerializeField] private GameObject _hitEffectPrefab;       // nullの場合はデフォルトエフェクト
+    [SerializeField] private float _damageCooldown = 0.8f;      // 被弾後の無敵時間（秒）
 
     private Rigidbody2D _rb;
     private Vector2 _moveInput;
     private bool _dead;
+    private float _damageCooldownTimer;
 
     private void Awake()
     {
@@ -35,6 +37,10 @@ public class PlayerController : MonoBehaviour
             _moveInput = Vector2.zero;
             return;
         }
+
+        // 無敵タイマーを更新
+        if (_damageCooldownTimer > 0f)
+            _damageCooldownTimer -= Time.deltaTime;
 
         // --- Input System (Keyboard + Gamepad) ---
         var gp = Gamepad.current;
@@ -71,6 +77,11 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (_dead) return;
+
+        // 無敵時間中はダメージを受けない
+        if (_damageCooldownTimer > 0f) return;
+
+        _damageCooldownTimer = _damageCooldown;
 
         // ダメージ数字
         DamageNumberSpawner.Instance?.SpawnPlayerDamage(amount, transform.position);
