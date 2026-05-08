@@ -5,6 +5,13 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private PlayerController _player;
     [SerializeField] private float _timeLimitSec = 1800f;
     [SerializeField] private bool _countDown = true;
+    [Header("EXP表示設定")]
+    [SerializeField] private bool _showExpBar = true;
+    [SerializeField] private bool _showExpNumbers = true;
+    [SerializeField] private int _expFontSize = 20;
+    [SerializeField] private Vector2 _expBarSize = new Vector2(236f, 14f);
+    [SerializeField] private Color _expBarBackgroundColor = new(0.2f, 0.1f, 0.3f, 1f);
+    [SerializeField] private Color _expBarFillColor = new(0.75f, 0.4f, 1f, 1f);
 
     private float _elapsed;
     private int _killCount;
@@ -15,6 +22,7 @@ public class GameHUD : MonoBehaviour
     private string _gameOverText;
 
     private GUIStyle _labelStyle;
+    private GUIStyle _expLabelStyle;
     private GUIStyle _gameOverStyle;
     private GUIStyle _clearStyle;
 
@@ -70,6 +78,10 @@ public class GameHUD : MonoBehaviour
                 fontStyle = FontStyle.Bold,
                 normal = { textColor = Color.white }
             };
+            _expLabelStyle = new GUIStyle(_labelStyle)
+            {
+                fontSize = _expFontSize
+            };
             _gameOverStyle = new GUIStyle(GUI.skin.label)
             {
                 fontSize = 36,
@@ -104,13 +116,39 @@ public class GameHUD : MonoBehaviour
         int sec = Mathf.FloorToInt(displayTime % 60f);
 
         // 背景（半透明黒）
+        float hudHeight = (_showExpBar || _showExpNumbers) ? 145f : 110f;
         GUI.color = new Color(0, 0, 0, 0.45f);
-        GUI.DrawTexture(new Rect(8, 8, 260, 110), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(8, 8, 260, hudHeight), Texture2D.whiteTexture);
         GUI.color = Color.white;
 
         GUI.Label(new Rect(16, 12,  250, 30), $"❤  HP   {_player.CurrentHp} / {_player.MaxHp}", _labelStyle);
         GUI.Label(new Rect(16, 40,  250, 30), $"⭐ Lv   {_displayLevel}", _labelStyle);
         GUI.Label(new Rect(16, 68,  250, 30), $"⏱  {min:00}:{sec:00}   💀 {_killCount}", _labelStyle);
+
+        // EXP表示
+        if (_showExpBar || _showExpNumbers)
+        {
+            float expRatio = _player.ExpToNext > 0
+                ? Mathf.Clamp01((float)_player.Exp / _player.ExpToNext)
+                : 0f;
+
+            if (_showExpNumbers)
+            {
+                GUI.Label(new Rect(16, 96, 250, 24),
+                    $"✨ EXP  {_player.Exp} / {_player.ExpToNext}", _expLabelStyle);
+            }
+
+            if (_showExpBar)
+            {
+                GUI.color = _expBarBackgroundColor;
+                GUI.DrawTexture(new Rect(16, 122, _expBarSize.x, _expBarSize.y), Texture2D.whiteTexture);
+
+                GUI.color = _expBarFillColor;
+                GUI.DrawTexture(new Rect(16, 122, _expBarSize.x * expRatio, _expBarSize.y), Texture2D.whiteTexture);
+
+                GUI.color = Color.white;
+            }
+        }
     }
 
     private void OnEnemyKilled(EnemyKilledEvent _) => _killCount++;
