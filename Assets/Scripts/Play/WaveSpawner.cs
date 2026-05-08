@@ -21,12 +21,14 @@ public class WaveSpawner : MonoBehaviour
     {
         EventBus.Subscribe<GameOverEvent>(OnGameEnded);
         EventBus.Subscribe<TimeLimitReachedEvent>(OnGameEnded);
+        EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<GameOverEvent>(OnGameEnded);
         EventBus.Unsubscribe<TimeLimitReachedEvent>(OnGameEnded);
+        EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
     }
 
     public void Initialize(WaveListData waveData, EnemyListData enemyData, Transform player)
@@ -92,6 +94,7 @@ public class WaveSpawner : MonoBehaviour
 
     private void OnGameEnded(GameOverEvent _) => StopSpawning();
     private void OnGameEnded(TimeLimitReachedEvent _) => StopSpawning();
+    private void OnPlayerDied(PlayerDiedEvent _) => StopSpawning();
 
     private EnemyData FindEnemyData(string enemyId)
     {

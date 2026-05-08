@@ -68,6 +68,12 @@ public struct GameOverEvent
     public int ReachedLevel;
 }
 
+// プレイヤー死亡（演出フェーズ開始）
+public struct PlayerDiedEvent
+{
+    public int ReachedLevel;
+}
+
 // 制限時間終了（クリア）
 public struct TimeLimitReachedEvent
 {

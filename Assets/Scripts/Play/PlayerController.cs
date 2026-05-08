@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D _rb;
     private Vector2 _moveInput;
-    private bool _gameOver;
+    private bool _dead;
 
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (_gameOver)
+        if (_dead)
         {
             _moveInput = Vector2.zero;
             return;
@@ -67,17 +67,17 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (_gameOver) return;
+        if (_dead) return;
 
         CurrentHp = Mathf.Max(0, CurrentHp - amount);
         if (CurrentHp <= 0)
         {
-            _gameOver = true;
-            EventBus.Publish(new GameOverEvent
+            _dead = true;
+            _moveInput = Vector2.zero;
+            EventBus.Publish(new PlayerDiedEvent
             {
                 ReachedLevel = Level,
             });
-            AppStateMachine.Instance?.ChangeState(AppState.Editor);
         }
     }
 
