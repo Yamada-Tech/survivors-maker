@@ -17,7 +17,7 @@ public static class SceneSetupEditor
     public static void SetupScene()
     {
         if (!EditorUtility.DisplayDialog("Setup Scene",
-            "現在のシーンにゲームオブジェクトを自動配置します。\n既存の同名オブジェクトは削除されます。\n\n続けますか？", "OK", "キャンセル"))
+            "現在のシーンにゲームオブジェクトを自動配置します。\n既存の同名��ブジェクトは削除されます。\n\n続けますか？", "OK", "キャンセル"))
             return;
 
         // 既存オブジェクトのクリーンアップ
@@ -38,10 +38,10 @@ public static class SceneSetupEditor
         var defaultSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
         // ---- プレハブ資産を作成・保存 ----
-        var enemyPrefab          = SavePrefabAsset(BuildEnemyGO(defaultSprite),          "EnemyPrefab");
-        var projectilePrefab     = SavePrefabAsset(BuildProjectileGO(defaultSprite),     "ProjectilePrefab");
+        var enemyPrefab           = SavePrefabAsset(BuildEnemyGO(defaultSprite),           "EnemyPrefab");
+        var projectilePrefab      = SavePrefabAsset(BuildProjectileGO(defaultSprite),      "ProjectilePrefab");
         var enemyProjectilePrefab = SavePrefabAsset(BuildEnemyProjectileGO(defaultSprite), "EnemyProjectilePrefab");
-        var expGemPrefab         = SavePrefabAsset(BuildExpGemGO(defaultSprite),         "ExpGemPrefab");
+        var expGemPrefab          = SavePrefabAsset(BuildExpGemGO(defaultSprite),          "ExpGemPrefab");
 
         // ---- シーン構築 ----
 
@@ -91,6 +91,12 @@ public static class SceneSetupEditor
         dropperSO.FindProperty("_expGemPrefab").objectReferenceValue = expGemPrefab;
         dropperSO.ApplyModifiedProperties();
 
+        // GameHUD
+        var hud = SetupHUD(playerCtrl);
+
+        // LevelUpUI
+        SetupLevelUpUI(weaponSys);
+
         // GameManager
         var gmGo = new GameObject("GameManager");
         var gm = gmGo.AddComponent<GameManager>();
@@ -98,6 +104,7 @@ public static class SceneSetupEditor
         gmSO.FindProperty("_player").objectReferenceValue = playerCtrl;
         gmSO.FindProperty("_waveSpawner").objectReferenceValue = spawner;
         gmSO.FindProperty("_weaponSystem").objectReferenceValue = weaponSys;
+        gmSO.FindProperty("_gameHUD").objectReferenceValue = hud;
         gmSO.ApplyModifiedProperties();
 
         // AppStateMachine がなければ追加
@@ -107,10 +114,6 @@ public static class SceneSetupEditor
             var asmGo = new GameObject("AppStateMachine");
             asmGo.AddComponent<AppStateMachine>();
         }
-
-        // GameHUD
-        SetupHUD(playerCtrl);
-        SetupLevelUpUI(weaponSys);
 
         // シーンを保存済みとしてマーク
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
@@ -249,14 +252,14 @@ public static class SceneSetupEditor
         return go;
     }
 
-    private static void SetupHUD(PlayerController player)
+    private static GameHUD SetupHUD(PlayerController player)
     {
         var hudGo = new GameObject("GameHUD");
         var hud = hudGo.AddComponent<GameHUD>();
         var hudSO = new SerializedObject(hud);
         hudSO.FindProperty("_player").objectReferenceValue = player;
         hudSO.ApplyModifiedProperties();
-        // HUDはOnGUIで描画する
+        return hud;
     }
 
     private static void SetupLevelUpUI(WeaponSystem weaponSystem)
