@@ -67,3 +67,11 @@ public struct GameOverEvent
     public int KillCount;
     public int ReachedLevel;
 }
+
+// 制限時間終了（クリア）
+public struct TimeLimitReachedEvent
+{
+    public int SurvivedTimeSec;
+    public int KillCount;
+    public int ReachedLevel;
+}

@@ -3,21 +3,26 @@ using UnityEngine;
 public class GameHUD : MonoBehaviour
 {
     [SerializeField] private PlayerController _player;
+    [SerializeField] private float _timeLimitSec = 1800f;
+    [SerializeField] private bool _countDown = true;
 
     private float _elapsed;
     private int _killCount;
     private int _displayLevel = 1;
     private bool _gameOver;
+    private bool _clearMode;
     private string _gameOverText;
 
     private GUIStyle _labelStyle;
     private GUIStyle _gameOverStyle;
+    private GUIStyle _clearStyle;
 
     private void OnEnable()
     {
         EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Subscribe<GameOverEvent>(OnGameOver);
+        EventBus.Subscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
     }
 
     private void OnDisable()
@@ -25,6 +30,7 @@ public class GameHUD : MonoBehaviour
         EventBus.Unsubscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Unsubscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Unsubscribe<GameOverEvent>(OnGameOver);
+        EventBus.Unsubscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
     }
 
     private void Start()
@@ -35,8 +41,20 @@ public class GameHUD : MonoBehaviour
 
     private void Update()
     {
-        if (!_gameOver)
-            _elapsed += Time.deltaTime;
+        if (_gameOver) return;
+
+        _elapsed += Time.deltaTime;
+
+        if (_countDown && _elapsed >= _timeLimitSec)
+        {
+            _elapsed = _timeLimitSec;
+            EventBus.Publish(new TimeLimitReachedEvent
+            {
+                SurvivedTimeSec = Mathf.FloorToInt(_timeLimitSec),
+                KillCount = _killCount,
+                ReachedLevel = _displayLevel
+            });
+        }
     }
 
     private void OnGUI()
@@ -61,14 +79,27 @@ public class GameHUD : MonoBehaviour
 
         if (_gameOver)
         {
-            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), _gameOverText, _gameOverStyle);
+            if (_clearStyle == null)
+            {
+                _clearStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 36,
+                    fontStyle = FontStyle.Bold,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = new Color(1f, 0.85f, 0f) }
+                };
+            }
+
+            var style = _clearMode ? _clearStyle : _gameOverStyle;
+            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), _gameOverText, style);
             return;
         }
 
         if (_player == null) return;
 
-        int min = Mathf.FloorToInt(_elapsed / 60f);
-        int sec = Mathf.FloorToInt(_elapsed % 60f);
+        float displayTime = _countDown ? Mathf.Max(0f, _timeLimitSec - _elapsed) : _elapsed;
+        int min = Mathf.FloorToInt(displayTime / 60f);
+        int sec = Mathf.FloorToInt(displayTime % 60f);
 
         // 背景（半透明黒）
         GUI.color = new Color(0, 0, 0, 0.45f);
@@ -87,7 +118,21 @@ public class GameHUD : MonoBehaviour
     private void OnGameOver(GameOverEvent evt)
     {
         _gameOver = true;
+        _clearMode = false;
         int survived = Mathf.FloorToInt(_elapsed);
         _gameOverText = $"GAME OVER\n\nTime: {survived / 60:00}:{survived % 60:00}   Kills: {_killCount}   Lv: {evt.ReachedLevel}";
+    }
+
+    private void OnTimeLimitReached(TimeLimitReachedEvent evt)
+    {
+        _gameOver = true;
+        _clearMode = true;
+        _gameOverText = $"🎉 CLEAR!\n\nKills: {evt.KillCount}   Lv: {evt.ReachedLevel}";
+    }
+
+    public void SetTimerConfig(float timeLimitSec, bool countDown)
+    {
+        _timeLimitSec = timeLimitSec;
+        _countDown = countDown;
     }
 }
