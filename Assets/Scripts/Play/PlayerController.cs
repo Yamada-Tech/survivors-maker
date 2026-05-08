@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    private const float MoveInputThreshold = 0.01f;
+
     [Header("データ")]
     [SerializeField] private PlayerData _data;
 
@@ -66,14 +68,14 @@ public class PlayerController : MonoBehaviour
             if (kb.aKey.isPressed) kbInput.x -= 1;
             if (kb.dKey.isPressed) kbInput.x += 1;
 
-            if (kbInput.sqrMagnitude > 0.01f)
+            if (kbInput.sqrMagnitude > MoveInputThreshold)
                 _moveInput = kbInput.normalized;
         }
 
         if (_animator != null && !_dead)
         {
             _animator.SetFacing(_moveInput);
-            _animator.SetState(_moveInput.sqrMagnitude > 0.01f
+            _animator.SetState(_moveInput.sqrMagnitude > MoveInputThreshold
                 ? PlayerAnimator.AnimState.Walk
                 : PlayerAnimator.AnimState.Idle);
         }

@@ -19,6 +19,8 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerAnimator : MonoBehaviour
 {
+    private const float FacingThreshold = 0.01f;
+
     public enum AnimState { Idle, Walk, Hit, Die }
 
     [Header("アニメーションフレーム")]
@@ -123,9 +125,9 @@ public class PlayerAnimator : MonoBehaviour
     /// <summary>移動方向に応じて左右反転を設定する</summary>
     public void SetFacing(Vector2 moveDir)
     {
-        if (moveDir.x < -0.01f)
+        if (moveDir.x < -FacingThreshold)
             _sr.flipX = true;
-        else if (moveDir.x > 0.01f)
+        else if (moveDir.x > FacingThreshold)
             _sr.flipX = false;
     }
 
