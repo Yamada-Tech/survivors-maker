@@ -7,6 +7,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerController _player;
     [SerializeField] private WaveSpawner _waveSpawner;
     [SerializeField] private WeaponSystem _weaponSystem;
+    [Header("タイマー設定")]
+    [SerializeField] private float _timeLimitSec = 1800f;
+    [SerializeField] private bool _countDown = true;
+    [SerializeField] private GameHUD _gameHUD;
 
     private bool _gameStarted;
 
@@ -38,6 +42,9 @@ public class GameManager : MonoBehaviour
     {
         if (_gameStarted || _player == null || _waveSpawner == null) return;
         _gameStarted = true;
+
+        if (_gameHUD != null)
+            _gameHUD.SetTimerConfig(_timeLimitSec, _countDown);
 
         // デフォルト武器を装備
         var defaultWeapon = new WeaponData

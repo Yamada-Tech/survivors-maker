@@ -90,6 +90,9 @@ public static class SceneSetupEditor
         dropperSO.FindProperty("_expGemPrefab").objectReferenceValue = expGemPrefab;
         dropperSO.ApplyModifiedProperties();
 
+        // GameHUD
+        var hud = SetupHUD(playerCtrl);
+
         // GameManager
         var gmGo = new GameObject("GameManager");
         var gm = gmGo.AddComponent<GameManager>();
@@ -97,6 +100,7 @@ public static class SceneSetupEditor
         gmSO.FindProperty("_player").objectReferenceValue = playerCtrl;
         gmSO.FindProperty("_waveSpawner").objectReferenceValue = spawner;
         gmSO.FindProperty("_weaponSystem").objectReferenceValue = weaponSys;
+        gmSO.FindProperty("_gameHUD").objectReferenceValue = hud;
         gmSO.ApplyModifiedProperties();
 
         // AppStateMachine がなければ追加
@@ -106,9 +110,6 @@ public static class SceneSetupEditor
             var asmGo = new GameObject("AppStateMachine");
             asmGo.AddComponent<AppStateMachine>();
         }
-
-        // GameHUD
-        SetupHUD(playerCtrl);
 
         // シーンを保存済みとしてマーク
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
@@ -247,7 +248,7 @@ public static class SceneSetupEditor
         return go;
     }
 
-    private static void SetupHUD(PlayerController player)
+    private static GameHUD SetupHUD(PlayerController player)
     {
         var hudGo = new GameObject("GameHUD");
         var hud = hudGo.AddComponent<GameHUD>();
@@ -255,6 +256,7 @@ public static class SceneSetupEditor
         hudSO.FindProperty("_player").objectReferenceValue = player;
         hudSO.ApplyModifiedProperties();
         // UIDocumentは不要（OnGUIで描画するため）
+        return hud;
     }
 }
 #endif
