@@ -17,6 +17,18 @@ public class WaveSpawner : MonoBehaviour
     public float ElapsedTime => _elapsedTime;
     public int CurrentWaveNumber => _currentWaveIndex;
 
+    private void OnEnable()
+    {
+        EventBus.Subscribe<GameOverEvent>(OnGameEnded);
+        EventBus.Subscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<GameOverEvent>(OnGameEnded);
+        EventBus.Unsubscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
+    }
+
     public void Initialize(WaveListData waveData, EnemyListData enemyData, Transform player)
     {
         _waveData = waveData;
@@ -60,6 +72,9 @@ public class WaveSpawner : MonoBehaviour
 
         for (int i = 0; i < group.Count; i++)
         {
+            if (!_isRunning)
+                yield break;
+
             var pos = GetSpawnPosition(group.Position);
             var go = Instantiate(_enemyPrefab, pos, Quaternion.identity);
             var ai = go.GetComponent<EnemyAI>();
@@ -74,6 +89,10 @@ public class WaveSpawner : MonoBehaviour
             yield return new WaitForSeconds(group.SpawnInterval);
         }
     }
+
+    private void OnGameEnded(GameOverEvent _) => StopSpawning();
+
+    private void OnTimeLimitReached(TimeLimitReachedEvent _) => StopSpawning();
 
     private EnemyData FindEnemyData(string enemyId)
     {

@@ -25,6 +25,7 @@ public class GameHUD : MonoBehaviour
     private GUIStyle _expLabelStyle;
     private GUIStyle _gameOverStyle;
     private GUIStyle _clearStyle;
+    private GUIStyle _restartButtonStyle;
 
     private void OnEnable()
     {
@@ -105,7 +106,29 @@ public class GameHUD : MonoBehaviour
             }
 
             var style = _clearMode ? _clearStyle : _gameOverStyle;
-            GUI.Label(new Rect(0, 0, Screen.width, Screen.height), _gameOverText, style);
+            GUI.Label(new Rect(0, Screen.height * 0.25f, Screen.width, Screen.height * 0.4f), _gameOverText, style);
+
+            if (_restartButtonStyle == null)
+            {
+                _restartButtonStyle = new GUIStyle(GUI.skin.button)
+                {
+                    fontSize = 28,
+                    fontStyle = FontStyle.Bold,
+                    normal = { textColor = Color.white },
+                    hover = { textColor = Color.yellow },
+                };
+            }
+
+            float btnW = 280f;
+            float btnH = 60f;
+            float bx = (Screen.width - btnW) * 0.5f;
+            float by = Screen.height * 0.65f;
+
+            if (GUI.Button(new Rect(bx, by, btnW, btnH), "🔄 もう一度プレイ", _restartButtonStyle))
+            {
+                EventBus.Publish(new RestartRequestedEvent());
+            }
+
             return;
         }
 

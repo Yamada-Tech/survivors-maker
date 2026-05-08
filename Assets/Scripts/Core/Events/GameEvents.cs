@@ -75,3 +75,8 @@ public struct TimeLimitReachedEvent
     public int KillCount;
     public int ReachedLevel;
 }
+
+// リスタート要求
+public struct RestartRequestedEvent
+{
+}

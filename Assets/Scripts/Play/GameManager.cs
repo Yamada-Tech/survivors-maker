@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
+        EventBus.Subscribe<RestartRequestedEvent>(OnRestartRequested);
         // Playモードで直接Playした場合は即ゲーム開始
         Invoke(nameof(StartGame), 0.1f);
     }
@@ -30,6 +32,7 @@ public class GameManager : MonoBehaviour
     private void OnDestroy()
     {
         EventBus.Unsubscribe<AppStateChangedEvent>(OnStateChanged);
+        EventBus.Unsubscribe<RestartRequestedEvent>(OnRestartRequested);
     }
 
     private void OnStateChanged(AppStateChangedEvent evt)
@@ -64,6 +67,12 @@ public class GameManager : MonoBehaviour
         _waveSpawner.Initialize(waveList, enemyList, _player.transform);
 
         Debug.Log("[GameManager] Game started!");
+    }
+
+    private void OnRestartRequested(RestartRequestedEvent _)
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private WaveListData CreateDefaultWaveData()
