@@ -72,12 +72,15 @@ public class LevelUpUI : MonoBehaviour
 
     private void OnGameEnded(GameOverEvent evt)
     {
-        _gameEnded = true;
-        _isShowing = false;
-        Time.timeScale = 1f;
+        HandleGameEnded();
     }
 
     private void OnTimeLimitReached(TimeLimitReachedEvent evt)
+    {
+        HandleGameEnded();
+    }
+
+    private void HandleGameEnded()
     {
         _gameEnded = true;
         _isShowing = false;

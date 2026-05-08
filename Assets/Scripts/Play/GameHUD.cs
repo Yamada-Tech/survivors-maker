@@ -119,12 +119,12 @@ public class GameHUD : MonoBehaviour
                 };
             }
 
-            float btnW = 280f;
-            float btnH = 60f;
-            float bx = (Screen.width - btnW) * 0.5f;
-            float by = Screen.height * 0.65f;
+            float buttonWidth = 280f;
+            float buttonHeight = 60f;
+            float buttonX = (Screen.width - buttonWidth) * 0.5f;
+            float buttonY = Screen.height * 0.65f;
 
-            if (GUI.Button(new Rect(bx, by, btnW, btnH), "🔄 もう一度プレイ", _restartButtonStyle))
+            if (GUI.Button(new Rect(buttonX, buttonY, buttonWidth, buttonHeight), "🔄 もう一度プレイ", _restartButtonStyle))
             {
                 EventBus.Publish(new RestartRequestedEvent());
             }
