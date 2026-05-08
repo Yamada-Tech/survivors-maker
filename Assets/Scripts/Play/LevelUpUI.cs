@@ -13,6 +13,7 @@ public class LevelUpUI : MonoBehaviour
     private GUIStyle _titleStyle;
     private GUIStyle _buttonStyle;
     private bool _stylesInitialized;
+    private bool _gameEnded;
     private readonly List<Texture2D> _textures = new();
 
     private static readonly WeaponData[] WeaponPool = new WeaponData[]
@@ -25,8 +26,20 @@ public class LevelUpUI : MonoBehaviour
         new WeaponData { Id = "nova", Name = "✨ 光波", Type = WeaponType.Area, Damage = 12, Cooldown = 0.8f, Range = 4.0f, Description = "広範囲に光の波を放つ。" },
     };
 
-    private void OnEnable() => EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
-    private void OnDisable() => EventBus.Unsubscribe<LevelUpEvent>(OnLevelUp);
+    private void OnEnable()
+    {
+        _gameEnded = false;
+        EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
+        EventBus.Subscribe<GameOverEvent>(OnGameEnded);
+        EventBus.Subscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<LevelUpEvent>(OnLevelUp);
+        EventBus.Unsubscribe<GameOverEvent>(OnGameEnded);
+        EventBus.Unsubscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
+    }
 
     private void Start()
     {
@@ -47,11 +60,31 @@ public class LevelUpUI : MonoBehaviour
 
     private void OnLevelUp(LevelUpEvent evt)
     {
+        if (_gameEnded)
+            return;
+
         _choices = PickRandomChoices(3);
         _isShowing = _choices.Count > 0;
 
         if (_isShowing)
             Time.timeScale = 0f;
+    }
+
+    private void OnGameEnded(GameOverEvent evt)
+    {
+        HandleGameEnded();
+    }
+
+    private void OnTimeLimitReached(TimeLimitReachedEvent evt)
+    {
+        HandleGameEnded();
+    }
+
+    private void HandleGameEnded()
+    {
+        _gameEnded = true;
+        _isShowing = false;
+        Time.timeScale = 1f;
     }
 
     private void OnGUI()

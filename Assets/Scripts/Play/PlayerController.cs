@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D _rb;
     private Vector2 _moveInput;
+    private bool _gameOver;
 
     private void Awake()
     {
@@ -26,6 +27,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (_gameOver)
+        {
+            _moveInput = Vector2.zero;
+            return;
+        }
+
         // --- Input System (Keyboard + Gamepad) ---
         var gp = Gamepad.current;
         var kb = Keyboard.current;
@@ -60,9 +67,12 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        if (_gameOver) return;
+
         CurrentHp = Mathf.Max(0, CurrentHp - amount);
         if (CurrentHp <= 0)
         {
+            _gameOver = true;
             EventBus.Publish(new GameOverEvent
             {
                 ReachedLevel = Level,
