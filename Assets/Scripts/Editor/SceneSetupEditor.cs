@@ -5,6 +5,10 @@ using UnityEditor;
 public static class SceneSetupEditor
 {
     private const string PrefabsFolder = "Assets/GeneratedPrefabs";
+    private const int PlayerLayer = 8;
+    private const int EnemyLayer = 9;
+    private const int ProjectileLayer = 10;
+    private const int WallLayer = 11;
 
     // デフォルトプレイヤーパラメータ
     private const int DefaultPlayerMaxHp = 100;
@@ -50,18 +54,14 @@ public static class SceneSetupEditor
         // レイヤー設定（Player=8, Enemy=9, Projectile=10, Wall=11）
         EnsureLayers();
 
-        int wallLayer = 11;       // Wall
-        int enemyLayer = 9;       // Enemy
-        int projectileLayer = 10; // Projectile
-
         // 敵↔壁 のみ無効化（矢は当たる）
-        Physics2D.IgnoreLayerCollision(enemyLayer, wallLayer, true);
+        Physics2D.IgnoreLayerCollision(EnemyLayer, WallLayer, true);
         // 敵同士の衝突を無効化（パフォーマンス向上）
-        Physics2D.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
-        // 矢↔壁 も無効化（矢が壁を貫通）
-        Physics2D.IgnoreLayerCollision(projectileLayer, wallLayer, true);
+        Physics2D.IgnoreLayerCollision(EnemyLayer, EnemyLayer, true);
+        // 矢↔壁 も無効化（仕様として矢は壁を貫通）
+        Physics2D.IgnoreLayerCollision(ProjectileLayer, WallLayer, true);
         // 矢↔プレイヤー の衝突を無効化（自分の矢で自分がダメージを受けない）
-        Physics2D.IgnoreLayerCollision(projectileLayer, 8, true);
+        Physics2D.IgnoreLayerCollision(ProjectileLayer, PlayerLayer, true);
 
         // MapGenerator
         var mapGo = new GameObject("MapGenerator");
@@ -170,10 +170,10 @@ public static class SceneSetupEditor
             AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
         var layersProp = tagManager.FindProperty("layers");
 
-        EnsureLayer(layersProp, 8, "Player");
-        EnsureLayer(layersProp, 9, "Enemy");
-        EnsureLayer(layersProp, 10, "Projectile");
-        EnsureLayer(layersProp, 11, "Wall");
+        EnsureLayer(layersProp, PlayerLayer, "Player");
+        EnsureLayer(layersProp, EnemyLayer, "Enemy");
+        EnsureLayer(layersProp, ProjectileLayer, "Projectile");
+        EnsureLayer(layersProp, WallLayer, "Wall");
 
         tagManager.ApplyModifiedProperties();
     }
@@ -212,7 +212,7 @@ public static class SceneSetupEditor
         col.radius = 0.4f;
 
         var ctrl = go.AddComponent<PlayerController>();
-        go.layer = 8; // Player layer
+        go.layer = PlayerLayer; // Player layer
         go.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
 
         // PlayerData のインラインフィールドを設定（ScriptableObject不要）
@@ -243,7 +243,7 @@ public static class SceneSetupEditor
         col.radius = 0.4f;
 
         go.AddComponent<EnemyAI>();
-        go.layer = 9; // Enemy layer
+        go.layer = EnemyLayer; // Enemy layer
         go.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
         return go;
     }
@@ -264,7 +264,7 @@ public static class SceneSetupEditor
         col.isTrigger = true;
 
         go.AddComponent<Projectile>();
-        go.layer = 10; // Projectile layer
+        go.layer = ProjectileLayer; // Projectile layer
         return go;
     }
 

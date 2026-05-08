@@ -6,6 +6,8 @@ using UnityEngine;
 /// </summary>
 public class MapGenerator : MonoBehaviour
 {
+    private const int WallLayerFallback = 11; // SceneSetupEditor の Wall レイヤー設定と同じインデックス
+
     [Header("マップサイズ（タイル数）")]
     [SerializeField] private int _mapWidth  = 120;  // 横タイル数
     [SerializeField] private int _mapHeight = 120;  // 縦タイル数
@@ -71,7 +73,7 @@ public class MapGenerator : MonoBehaviour
                     if (wallLayer >= 0)
                         go.layer = wallLayer;
                     else
-                        go.layer = 11; // フォールバック
+                        go.layer = WallLayerFallback; // フォールバック
                 }
                 else
                 {
