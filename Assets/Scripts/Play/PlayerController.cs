@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField] public int Level { get; private set; } = 1;
     [field: SerializeField] public int Exp { get; private set; } = 0;
     [field: SerializeField] public int ExpToNext { get; private set; } = 100;
-    public int MaxHp => _data != null ? _data.MaxHp : 0;
+    public int MaxHp => _data != null ? _data.MaxHp + _maxHpBonus : 0;
 
     [Header("被弾設定")]
     [SerializeField] private GameObject _hitEffectPrefab;       // nullの場合はデフォルトエフェクト
@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 _moveInput;
     private bool _dead;
     private float _damageCooldownTimer;
+    private int _maxHpBonus;
+    private float _moveSpeedMultiplier = 1f;
+    private float _expMultiplier = 1f;
 
     private void Awake()
     {
@@ -69,7 +72,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         // 32px = 1タイル = 1 Unity unit
-        _rb.linearVelocity = _moveInput * _data.MoveSpeed;
+        _rb.linearVelocity = _moveInput * _data.MoveSpeed * _moveSpeedMultiplier;
     }
 
     // ---- ダメージ / 経験値 ----
@@ -140,8 +143,9 @@ public class PlayerController : MonoBehaviour
 
     public void GainExp(int amount)
     {
-        Exp += amount;
-        EventBus.Publish(new ExpGainedEvent { Amount = amount, TotalExp = Exp });
+        int boosted = Mathf.RoundToInt(amount * _expMultiplier);
+        Exp += boosted;
+        EventBus.Publish(new ExpGainedEvent { Amount = boosted, TotalExp = Exp });
 
         while (Exp >= ExpToNext)
         {
@@ -150,5 +154,31 @@ public class PlayerController : MonoBehaviour
             ExpToNext = Mathf.RoundToInt(ExpToNext * 1.2f);
             EventBus.Publish(new LevelUpEvent { NewLevel = Level });
         }
+    }
+
+    public void AddMaxHp(int amount)
+    {
+        _maxHpBonus += amount;
+        CurrentHp = Mathf.Min(CurrentHp + amount, MaxHp);
+    }
+
+    public void Heal(int amount)
+    {
+        CurrentHp = Mathf.Min(CurrentHp + amount, MaxHp);
+    }
+
+    public void AddMoveSpeedMultiplier(float addRate)
+    {
+        _moveSpeedMultiplier += addRate;
+    }
+
+    public void ReduceDamageCooldown(float reduceSec)
+    {
+        _damageCooldown = Mathf.Max(0.1f, _damageCooldown - reduceSec);
+    }
+
+    public void AddExpMultiplier(float addRate)
+    {
+        _expMultiplier += addRate;
     }
 }

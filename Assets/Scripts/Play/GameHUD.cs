@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameHUD : MonoBehaviour
@@ -20,12 +21,24 @@ public class GameHUD : MonoBehaviour
     private bool _clearMode;
     private bool _timeLimitReached;
     private string _gameOverText;
+    private int _survivedSec;
+    private int _finalKillCount;
+    private int _finalLevel;
+    private int _maxDamageDealt;
 
     private GUIStyle _labelStyle;
     private GUIStyle _expLabelStyle;
     private GUIStyle _gameOverStyle;
     private GUIStyle _clearStyle;
     private GUIStyle _restartButtonStyle;
+    private GUIStyle _resultTitleStyle;
+    private GUIStyle _resultStatStyle;
+    private GUIStyle _resultSubStyle;
+    private GUIStyle _resultClearTitleStyle;
+    private GUIStyle _resultGameOverTitleStyle;
+    private GUIStyle _resultValueStyle;
+    private bool _resultStylesInit;
+    private readonly List<Texture2D> _resultTextures = new();
 
     private void OnEnable()
     {
@@ -83,52 +96,11 @@ public class GameHUD : MonoBehaviour
             {
                 fontSize = _expFontSize
             };
-            _gameOverStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 36,
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter,
-                normal = { textColor = Color.red }
-            };
         }
 
         if (_gameOver)
         {
-            if (_clearStyle == null)
-            {
-                _clearStyle = new GUIStyle(GUI.skin.label)
-                {
-                    fontSize = 36,
-                    fontStyle = FontStyle.Bold,
-                    alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = new Color(1f, 0.85f, 0f) }
-                };
-            }
-
-            var style = _clearMode ? _clearStyle : _gameOverStyle;
-            GUI.Label(new Rect(0, Screen.height * 0.25f, Screen.width, Screen.height * 0.4f), _gameOverText, style);
-
-            if (_restartButtonStyle == null)
-            {
-                _restartButtonStyle = new GUIStyle(GUI.skin.button)
-                {
-                    fontSize = 28,
-                    fontStyle = FontStyle.Bold,
-                    normal = { textColor = Color.white },
-                    hover = { textColor = Color.yellow },
-                };
-            }
-
-            float buttonWidth = 280f;
-            float buttonHeight = 60f;
-            float buttonX = (Screen.width - buttonWidth) * 0.5f;
-            float buttonY = Screen.height * 0.65f;
-
-            if (GUI.Button(new Rect(buttonX, buttonY, buttonWidth, buttonHeight), "🔄 もう一度プレイ", _restartButtonStyle))
-            {
-                EventBus.Publish(new RestartRequestedEvent());
-            }
-
+            DrawResultPanel();
             return;
         }
 
@@ -194,15 +166,18 @@ public class GameHUD : MonoBehaviour
     {
         _gameOver = true;
         _clearMode = false;
-        int survived = Mathf.FloorToInt(_elapsed);
-        _gameOverText = $"GAME OVER\n\nTime: {survived / 60:00}:{survived % 60:00}   Kills: {_killCount}   Lv: {evt.ReachedLevel}";
+        _survivedSec = Mathf.FloorToInt(_elapsed);
+        _finalKillCount = _killCount;
+        _finalLevel = evt.ReachedLevel;
     }
 
     private void OnTimeLimitReached(TimeLimitReachedEvent evt)
     {
         _gameOver = true;
         _clearMode = true;
-        _gameOverText = $"🎉 CLEAR!\n\nKills: {evt.KillCount}   Lv: {evt.ReachedLevel}";
+        _survivedSec = evt.SurvivedTimeSec;
+        _finalKillCount = evt.KillCount;
+        _finalLevel = evt.ReachedLevel;
     }
 
     public void SetTimerConfig(float timeLimitSec, bool countDown)
@@ -210,5 +185,108 @@ public class GameHUD : MonoBehaviour
         _timeLimitSec = timeLimitSec;
         _countDown = countDown;
         _timeLimitReached = false;
+    }
+
+    private void DrawResultPanel()
+    {
+        InitResultStyles();
+
+        GUI.color = new Color(0f, 0f, 0f, 0.75f);
+        GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
+        GUI.color = Color.white;
+
+        const float panelW = 540f;
+        const float panelH = 400f;
+        float px = (Screen.width - panelW) * 0.5f;
+        float py = (Screen.height - panelH) * 0.5f;
+
+        GUI.color = new Color(0.08f, 0.08f, 0.14f, 0.98f);
+        GUI.DrawTexture(new Rect(px, py, panelW, panelH), Texture2D.whiteTexture);
+        GUI.color = Color.white;
+
+        string title = _clearMode ? "🎉 STAGE CLEAR!" : "💀 GAME OVER";
+        var titleStyle = _clearMode ? _resultClearTitleStyle : _resultGameOverTitleStyle;
+        GUI.Label(new Rect(px, py + 16f, panelW, 50f), title, titleStyle);
+
+        GUI.color = new Color(1f, 1f, 1f, 0.2f);
+        GUI.DrawTexture(new Rect(px + 20f, py + 70f, panelW - 40f, 2f), Texture2D.whiteTexture);
+        GUI.color = Color.white;
+
+        float rowY = py + 86f;
+        const float rowH = 44f;
+        float labelX = px + 40f;
+        float valueX = px + 300f;
+        const float valueW = 200f;
+
+        int min = _survivedSec / 60;
+        int sec = _survivedSec % 60;
+
+        DrawStatRow(labelX, valueX, valueW, rowY, "⏱  生存時間", $"{min:00}:{sec:00}");
+        DrawStatRow(labelX, valueX, valueW, rowY + rowH, "💀 キル数", $"{_finalKillCount}");
+        DrawStatRow(labelX, valueX, valueW, rowY + rowH * 2f, "⭐ 到達レベル", $"Lv. {_finalLevel}");
+
+        GUI.color = new Color(1f, 1f, 1f, 0.2f);
+        GUI.DrawTexture(new Rect(px + 20f, py + 260f, panelW - 40f, 2f), Texture2D.whiteTexture);
+        GUI.color = Color.white;
+
+        InitRestartButtonStyle();
+        const float btnW = 280f;
+        const float btnH = 56f;
+        float btnX = (Screen.width - btnW) * 0.5f;
+        float btnY = py + panelH - btnH - 24f;
+        if (GUI.Button(new Rect(btnX, btnY, btnW, btnH), "🔄 もう一度プレイ", _restartButtonStyle))
+            EventBus.Publish(new RestartRequestedEvent());
+    }
+
+    private void DrawStatRow(float labelX, float valueX, float valueW, float y, string label, string value)
+    {
+        GUI.Label(new Rect(labelX, y, 260f, 38f), label, _resultStatStyle);
+        GUI.Label(new Rect(valueX, y, valueW, 38f), value, _resultValueStyle);
+    }
+
+    private void InitResultStyles()
+    {
+        if (_resultStylesInit) return;
+        _resultStylesInit = true;
+
+        _resultClearTitleStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 32,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleCenter,
+            normal = { textColor = new Color(1f, 0.85f, 0f) }
+        };
+        _resultGameOverTitleStyle = new GUIStyle(_resultClearTitleStyle)
+        {
+            normal = { textColor = new Color(0.9f, 0.2f, 0.2f) }
+        };
+        _resultStatStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 22,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleLeft,
+            normal = { textColor = new Color(0.75f, 0.75f, 0.85f) }
+        };
+        _resultValueStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 24,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleRight,
+            normal = { textColor = Color.white }
+        };
+        _resultTitleStyle = _resultClearTitleStyle;
+        _resultSubStyle = _resultStatStyle;
+    }
+
+    private void InitRestartButtonStyle()
+    {
+        if (_restartButtonStyle != null) return;
+        _restartButtonStyle = new GUIStyle(GUI.skin.button)
+        {
+            fontSize = 24,
+            fontStyle = FontStyle.Bold,
+            normal = { textColor = Color.white },
+            hover = { textColor = Color.yellow },
+        };
     }
 }

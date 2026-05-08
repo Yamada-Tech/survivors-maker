@@ -9,7 +9,7 @@ public class LevelUpUI : MonoBehaviour
     [SerializeField] private WeaponSystem _weaponSystem;
 
     private bool _isShowing;
-    private List<WeaponData> _choices = new();
+    private readonly List<object> _choices = new();
     private GUIStyle _titleStyle;
     private GUIStyle _buttonStyle;
     private bool _stylesInitialized;
@@ -24,6 +24,14 @@ public class LevelUpUI : MonoBehaviour
         new WeaponData { Id = "dagger", Name = "🗡 短剣", Type = WeaponType.Projectile, Damage = 10, Cooldown = 0.3f, Range = 5f, ProjectileSpeed = 14f, Description = "高速で短剣を連射する。" },
         new WeaponData { Id = "hammer", Name = "🔨 ハンマー", Type = WeaponType.Melee, Damage = 40, Cooldown = 1.5f, Range = 1.2f, Description = "遅いが超威力の一撃。" },
         new WeaponData { Id = "nova", Name = "✨ 光波", Type = WeaponType.Area, Damage = 12, Cooldown = 0.8f, Range = 4.0f, Description = "広範囲に光の波を放つ。" },
+    };
+    private static readonly PassiveData[] PassivePool = new PassiveData[]
+    {
+        new PassiveData { Id = "hp_up", Name = "❤ HP強化", Type = PassiveType.MaxHpUp, Value = 20f, Description = "最大HPを20増加する。" },
+        new PassiveData { Id = "hp_regen", Name = "💊 回復薬", Type = PassiveType.HpRecover, Value = 30f, Description = "HPを30回復する。" },
+        new PassiveData { Id = "speed_up", Name = "👟 加速", Type = PassiveType.MoveSpeedUp, Value = 0.15f, Description = "移動速度が15%上がる。" },
+        new PassiveData { Id = "tough", Name = "🛡 タフネス", Type = PassiveType.DamageCooldownDown, Value = 0.15f, Description = "被弾間隔が短縮される。" },
+        new PassiveData { Id = "exp_up", Name = "✨ 経験値UP", Type = PassiveType.ExpBonus, Value = 0.2f, Description = "EXP獲得量が20%増える。" },
     };
 
     private void OnEnable()
@@ -65,7 +73,8 @@ public class LevelUpUI : MonoBehaviour
         if (_gameEnded)
             return;
 
-        _choices = PickRandomChoices(3);
+        _choices.Clear();
+        _choices.AddRange(PickRandomChoices(3));
         _isShowing = _choices.Count > 0;
 
         if (_isShowing)
@@ -124,32 +133,46 @@ public class LevelUpUI : MonoBehaviour
         {
             float buttonX = panelX + gap + i * (buttonWidth + gap);
             float buttonY = panelY + 68f;
-            var weapon = _choices[i];
-            string label = $"{weapon.Name}\n\n<size=13>{weapon.Description}</size>\n\n<size=12>ダメージ: {weapon.Damage}\nCD: {weapon.Cooldown:F1}秒</size>";
+            var choice = _choices[i];
+            string label;
+            if (choice is WeaponData weapon)
+                label = $"{weapon.Name}\n\n<size=13>{weapon.Description}</size>\n\n<size=12>ダメージ: {weapon.Damage}\nCD: {weapon.Cooldown:F1}秒</size>";
+            else if (choice is PassiveData passive)
+                label = $"{passive.Name}\n\n<size=13>{passive.Description}</size>\n\n<size=12>【パッシブ】</size>";
+            else
+                label = "？";
 
             if (GUI.Button(new Rect(buttonX, buttonY, buttonWidth, buttonHeight), label, _buttonStyle))
-                SelectWeapon(weapon);
+                SelectChoice(choice);
         }
     }
 
-    private void SelectWeapon(WeaponData data)
+    private void SelectChoice(object choice)
     {
-        _weaponSystem?.EquipWeapon(data);
+        if (choice is WeaponData weapon)
+            _weaponSystem?.EquipWeapon(weapon);
+        else if (choice is PassiveData passive)
+            PassiveSystem.Instance?.ApplyPassive(passive);
+
         _isShowing = false;
         Time.timeScale = 1f;
     }
 
-    private List<WeaponData> PickRandomChoices(int count)
+    private List<object> PickRandomChoices(int count)
     {
-        var pool = new List<WeaponData>(WeaponPool);
-        var result = new List<WeaponData>();
-        count = Mathf.Min(count, pool.Count);
+        var weaponPool = new List<object>(System.Array.ConvertAll(WeaponPool, weapon => (object)weapon));
+        var passivePool = new List<object>(System.Array.ConvertAll(PassivePool, passive => (object)passive));
+        var allPool = new List<object>();
+        allPool.AddRange(weaponPool);
+        allPool.AddRange(passivePool);
 
+        var result = new List<object>();
+        count = Mathf.Min(count, allPool.Count);
         for (int i = 0; i < count; i++)
         {
-            int index = Random.Range(0, pool.Count);
-            result.Add(pool[index]);
-            pool.RemoveAt(index);
+            int index = Random.Range(0, allPool.Count);
+            result.Add(allPool[index]);
+            allPool.RemoveAt(index);
         }
 
         return result;
