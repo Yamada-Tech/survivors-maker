@@ -7,12 +7,16 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private GameObject _enemyPrefab;
     [SerializeField] private GameObject _enemyProjectilePrefab;
     [SerializeField] private Transform _player;
+    [SerializeField] private float _earlyWaveDelay = 3f;
 
     private WaveListData _waveData;
     private EnemyListData _enemyListData;
     private float _elapsedTime;
     private int _currentWaveIndex;
     private bool _isRunning;
+    private int _aliveEnemyCount;
+    private bool _waitingEarlyWave;
+    private float _earlyWaveTimer;
 
     public float ElapsedTime => _elapsedTime;
     public int CurrentWaveNumber => _currentWaveIndex;
@@ -22,6 +26,7 @@ public class WaveSpawner : MonoBehaviour
         EventBus.Subscribe<GameOverEvent>(OnGameEnded);
         EventBus.Subscribe<TimeLimitReachedEvent>(OnGameEnded);
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
+        EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
     }
 
     private void OnDisable()
@@ -29,6 +34,7 @@ public class WaveSpawner : MonoBehaviour
         EventBus.Unsubscribe<GameOverEvent>(OnGameEnded);
         EventBus.Unsubscribe<TimeLimitReachedEvent>(OnGameEnded);
         EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
+        EventBus.Unsubscribe<EnemyKilledEvent>(OnEnemyKilled);
     }
 
     public void Initialize(WaveListData waveData, EnemyListData enemyData, Transform player)
@@ -39,15 +45,33 @@ public class WaveSpawner : MonoBehaviour
         _currentWaveIndex = 0;
         _elapsedTime = 0f;
         _isRunning = true;
+        _aliveEnemyCount = 0;
+        _waitingEarlyWave = false;
+        _earlyWaveTimer = 0f;
     }
 
-    public void StopSpawning() => _isRunning = false;
+    public void StopSpawning()
+    {
+        _isRunning = false;
+        _waitingEarlyWave = false;
+    }
 
     private void Update()
     {
         if (!_isRunning || _waveData == null) return;
 
         _elapsedTime += Time.deltaTime;
+
+        if (_waitingEarlyWave)
+        {
+            _earlyWaveTimer -= Time.deltaTime;
+            if (_earlyWaveTimer <= 0f)
+            {
+                _waitingEarlyWave = false;
+                if (_currentWaveIndex < (_waveData?.Waves.Count ?? 0))
+                    _elapsedTime = _waveData.Waves[_currentWaveIndex].StartTimeSec;
+            }
+        }
 
         // 次のWaveの開始時刻を過ぎたら発動
         while (_currentWaveIndex < _waveData.Waves.Count &&
@@ -87,6 +111,7 @@ public class WaveSpawner : MonoBehaviour
                 yield break;
             }
             ai.Initialize(enemyData, _player, _enemyProjectilePrefab);
+            _aliveEnemyCount++;
 
             yield return new WaitForSeconds(group.SpawnInterval);
         }
@@ -95,6 +120,23 @@ public class WaveSpawner : MonoBehaviour
     private void OnGameEnded(GameOverEvent _) => StopSpawning();
     private void OnGameEnded(TimeLimitReachedEvent _) => StopSpawning();
     private void OnPlayerDied(PlayerDiedEvent _) => StopSpawning();
+
+    private void OnEnemyKilled(EnemyKilledEvent _)
+    {
+        _aliveEnemyCount = Mathf.Max(0, _aliveEnemyCount - 1);
+
+        if (_aliveEnemyCount == 0 && _isRunning &&
+            _currentWaveIndex < (_waveData?.Waves.Count ?? 0) &&
+            !_waitingEarlyWave)
+        {
+            float nextWaveTime = _waveData.Waves[_currentWaveIndex].StartTimeSec;
+            if (nextWaveTime - _elapsedTime > _earlyWaveDelay)
+            {
+                _waitingEarlyWave = true;
+                _earlyWaveTimer = _earlyWaveDelay;
+            }
+        }
+    }
 
     private EnemyData FindEnemyData(string enemyId)
     {

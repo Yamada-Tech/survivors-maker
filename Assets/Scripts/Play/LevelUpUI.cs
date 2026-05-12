@@ -23,7 +23,7 @@ public class LevelUpUI : MonoBehaviour
         new WeaponData { Id = "blast", Name = "💥 爆発", Type = WeaponType.Area, Damage = 25, Cooldown = 2.0f, Range = 2.5f, Description = "自分の周囲の敵を吹き飛ばす。" },
         new WeaponData { Id = "dagger", Name = "🗡 短剣", Type = WeaponType.Projectile, Damage = 10, Cooldown = 0.3f, Range = 5f, ProjectileSpeed = 14f, Description = "高速で短剣を連射する。" },
         new WeaponData { Id = "hammer", Name = "🔨 ハンマー", Type = WeaponType.Melee, Damage = 40, Cooldown = 1.5f, Range = 1.2f, Description = "遅いが超威力の一撃。" },
-        new WeaponData { Id = "nova", Name = "✨ 光波", Type = WeaponType.Area, Damage = 12, Cooldown = 0.8f, Range = 4.0f, Description = "広範囲に光の波を放つ。" },
+        new WeaponData { Id = "nova", Name = "✨ 光波", Type = WeaponType.Area, Damage = 12, Cooldown = 0.8f, Range = 7.0f, Description = "広範囲に光の波を放つ。" },
     };
     private static readonly PassiveData[] PassivePool = new PassiveData[]
     {
