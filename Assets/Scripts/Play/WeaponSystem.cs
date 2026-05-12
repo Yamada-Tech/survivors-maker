@@ -8,10 +8,13 @@ public class WeaponSystem : MonoBehaviour
 
     private readonly List<WeaponRuntime> _equipped = new();
     private bool _frozen;
+    private int _enemyLayerMask;
 
     private void Awake()
     {
         gameObject.tag = "PlayObject";
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        _enemyLayerMask = enemyLayer >= 0 ? (1 << enemyLayer) : ~0;
     }
 
     private void OnEnable()
@@ -77,12 +80,11 @@ public class WeaponSystem : MonoBehaviour
 
     private void MeleeAttack(WeaponData data, Vector2 dir)
     {
-        var hits = Physics2D.CircleCastAll(
-            _player.position, data.Range, dir, 0f);
-
-        foreach (var hit in hits)
+        // CircleCastAll(distance=0)は機能しないためOverlapCircleAllを使用
+        var hits = Physics2D.OverlapCircleAll(_player.position, data.Range, _enemyLayerMask);
+        foreach (var col in hits)
         {
-            if (hit.collider.TryGetComponent<EnemyAI>(out var enemy))
+            if (col.TryGetComponent<EnemyAI>(out var enemy))
             {
                 enemy.TakeDamage(data.Damage, dir);
             }
@@ -103,7 +105,7 @@ public class WeaponSystem : MonoBehaviour
 
     private void AreaAttack(WeaponData data)
     {
-        var hits = Physics2D.OverlapCircleAll(_player.position, data.Range);
+        var hits = Physics2D.OverlapCircleAll(_player.position, data.Range, _enemyLayerMask);
         foreach (var col in hits)
         {
             if (col.TryGetComponent<EnemyAI>(out var enemy))

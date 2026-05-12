@@ -218,10 +218,10 @@ public class GameManager : MonoBehaviour
                 MoveSpeed = 1.5f,
                 ExpValue = 15,
                 DropRate = 0.6f,
-                AttackRange = 6f,
-                ShootCooldown = 2f,
+                AttackRange = 3f,
+                ShootCooldown = 2.5f,
                 ProjectileDamage = 8,
-                ProjectileSpeed = 6f
+                ProjectileSpeed = 5f
             }
         };
         return list;
