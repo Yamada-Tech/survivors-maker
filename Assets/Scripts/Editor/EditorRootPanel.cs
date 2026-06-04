@@ -8,6 +8,9 @@ public class EditorRootPanel : MonoBehaviour
     private const float MenuWidth = 180f;
     private const float DividerWidth = 1f;
     private const float ContentLeftOffset = MenuWidth + DividerWidth;
+    private const string MapPanelKey = "map";
+    private const string MapSettingsPanelKey = "mapsettings";
+    private const string MapSettingsPanelName = "MapSettingsEditorPanel";
     private static readonly Color RootBackgroundColor = new(0.12f, 0.12f, 0.15f);
     private static readonly Color MenuButtonColor = new(0.18f, 0.18f, 0.22f);
     private static readonly Color MenuButtonSelectedColor = new(0.2f, 0.5f, 1f);
@@ -15,13 +18,17 @@ public class EditorRootPanel : MonoBehaviour
 
     private readonly Dictionary<string, GameObject> _panelGameObjects = new();
     private readonly Dictionary<string, Button> _menuButtons = new();
+    private readonly Dictionary<string, List<string>> _linkedPanels = new()
+    {
+        { MapPanelKey, new List<string> { MapSettingsPanelKey } }
+    };
     private bool _isUiBuilt;
     private string _selectedKey;
 
     private void OnEnable()
     {
         BuildUi();
-        SelectPanel("map");
+        SelectPanel(MapPanelKey);
     }
 
     private void BuildUi()
@@ -56,7 +63,8 @@ public class EditorRootPanel : MonoBehaviour
         contentPane.style.backgroundColor = RootBackgroundColor;
         root.Add(contentPane);
 
-        RegisterPanel("map", "MapEditorPanel");
+        RegisterPanel(MapPanelKey, "MapEditorPanel");
+        RegisterPanel(MapSettingsPanelKey, MapSettingsPanelName, isSidePanel: true);
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
@@ -64,7 +72,7 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel("dotart", "DotArtEditorPanel");
         RegisterPanel("spritesheet", "SpriteSheetEditorPanel");
 
-        AddMenuButton(menuPane, "map", "🗺️ マップ");
+        AddMenuButton(menuPane, MapPanelKey, "🗺️ マップ");
         AddMenuButton(menuPane, "enemy", "👾 敵");
         AddMenuButton(menuPane, "weapon", "⚔️ 武器");
         AddMenuButton(menuPane, "wave", "🌊 Wave");
@@ -81,7 +89,7 @@ public class EditorRootPanel : MonoBehaviour
         EventBus.Publish(new AppStateChangedEvent { NewState = AppState.Play });
     }
 
-    private void RegisterPanel(string key, string panelName)
+    private void RegisterPanel(string key, string panelName, bool isSidePanel = false)
     {
         var panelTransform = transform.Find(panelName);
         if (panelTransform == null)
@@ -95,11 +103,16 @@ public class EditorRootPanel : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.style.position = Position.Absolute;
-            panelRoot.style.left = ContentLeftOffset;
+            if (!isSidePanel)
+                panelRoot.style.left = ContentLeftOffset;
             panelRoot.style.right = 0f;
             panelRoot.style.top = 0f;
             panelRoot.style.bottom = 0f;
             panelRoot.style.backgroundColor = RootBackgroundColor;
+            if (isSidePanel)
+            {
+                panelRoot.style.width = 320f;
+            }
         }
     }
 
@@ -131,9 +144,17 @@ public class EditorRootPanel : MonoBehaviour
         _selectedKey = key;
 
         foreach (var pair in _panelGameObjects)
-            pair.Value?.SetActive(pair.Key == key);
+            pair.Value?.SetActive(ShouldShowPanel(key, pair.Key));
 
         foreach (var pair in _menuButtons)
             pair.Value.style.backgroundColor = pair.Key == _selectedKey ? MenuButtonSelectedColor : MenuButtonColor;
+    }
+
+    private bool ShouldShowPanel(string selectedKey, string panelKey)
+    {
+        if (panelKey == selectedKey)
+            return true;
+
+        return _linkedPanels.TryGetValue(selectedKey, out var linkedPanelKeys) && linkedPanelKeys.Contains(panelKey);
     }
 }

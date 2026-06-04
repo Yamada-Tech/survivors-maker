@@ -6,6 +6,8 @@ using UnityEngine;
 /// </summary>
 public class MapGenerator : MonoBehaviour
 {
+    private const int MinMapSize = 8;
+    private const int MaxMapSize = 128;
     private const int WallLayerFallback = 11; // SceneSetupEditor の Wall レイヤー設定と同じインデックス
 
     [Header("マップサイズ（タイル数）")]
@@ -20,6 +22,41 @@ public class MapGenerator : MonoBehaviour
 
     [Header("壁")]
     [SerializeField] private int _wallThickness = 2; // 壁の厚さ（タイル数）
+    [SerializeField, Range(0f, 1f)] private float _wallRatio = 0.2f;
+
+    public int MapWidth
+    {
+        get => _mapWidth;
+        set => _mapWidth = Mathf.Clamp(value, MinMapSize, MaxMapSize);
+    }
+
+    public int MapHeight
+    {
+        get => _mapHeight;
+        set => _mapHeight = Mathf.Clamp(value, MinMapSize, MaxMapSize);
+    }
+
+    public float WallRatio
+    {
+        get => _wallRatio;
+        set => _wallRatio = Mathf.Clamp01(value);
+    }
+
+    public Color WallColor
+    {
+        get => _wallColor;
+        set => _wallColor = value;
+    }
+
+    public Color FloorColor
+    {
+        get => _floorColorA;
+        set
+        {
+            _floorColorA = value;
+            _floorColorB = value;
+        }
+    }
 
     private void Start() => Generate();
 
@@ -47,8 +84,9 @@ public class MapGenerator : MonoBehaviour
         {
             for (int y = 0; y < _mapHeight; y++)
             {
-                bool isWall = x < _wallThickness || x >= _mapWidth  - _wallThickness ||
-                              y < _wallThickness || y >= _mapHeight - _wallThickness;
+                bool isBoundaryWall = x < _wallThickness || x >= _mapWidth - _wallThickness ||
+                                      y < _wallThickness || y >= _mapHeight - _wallThickness;
+                bool isWall = isBoundaryWall || (!isBoundaryWall && Random.value < _wallRatio);
 
                 var go  = new GameObject($"Tile_{x}_{y}");
                 go.transform.SetParent(transform);
