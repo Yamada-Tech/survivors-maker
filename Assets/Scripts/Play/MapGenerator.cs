@@ -86,7 +86,7 @@ public class MapGenerator : MonoBehaviour
             {
                 bool isBoundaryWall = x < _wallThickness || x >= _mapWidth  - _wallThickness ||
                                       y < _wallThickness || y >= _mapHeight - _wallThickness;
-                bool isWall = isBoundaryWall || Random.value < _wallRatio;
+                bool isWall = isBoundaryWall || (!isBoundaryWall && Random.value < _wallRatio);
 
                 var go  = new GameObject($"Tile_{x}_{y}");
                 go.transform.SetParent(transform);

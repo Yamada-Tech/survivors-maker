@@ -18,6 +18,10 @@ public class EditorRootPanel : MonoBehaviour
 
     private readonly Dictionary<string, GameObject> _panelGameObjects = new();
     private readonly Dictionary<string, Button> _menuButtons = new();
+    private readonly Dictionary<string, List<string>> _linkedPanels = new()
+    {
+        { MapPanelKey, new List<string> { MapSettingsPanelKey } }
+    };
     private bool _isUiBuilt;
     private string _selectedKey;
 
@@ -60,7 +64,7 @@ public class EditorRootPanel : MonoBehaviour
         root.Add(contentPane);
 
         RegisterPanel(MapPanelKey, "MapEditorPanel");
-        RegisterPanel(MapSettingsPanelKey, MapSettingsPanelName);
+        RegisterPanel(MapSettingsPanelKey, MapSettingsPanelName, isSidePanel: true);
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
@@ -85,7 +89,7 @@ public class EditorRootPanel : MonoBehaviour
         EventBus.Publish(new AppStateChangedEvent { NewState = AppState.Play });
     }
 
-    private void RegisterPanel(string key, string panelName)
+    private void RegisterPanel(string key, string panelName, bool isSidePanel = false)
     {
         var panelTransform = transform.Find(panelName);
         if (panelTransform == null)
@@ -99,7 +103,7 @@ public class EditorRootPanel : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.style.position = Position.Absolute;
-            if (panelName == MapSettingsPanelName)
+            if (isSidePanel)
                 panelRoot.style.left = StyleKeyword.Auto;
             else
                 panelRoot.style.left = ContentLeftOffset;
@@ -107,7 +111,7 @@ public class EditorRootPanel : MonoBehaviour
             panelRoot.style.top = 0f;
             panelRoot.style.bottom = 0f;
             panelRoot.style.backgroundColor = RootBackgroundColor;
-            if (panelName == MapSettingsPanelName)
+            if (isSidePanel)
             {
                 panelRoot.style.width = 320f;
             }
@@ -148,8 +152,11 @@ public class EditorRootPanel : MonoBehaviour
             pair.Value.style.backgroundColor = pair.Key == _selectedKey ? MenuButtonSelectedColor : MenuButtonColor;
     }
 
-    private static bool ShouldShowPanel(string selectedKey, string panelKey)
+    private bool ShouldShowPanel(string selectedKey, string panelKey)
     {
-        return panelKey == selectedKey || (selectedKey == MapPanelKey && panelKey == MapSettingsPanelKey);
+        if (panelKey == selectedKey)
+            return true;
+
+        return _linkedPanels.TryGetValue(selectedKey, out var linkedPanelKeys) && linkedPanelKeys.Contains(panelKey);
     }
 }

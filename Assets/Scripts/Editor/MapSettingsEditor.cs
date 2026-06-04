@@ -67,7 +67,7 @@ public class MapSettingsEditor : MonoBehaviour
         root.Add(_wallColorField);
         root.Add(_floorColorField);
 
-        var applyButton = new Button(Apply) { text = "適用" };
+        var applyButton = new Button(ApplyToMapGenerator) { text = "適用" };
         applyButton.style.marginTop = 8f;
         root.Add(applyButton);
 
@@ -121,11 +121,6 @@ public class MapSettingsEditor : MonoBehaviour
             if (_isBinding) return;
             _settingsData.FloorColor = evt.newValue;
         });
-    }
-
-    private void Apply()
-    {
-        ApplyToMapGenerator();
     }
 
     private void ApplyToMapGenerator()
