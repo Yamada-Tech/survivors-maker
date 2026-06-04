@@ -12,7 +12,8 @@
 - RPGツクールのように **ドット絵を描いて、キャラを動かして、マップを作れる** ことが最終目標
 - ユーザーがエディター上で敵・Wave・武器・マップ・パッシブなどを自由に設定できる
 - 設定データは **JSON形式** で保存・読み込み
-- UIは **Unity OnGUI** で統一（uGUI不使用）
+- エディターUIは **UI Toolkit（UIElements）** で統一
+- ゲーム内オーバーレイUI（HUD・レベルアップ等）は **OnGUI（IMGUI）** を使用
 
 ---
 
@@ -22,8 +23,9 @@
 |---|---|
 | エンジン | Unity（2D） |
 | 言語 | C# |
-| UIシステム | OnGUI（IMGUI）統一 |
-| 保存形式 | JSON（フェーズ4で実装予定） |
+| UIシステム（エディター） | **UI Toolkit（UIElements）**  ← 一般ユーザー向けに使いやすいUIが作れるため |
+| UIシステム（ゲーム内HUD） | OnGUI（IMGUI）― GameHUD / LevelUpUI など実行時オーバーレイ限定で許容 |
+| 保存形式 | JSON（DataManager経由） |
 | 入力 | Unity Input System |
 | 物理 | Physics2D |
 | レイヤー構成 | Player=8 / Enemy=9 / Projectile=10 / Wall=11 |
@@ -36,7 +38,7 @@
 Assets/
 ├── Scripts/
 │   ├── Play/          # ゲームプレイ中のスクリプト
-│   ├── Editor/        # Unityエディタ拡張（SceneSetupEditor等）
+│   ├── Editor/        # エディターパネル（UIElements使用）
 │   ├── Data/          # データクラス（WeaponData, EnemyData等）
 │   └── Events/        # EventBus用イベント定義
 ├── Sprites/           # スプライト・スプライトシート置き場
@@ -54,6 +56,19 @@ Assets/
 | イベント購読 | `OnEnable` / `OnDisable` で Subscribe / Unsubscribe をペアで行う |
 | null安全 | `?.` / `??` を積極的に使用 |
 | レイヤー参照 | 番号直書きOK（Player=8, Enemy=9, Projectile=10, Wall=11） |
+
+---
+
+## 🖼️ UIシステム使い分け指針
+
+| 用途 | 使用システム | 理由 |
+|---|---|---|
+| エディターパネル全般 | **UI Toolkit（UIElements）** | Flexboxレイアウト・ScrollView・スタイリングが一般ユーザー向けに最適 |
+| ゲーム内HUD（HP・EXP・タイマー等） | **OnGUI（IMGUI）** | ゲームオーバーレイとしてシンプルに機能するため許容 |
+| レベルアップ武器選択UI | **OnGUI（IMGUI）** | 同上 |
+| 新規エディターパネル追加時 | **UI Toolkit（UIElements）** | 必ずこちらを使うこと |
+
+> ⚠️ **uGUI（Canvas / TextMeshPro）は使用禁止**
 
 ---
 
@@ -78,9 +93,14 @@ Assets/
 - [x] リザルト画面（GAME OVER / CLEAR・生存時間・キル数・レベル表示）
 - [x] 「もう一度プレイ」ボタン
 
-### エディター
+### エディター（UIElements製）
 - [x] `SurvivorsMaker/Setup Scene` メニューからワンクリックシーン構築
 - [x] マップ自動生成（`MapGenerator`）
+- [x] マップエディター（`MapEditor`）― グリッド描画・タイルペイント・レイヤー切替・Undo/Redo
+- [x] 敵エディター（`EnemyEditor`）― 敵データの追加・編集・削除
+- [x] 武器エディター（`WeaponEditor`）― 武器データの追加・編集・削除
+- [x] Waveエディター（`WaveEditor`）― Wave・SpawnGroup設定・Undo/Redo・JSON入力
+- [x] アセットマネージャー（`AssetManager` + `AssetManagerPanel`）― 画像/音声/フォントのインポート・置換・削除
 
 ### アニメーション
 - [x] `PlayerAnimator`：歩行 / アイドル / 被弾 / 死亡アニメーション対応
@@ -93,7 +113,7 @@ Assets/
 
 | 問題 | 状況 | 対応予定 |
 |---|---|---|
-| Wave間の空白時間（敵全滅後の中折れ） | 修正試みたが未解消 | エディター実装時に Wave設定と合わせて修正 |
+| Wave間の空白時間（敵全滅後の中折れ） | 修正試みたが未解消 | Waveエディターと合わせて修正 |
 | 攻撃範囲が視覚的にわからない | 未対応 | フェーズ3-3で対応 |
 | プレイヤースプライト未設定 | アニメーターは実装済み・スプライト未設定 | スプライトシートをインスペクタから設定要 |
 
@@ -104,7 +124,7 @@ Assets/
 ### フェーズ0：エディター基盤 ← **次のフェーズ**
 | # | 機能 | 概要 |
 |---|---|---|
-| 0-1 | **エディターUI基盤** | 左メニュー＋右コンテンツのRPGツクール型レイアウト |
+| 0-1 | **エディターUI基盤** | 左メニュー＋右コンテンツのRPGツクール型レイアウト（UIElements） |
 | 0-2 | **ドット絵エディター** | 32×32キャンバス・パレット・ペン/消しゴム・書き出し |
 | 0-3 | **スプライトシート管理** | 描いたドット絵をアニメーション行として管理 |
 
@@ -147,13 +167,16 @@ Assets/
 
 このプロジェクトでAIに作業を依頼する際の注意点：
 
-- **新規スクリプトは必ず `Assets/Scripts/Play/` か `Assets/Scripts/Data/` に配置**
-- **OnGUIを使ったUI実装**（uGUI / TextMeshPro は使わない）
+- **新規エディタースクリプトは `Assets/Scripts/Editor/` に配置**
+- **新規プレイ系スクリプトは `Assets/Scripts/Play/` に配置**
+- **エディターパネルは必ず UI Toolkit（UIElements）で実装**（`[RequireComponent(typeof(UIDocument))]` を付ける）
+- **uGUI（Canvas / TextMeshPro）は使用禁止**
+- **ゲーム内HUD・オーバーレイに限り OnGUI は許容**（GameHUD・LevelUpUI 等の既存実装を踏襲する場合）
 - **EventBusパターン**でシステム間通信（直接参照よりイベント優先）
 - **`SceneSetupEditor.cs`** にシーン構築処理をまとめる（新コンポーネントはここに追加）
-- **JSON保存はフェーズ4まで不要**（それまではコードで直接データを定義）
+- **JSON保存は DataManager 経由**で行う
 - コードスタイルは `_camelCase` を厳守
 
 ---
 
-*最終更新：2026-05-13*
+*最終更新：2026-06-04*
