@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UIElements;
 
 public static class SceneSetupEditor
 {
@@ -36,6 +37,7 @@ public static class SceneSetupEditor
         DestroyIfExists("Main Camera");
         DestroyIfExists("MapGenerator");
         DestroyIfExists("DamageNumberSpawner");
+        DestroyIfExists("EditorRoot");
 
         // プレハブ保存先フォルダを確保
         if (!AssetDatabase.IsValidFolder(PrefabsFolder))
@@ -143,6 +145,36 @@ public static class SceneSetupEditor
             var asmGo = new GameObject("AppStateMachine");
             asmGo.AddComponent<AppStateMachine>();
         }
+
+        // EditorRoot（UI Toolkit 2ペイン構成）
+        var editorRootGo = new GameObject("EditorRoot");
+        editorRootGo.AddComponent<UIDocument>();
+        editorRootGo.AddComponent<EditorRootPanel>();
+
+        var mapEditorPanelGo = new GameObject("MapEditorPanel");
+        mapEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        mapEditorPanelGo.AddComponent<UIDocument>();
+        mapEditorPanelGo.AddComponent<MapEditor>();
+
+        var enemyEditorPanelGo = new GameObject("EnemyEditorPanel");
+        enemyEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        enemyEditorPanelGo.AddComponent<UIDocument>();
+        enemyEditorPanelGo.AddComponent<EnemyEditor>();
+
+        var weaponEditorPanelGo = new GameObject("WeaponEditorPanel");
+        weaponEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        weaponEditorPanelGo.AddComponent<UIDocument>();
+        weaponEditorPanelGo.AddComponent<WeaponEditor>();
+
+        var waveEditorPanelGo = new GameObject("WaveEditorPanel");
+        waveEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        waveEditorPanelGo.AddComponent<UIDocument>();
+        waveEditorPanelGo.AddComponent<WaveEditor>();
+
+        var assetManagerPanelGo = new GameObject("AssetManagerPanel");
+        assetManagerPanelGo.transform.SetParent(editorRootGo.transform);
+        assetManagerPanelGo.AddComponent<UIDocument>();
+        assetManagerPanelGo.AddComponent<AssetManagerPanel>();
 
         // シーンを保存済みとしてマーク
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
