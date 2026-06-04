@@ -14,6 +14,7 @@ public class MapSettingsEditor : MonoBehaviour
     private FloatField _wallRatioField;
     private ColorField _wallColorField;
     private ColorField _floorColorField;
+    private MapGenerator _mapGenerator;
     private bool _isUiBuilt;
     private bool _isBinding;
 
@@ -22,6 +23,7 @@ public class MapSettingsEditor : MonoBehaviour
         BuildUi();
         Load();
         RefreshFields();
+        _mapGenerator ??= FindAnyObjectByType<MapGenerator>();
         EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
     }
 
@@ -128,19 +130,19 @@ public class MapSettingsEditor : MonoBehaviour
 
     private void ApplyToMapGenerator()
     {
-        var mapGenerator = FindAnyObjectByType<MapGenerator>();
-        if (mapGenerator == null)
+        _mapGenerator ??= FindAnyObjectByType<MapGenerator>();
+        if (_mapGenerator == null)
         {
             Debug.LogWarning("[MapSettingsEditor] MapGenerator not found.");
             return;
         }
 
-        mapGenerator.MapWidth = _settingsData.Width;
-        mapGenerator.MapHeight = _settingsData.Height;
-        mapGenerator.WallRatio = _settingsData.WallRatio;
-        mapGenerator.WallColor = _settingsData.WallColor;
-        mapGenerator.FloorColor = _settingsData.FloorColor;
-        mapGenerator.Generate();
+        _mapGenerator.MapWidth = _settingsData.Width;
+        _mapGenerator.MapHeight = _settingsData.Height;
+        _mapGenerator.WallRatio = _settingsData.WallRatio;
+        _mapGenerator.WallColor = _settingsData.WallColor;
+        _mapGenerator.FloorColor = _settingsData.FloorColor;
+        _mapGenerator.Generate();
     }
 
     private void Save()

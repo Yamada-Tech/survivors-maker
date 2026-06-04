@@ -8,6 +8,9 @@ public class EditorRootPanel : MonoBehaviour
     private const float MenuWidth = 180f;
     private const float DividerWidth = 1f;
     private const float ContentLeftOffset = MenuWidth + DividerWidth;
+    private const string MapPanelKey = "map";
+    private const string MapSettingsPanelKey = "mapsettings";
+    private const string MapSettingsPanelName = "MapSettingsEditorPanel";
     private static readonly Color RootBackgroundColor = new(0.12f, 0.12f, 0.15f);
     private static readonly Color MenuButtonColor = new(0.18f, 0.18f, 0.22f);
     private static readonly Color MenuButtonSelectedColor = new(0.2f, 0.5f, 1f);
@@ -21,7 +24,7 @@ public class EditorRootPanel : MonoBehaviour
     private void OnEnable()
     {
         BuildUi();
-        SelectPanel("map");
+        SelectPanel(MapPanelKey);
     }
 
     private void BuildUi()
@@ -56,8 +59,8 @@ public class EditorRootPanel : MonoBehaviour
         contentPane.style.backgroundColor = RootBackgroundColor;
         root.Add(contentPane);
 
-        RegisterPanel("map", "MapEditorPanel");
-        RegisterPanel("mapsettings", "MapSettingsEditorPanel");
+        RegisterPanel(MapPanelKey, "MapEditorPanel");
+        RegisterPanel(MapSettingsPanelKey, MapSettingsPanelName);
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
@@ -65,7 +68,7 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel("dotart", "DotArtEditorPanel");
         RegisterPanel("spritesheet", "SpriteSheetEditorPanel");
 
-        AddMenuButton(menuPane, "map", "🗺️ マップ");
+        AddMenuButton(menuPane, MapPanelKey, "🗺️ マップ");
         AddMenuButton(menuPane, "enemy", "👾 敵");
         AddMenuButton(menuPane, "weapon", "⚔️ 武器");
         AddMenuButton(menuPane, "wave", "🌊 Wave");
@@ -96,7 +99,7 @@ public class EditorRootPanel : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.style.position = Position.Absolute;
-            if (panelName == "MapSettingsEditorPanel")
+            if (panelName == MapSettingsPanelName)
                 panelRoot.style.left = StyleKeyword.Auto;
             else
                 panelRoot.style.left = ContentLeftOffset;
@@ -104,7 +107,7 @@ public class EditorRootPanel : MonoBehaviour
             panelRoot.style.top = 0f;
             panelRoot.style.bottom = 0f;
             panelRoot.style.backgroundColor = RootBackgroundColor;
-            if (panelName == "MapSettingsEditorPanel")
+            if (panelName == MapSettingsPanelName)
             {
                 panelRoot.style.width = 320f;
             }
@@ -139,9 +142,14 @@ public class EditorRootPanel : MonoBehaviour
         _selectedKey = key;
 
         foreach (var pair in _panelGameObjects)
-            pair.Value?.SetActive(pair.Key == key || (key == "map" && pair.Key == "mapsettings"));
+            pair.Value?.SetActive(ShouldShowPanel(key, pair.Key));
 
         foreach (var pair in _menuButtons)
             pair.Value.style.backgroundColor = pair.Key == _selectedKey ? MenuButtonSelectedColor : MenuButtonColor;
+    }
+
+    private static bool ShouldShowPanel(string selectedKey, string panelKey)
+    {
+        return panelKey == selectedKey || (selectedKey == MapPanelKey && panelKey == MapSettingsPanelKey);
     }
 }
