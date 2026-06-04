@@ -141,8 +141,10 @@ public class GameSettingsEditor : MonoBehaviour
             _settingsData.ExpMultiplier);
         gameManager?.ApplyTimeLimitSec(_settingsData.TimeLimitSec);
 
-        if (playerController == null && gameManager == null)
-            Debug.LogWarning("[GameSettingsEditor] PlayerController / GameManager not found.");
+        if (playerController == null)
+            Debug.LogWarning("[GameSettingsEditor] PlayerController not found.");
+        if (gameManager == null)
+            Debug.LogWarning("[GameSettingsEditor] GameManager not found.");
     }
 
     private void Save()
