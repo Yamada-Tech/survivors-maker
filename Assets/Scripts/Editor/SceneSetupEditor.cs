@@ -45,10 +45,10 @@ public static class SceneSetupEditor
         var defaultSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
         // ---- プレハブ資産を作成・保存 ----
-        var enemyPrefab          = SavePrefabAsset(BuildEnemyGO(defaultSprite),          "EnemyPrefab");
-        var projectilePrefab     = SavePrefabAsset(BuildProjectileGO(defaultSprite),     "ProjectilePrefab");
+        var enemyPrefab           = SavePrefabAsset(BuildEnemyGO(defaultSprite),           "EnemyPrefab");
+        var projectilePrefab      = SavePrefabAsset(BuildProjectileGO(defaultSprite),      "ProjectilePrefab");
         var enemyProjectilePrefab = SavePrefabAsset(BuildEnemyProjectileGO(defaultSprite), "EnemyProjectilePrefab");
-        var expGemPrefab         = SavePrefabAsset(BuildExpGemGO(defaultSprite),         "ExpGemPrefab");
+        var expGemPrefab          = SavePrefabAsset(BuildExpGemGO(defaultSprite),          "ExpGemPrefab");
 
         // ---- シーン構築 ----
 
@@ -122,7 +122,7 @@ public static class SceneSetupEditor
         dropperSO.FindProperty("_expGemPrefab").objectReferenceValue = expGemPrefab;
         dropperSO.ApplyModifiedProperties();
 
-        // GameHUD
+        // GameHUD（OnGUIで描画するゲーム内オーバーレイ）
         var hud = SetupHUD(playerCtrl);
         SetupLevelUpUI(weaponSys);
 
@@ -311,17 +311,18 @@ public static class SceneSetupEditor
 
     private static GameHUD SetupHUD(PlayerController player)
     {
+        // GameHUD は OnGUI ベースのゲーム内オーバーレイ（UIElements不使用）
         var hudGo = new GameObject("GameHUD");
         var hud = hudGo.AddComponent<GameHUD>();
         var hudSO = new SerializedObject(hud);
         hudSO.FindProperty("_player").objectReferenceValue = player;
         hudSO.ApplyModifiedProperties();
-        // UIDocumentは不要（OnGUIで描画するため）
         return hud;
     }
 
     private static void SetupLevelUpUI(WeaponSystem weaponSystem)
     {
+        // LevelUpUI は OnGUI ベースのゲーム内オーバーレイ（UIElements不使用）
         var levelUpGo = new GameObject("LevelUpUI");
         var levelUpUI = levelUpGo.AddComponent<LevelUpUI>();
         var levelUpSO = new SerializedObject(levelUpUI);
