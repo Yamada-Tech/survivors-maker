@@ -10,7 +10,9 @@ public class EditorRootPanel : MonoBehaviour
     private const float ContentLeftOffset = MenuWidth + DividerWidth;
     private const string MapPanelKey = "map";
     private const string MapSettingsPanelKey = "mapsettings";
+    private const string GameSettingsPanelKey = "gamesettings";
     private const string MapSettingsPanelName = "MapSettingsEditorPanel";
+    private const string GameSettingsPanelName = "GameSettingsEditorPanel";
     private static readonly Color RootBackgroundColor = new(0.12f, 0.12f, 0.15f);
     private static readonly Color MenuButtonColor = new(0.18f, 0.18f, 0.22f);
     private static readonly Color MenuButtonSelectedColor = new(0.2f, 0.5f, 1f);
@@ -65,6 +67,7 @@ public class EditorRootPanel : MonoBehaviour
 
         RegisterPanel(MapPanelKey, "MapEditorPanel");
         RegisterPanel(MapSettingsPanelKey, MapSettingsPanelName, isSidePanel: true);
+        RegisterPanel(GameSettingsPanelKey, GameSettingsPanelName, isSidePanel: false);
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
@@ -73,6 +76,7 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel("spritesheet", "SpriteSheetEditorPanel");
 
         AddMenuButton(menuPane, MapPanelKey, "🗺️ マップ");
+        AddMenuButton(menuPane, GameSettingsPanelKey, "⚙️ 基本設定");
         AddMenuButton(menuPane, "enemy", "👾 敵");
         AddMenuButton(menuPane, "weapon", "⚔️ 武器");
         AddMenuButton(menuPane, "wave", "🌊 Wave");
