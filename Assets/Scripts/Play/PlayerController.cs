@@ -201,7 +201,11 @@ public class PlayerController : MonoBehaviour
 
     public void ApplyGameSettings(int maxHp, float moveSpeed, float invincibleSec, float expMultiplier)
     {
-        _data ??= new PlayerData();
+        if (_data == null)
+        {
+            Debug.LogWarning("[PlayerController] PlayerData is null.");
+            return;
+        }
 
         _data.MaxHp = Mathf.Clamp(maxHp, 1, 9999);
         _data.MoveSpeed = Mathf.Clamp(moveSpeed, 0.5f, 20f);

@@ -62,10 +62,15 @@ public class GameSettingsEditor : MonoBehaviour
         root.Add(title);
 
         _timeLimitField = new IntegerField("制限時間 (秒)");
+        _timeLimitField.tooltip = $"{MinTimeLimitSec}〜{MaxTimeLimitSec}";
         _playerMaxHpField = new IntegerField("プレイヤー最大HP");
+        _playerMaxHpField.tooltip = $"{MinPlayerMaxHp}〜{MaxPlayerMaxHp}";
         _playerMoveSpeedField = new FloatField("プレイヤー移動速度");
+        _playerMoveSpeedField.tooltip = $"{MinPlayerMoveSpeed:0.0}〜{MaxPlayerMoveSpeed:0}";
         _invincibleSecField = new FloatField("無敵時間 (秒)");
+        _invincibleSecField.tooltip = $"{MinInvincibleSec:0.0}〜{MaxInvincibleSec:0.0}";
         _expMultiplierField = new FloatField("経験値倍率");
+        _expMultiplierField.tooltip = $"{MinExpMultiplier:0.0}〜{MaxExpMultiplier:0}";
 
         root.Add(_timeLimitField);
         root.Add(_playerMaxHpField);
@@ -135,6 +140,9 @@ public class GameSettingsEditor : MonoBehaviour
             _settingsData.InvincibleSec,
             _settingsData.ExpMultiplier);
         gameManager?.ApplyTimeLimitSec(_settingsData.TimeLimitSec);
+
+        if (playerController == null && gameManager == null)
+            Debug.LogWarning("[GameSettingsEditor] PlayerController / GameManager not found.");
     }
 
     private void Save()
