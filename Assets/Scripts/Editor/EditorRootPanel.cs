@@ -67,7 +67,7 @@ public class EditorRootPanel : MonoBehaviour
 
         RegisterPanel(MapPanelKey, "MapEditorPanel");
         RegisterPanel(MapSettingsPanelKey, MapSettingsPanelName, isSidePanel: true);
-        RegisterPanel(GameSettingsPanelKey, GameSettingsPanelName);
+        RegisterPanel(GameSettingsPanelKey, GameSettingsPanelName, isSidePanel: false);
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
