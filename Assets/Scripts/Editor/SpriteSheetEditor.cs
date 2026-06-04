@@ -211,8 +211,8 @@ public class SpriteSheetEditor : MonoBehaviour
             if (label == null) return;
 
             var name = string.IsNullOrWhiteSpace(animation?.Name) ? $"Row {index + 1}" : animation.Name;
-            var frameCount = Mathf.Max(animation?.FrameCount ?? 1, 1);
-            var startFrame = Mathf.Max(animation?.StartFrame ?? 0, 0);
+            var frameCount = animation?.FrameCount ?? 1;
+            var startFrame = animation?.StartFrame ?? 0;
             label.text = $"{name} [{startFrame}-{startFrame + frameCount - 1}]";
         };
         _animationListView.selectionChanged += _ => ShowAnimationDetail(_animationListView.selectedIndex);
