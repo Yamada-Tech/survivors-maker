@@ -347,10 +347,10 @@ public class SpriteSheetEditor : MonoBehaviour
     {
         _spriteSheetData.Animations.Add(new AnimationRowData
         {
-            Name = "新規アニメーション",
+            Name = $"新規アニメーション {_spriteSheetData.Animations.Count + 1}",
             StartFrame = 0,
             FrameCount = 1,
-            Fps = 8
+            Fps = AnimationRowData.DefaultFps
         });
 
         _selectedAnimationIndex = _spriteSheetData.Animations.Count - 1;
@@ -455,7 +455,7 @@ public class SpriteSheetEditor : MonoBehaviour
         _nameField?.SetValueWithoutNotify(animation?.Name ?? string.Empty);
         _startFrameField?.SetValueWithoutNotify(animation?.StartFrame ?? 0);
         _frameCountField?.SetValueWithoutNotify(animation?.FrameCount ?? 1);
-        _fpsField?.SetValueWithoutNotify(animation?.Fps ?? 8);
+        _fpsField?.SetValueWithoutNotify(animation?.Fps ?? AnimationRowData.DefaultFps);
         _isBinding = false;
 
         RefreshPreview();
@@ -493,7 +493,7 @@ public class SpriteSheetEditor : MonoBehaviour
 
         if (AssetManager.Instance == null)
         {
-            _previewStatusLabel.text = "AssetManager not found.";
+            _previewStatusLabel.text = "AssetManagerが見つかりません。";
             return;
         }
 
