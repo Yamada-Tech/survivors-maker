@@ -61,12 +61,14 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
         RegisterPanel("asset", "AssetManagerPanel");
+        RegisterPanel("dotart", "DotArtEditorPanel");
 
         AddMenuButton(menuPane, "map", "🗺️ マップ");
         AddMenuButton(menuPane, "enemy", "👾 敵");
         AddMenuButton(menuPane, "weapon", "⚔️ 武器");
         AddMenuButton(menuPane, "wave", "🌊 Wave");
         AddMenuButton(menuPane, "asset", "🖼️ アセット");
+        AddMenuButton(menuPane, "dotart", "🎨 ドット絵");
         AddMenuButton(menuPane, "play", "▶️ プレイ", OnPlayClicked, false);
 
         _isUiBuilt = true;
