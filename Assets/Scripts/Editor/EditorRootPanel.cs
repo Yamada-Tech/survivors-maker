@@ -103,9 +103,7 @@ public class EditorRootPanel : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.style.position = Position.Absolute;
-            if (isSidePanel)
-                panelRoot.style.left = StyleKeyword.Auto;
-            else
+            if (!isSidePanel)
                 panelRoot.style.left = ContentLeftOffset;
             panelRoot.style.right = 0f;
             panelRoot.style.top = 0f;

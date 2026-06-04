@@ -84,7 +84,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int y = 0; y < _mapHeight; y++)
             {
-                bool isBoundaryWall = x < _wallThickness || x >= _mapWidth  - _wallThickness ||
+                bool isBoundaryWall = x < _wallThickness || x >= _mapWidth - _wallThickness ||
                                       y < _wallThickness || y >= _mapHeight - _wallThickness;
                 bool isWall = isBoundaryWall || (!isBoundaryWall && Random.value < _wallRatio);
 
