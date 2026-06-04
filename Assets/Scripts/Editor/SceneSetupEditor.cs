@@ -176,6 +176,11 @@ public static class SceneSetupEditor
         assetManagerPanelGo.AddComponent<UIDocument>();
         assetManagerPanelGo.AddComponent<AssetManagerPanel>();
 
+        var dotArtEditorPanelGo = new GameObject("DotArtEditorPanel");
+        dotArtEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        dotArtEditorPanelGo.AddComponent<UIDocument>();
+        dotArtEditorPanelGo.AddComponent<DotArtEditor>();
+
         // シーンを保存済みとしてマーク
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
             UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
