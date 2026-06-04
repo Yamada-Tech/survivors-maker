@@ -5,6 +5,9 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(UIDocument))]
 public class EditorRootPanel : MonoBehaviour
 {
+    private const float MenuWidth = 180f;
+    private const float DividerWidth = 1f;
+    private const float ContentLeftOffset = MenuWidth + DividerWidth;
     private static readonly Color RootBackgroundColor = new(0.12f, 0.12f, 0.15f);
     private static readonly Color MenuButtonColor = new(0.18f, 0.18f, 0.22f);
     private static readonly Color MenuButtonSelectedColor = new(0.2f, 0.5f, 1f);
@@ -38,13 +41,13 @@ public class EditorRootPanel : MonoBehaviour
         root.style.backgroundColor = RootBackgroundColor;
 
         var menuPane = new VisualElement();
-        menuPane.style.width = 180f;
+        menuPane.style.width = MenuWidth;
         menuPane.style.flexShrink = 0f;
         menuPane.style.flexDirection = FlexDirection.Column;
         root.Add(menuPane);
 
         var divider = new VisualElement();
-        divider.style.width = 1f;
+        divider.style.width = DividerWidth;
         divider.style.backgroundColor = DividerColor;
         root.Add(divider);
 
@@ -64,7 +67,7 @@ public class EditorRootPanel : MonoBehaviour
         AddMenuButton(menuPane, "weapon", "⚔️ 武器");
         AddMenuButton(menuPane, "wave", "🌊 Wave");
         AddMenuButton(menuPane, "asset", "🖼️ アセット");
-        AddMenuButton(menuPane, "play", "▶️ プレイ", OnPlayClicked);
+        AddMenuButton(menuPane, "play", "▶️ プレイ", OnPlayClicked, false);
 
         _isUiBuilt = true;
     }
@@ -88,7 +91,7 @@ public class EditorRootPanel : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.style.position = Position.Absolute;
-            panelRoot.style.left = 181f;
+            panelRoot.style.left = ContentLeftOffset;
             panelRoot.style.right = 0f;
             panelRoot.style.top = 0f;
             panelRoot.style.bottom = 0f;
@@ -96,12 +99,12 @@ public class EditorRootPanel : MonoBehaviour
         }
     }
 
-    private void AddMenuButton(VisualElement parent, string key, string label, System.Action clickAction = null)
+    private void AddMenuButton(VisualElement parent, string key, string label, System.Action clickAction = null, bool shouldSelectPanel = true)
     {
         var button = new Button(() =>
         {
             clickAction?.Invoke();
-            if (clickAction == null)
+            if (shouldSelectPanel)
                 SelectPanel(key);
         })
         {
