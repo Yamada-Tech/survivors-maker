@@ -57,6 +57,7 @@ public class EditorRootPanel : MonoBehaviour
         root.Add(contentPane);
 
         RegisterPanel("map", "MapEditorPanel");
+        RegisterPanel("mapsettings", "MapSettingsEditorPanel");
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
@@ -95,11 +96,18 @@ public class EditorRootPanel : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.style.position = Position.Absolute;
-            panelRoot.style.left = ContentLeftOffset;
+            if (panelName == "MapSettingsEditorPanel")
+                panelRoot.style.left = StyleKeyword.Auto;
+            else
+                panelRoot.style.left = ContentLeftOffset;
             panelRoot.style.right = 0f;
             panelRoot.style.top = 0f;
             panelRoot.style.bottom = 0f;
             panelRoot.style.backgroundColor = RootBackgroundColor;
+            if (panelName == "MapSettingsEditorPanel")
+            {
+                panelRoot.style.width = 320f;
+            }
         }
     }
 
@@ -131,7 +139,7 @@ public class EditorRootPanel : MonoBehaviour
         _selectedKey = key;
 
         foreach (var pair in _panelGameObjects)
-            pair.Value?.SetActive(pair.Key == key);
+            pair.Value?.SetActive(pair.Key == key || (key == "map" && pair.Key == "mapsettings"));
 
         foreach (var pair in _menuButtons)
             pair.Value.style.backgroundColor = pair.Key == _selectedKey ? MenuButtonSelectedColor : MenuButtonColor;

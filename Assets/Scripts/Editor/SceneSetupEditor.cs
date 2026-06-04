@@ -156,6 +156,11 @@ public static class SceneSetupEditor
         mapEditorPanelGo.AddComponent<UIDocument>();
         mapEditorPanelGo.AddComponent<MapEditor>();
 
+        var mapSettingsEditorPanelGo = new GameObject("MapSettingsEditorPanel");
+        mapSettingsEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        mapSettingsEditorPanelGo.AddComponent<UIDocument>();
+        mapSettingsEditorPanelGo.AddComponent<MapSettingsEditor>();
+
         var enemyEditorPanelGo = new GameObject("EnemyEditorPanel");
         enemyEditorPanelGo.transform.SetParent(editorRootGo.transform);
         enemyEditorPanelGo.AddComponent<UIDocument>();
