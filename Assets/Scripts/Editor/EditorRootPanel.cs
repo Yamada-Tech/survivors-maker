@@ -62,6 +62,7 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel("wave", "WaveEditorPanel");
         RegisterPanel("asset", "AssetManagerPanel");
         RegisterPanel("dotart", "DotArtEditorPanel");
+        RegisterPanel("spritesheet", "SpriteSheetEditorPanel");
 
         AddMenuButton(menuPane, "map", "🗺️ マップ");
         AddMenuButton(menuPane, "enemy", "👾 敵");
@@ -69,6 +70,7 @@ public class EditorRootPanel : MonoBehaviour
         AddMenuButton(menuPane, "wave", "🌊 Wave");
         AddMenuButton(menuPane, "asset", "🖼️ アセット");
         AddMenuButton(menuPane, "dotart", "🎨 ドット絵");
+        AddMenuButton(menuPane, "spritesheet", "📋 スプライト");
         AddMenuButton(menuPane, "play", "▶️ プレイ", OnPlayClicked, false);
 
         _isUiBuilt = true;
