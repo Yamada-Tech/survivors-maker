@@ -226,4 +226,10 @@ public class GameManager : MonoBehaviour
         };
         return list;
     }
+
+    public void ApplyTimeLimitSec(int timeLimitSec)
+    {
+        _timeLimitSec = Mathf.Clamp(timeLimitSec, 30f, 3600f);
+        _gameHUD?.SetTimerConfig(_timeLimitSec, _countDown);
+    }
 }

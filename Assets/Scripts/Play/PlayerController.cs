@@ -198,4 +198,15 @@ public class PlayerController : MonoBehaviour
     {
         _expMultiplier += addRate;
     }
+
+    public void ApplyGameSettings(int maxHp, float moveSpeed, float invincibleSec, float expMultiplier)
+    {
+        _data ??= new PlayerData();
+
+        _data.MaxHp = Mathf.Clamp(maxHp, 1, 9999);
+        _data.MoveSpeed = Mathf.Clamp(moveSpeed, 0.5f, 20f);
+        _damageCooldown = Mathf.Clamp(invincibleSec, 0f, 5f);
+        _expMultiplier = Mathf.Clamp(expMultiplier, 0.1f, 10f);
+        CurrentHp = Mathf.Min(CurrentHp, MaxHp);
+    }
 }
