@@ -9,6 +9,7 @@ public class DotArtEditor : MonoBehaviour
     private const int CanvasSize = 32;
     private const int CellSize = 12;
     private const int PaletteSize = 16;
+    private const float TransparentAlphaThreshold = 0.001f;
     private static readonly Color CellBorderColor = new(0.25f, 0.25f, 0.25f, 1f);
     private static readonly Color TransparentCellColor = new(0f, 0f, 0f, 0.35f);
     private static readonly Color SelectedColor = new(0.2f, 0.6f, 1f, 1f);
@@ -423,7 +424,8 @@ public class DotArtEditor : MonoBehaviour
     {
         var exportDirectory = Path.Combine(Application.persistentDataPath, "ProjectData", "Assets");
         Directory.CreateDirectory(exportDirectory);
-        var exportPath = Path.Combine(exportDirectory, "dotart_export.png");
+        var fileName = $"dotart_export_{System.DateTime.UtcNow:yyyyMMdd_HHmmss_fff}.png";
+        var exportPath = Path.Combine(exportDirectory, fileName);
 
         var tex = new Texture2D(CanvasSize, CanvasSize, TextureFormat.RGBA32, false)
         {
@@ -443,23 +445,32 @@ public class DotArtEditor : MonoBehaviour
         File.WriteAllBytes(exportPath, bytes);
         Destroy(tex);
 
-        EnsureAssetManager();
-        var importedGuid = AssetManager.Instance?.ImportTexture(exportPath) ?? string.Empty;
+        var assetManager = EnsureAssetManager();
+        if (assetManager == null)
+        {
+            _statusLabel.text = $"PNG保存（Import失敗）: {exportPath}";
+            Debug.LogWarning("[DotArtEditor] AssetManager not found. PNG was saved but not imported.");
+            return;
+        }
+
+        var importedGuid = assetManager.ImportTexture(exportPath);
         _statusLabel.text = string.IsNullOrWhiteSpace(importedGuid)
             ? $"PNG保存: {exportPath}"
             : $"PNG保存+Import: {importedGuid}";
     }
 
-    private static void EnsureAssetManager()
+    private static AssetManager EnsureAssetManager()
     {
-        if (AssetManager.Instance != null) return;
+        if (AssetManager.Instance != null) return AssetManager.Instance;
 
         var manager = FindAnyObjectByType<AssetManager>();
         if (manager == null)
         {
             var go = new GameObject("AssetManager");
-            go.AddComponent<AssetManager>();
+            manager = go.AddComponent<AssetManager>();
         }
+
+        return manager;
     }
 
     private void RefreshAllCells()
@@ -473,7 +484,7 @@ public class DotArtEditor : MonoBehaviour
         var cell = _cellElements[index];
         if (cell == null) return;
         var color = _pixels[index];
-        cell.style.backgroundColor = color.a <= 0.001f ? TransparentCellColor : color;
+        cell.style.backgroundColor = color.a <= TransparentAlphaThreshold ? TransparentCellColor : color;
     }
 
     private void RefreshPaletteSelection()
