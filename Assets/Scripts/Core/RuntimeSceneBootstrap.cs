@@ -388,9 +388,13 @@ public static class RuntimeSceneBootstrap
         if (_solidSprite != null)
             return _solidSprite;
 
-        _solidTexture = new Texture2D(1, 1);
-        _solidTexture.SetPixel(0, 0, Color.white);
-        _solidTexture.Apply();
+        if (_solidTexture == null)
+        {
+            _solidTexture = new Texture2D(1, 1);
+            _solidTexture.SetPixel(0, 0, Color.white);
+            _solidTexture.Apply();
+        }
+
         _solidSprite = Sprite.Create(_solidTexture, new Rect(0, 0, 1, 1), Vector2.one * 0.5f);
         return _solidSprite;
     }

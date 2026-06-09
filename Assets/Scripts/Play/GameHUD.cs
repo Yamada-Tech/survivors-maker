@@ -64,6 +64,8 @@ public class GameHUD : MonoBehaviour
         if (_player == null)
             _player = FindAnyObjectByType<PlayerController>();
         _isVisible = AppStateMachine.Instance != null && AppStateMachine.Instance.CurrentState == AppState.Play;
+        if (_isVisible)
+            ResetRuntimeState();
     }
 
     private void Update()
@@ -191,14 +193,17 @@ public class GameHUD : MonoBehaviour
     {
         _isVisible = evt.NewState == AppState.Play;
         if (_isVisible)
-        {
-            _elapsed = 0f;
-            _killCount = 0;
-            _displayLevel = _player != null ? _player.Level : 1;
-            _gameOver = false;
-            _clearMode = false;
-            _timeLimitReached = false;
-        }
+            ResetRuntimeState();
+    }
+
+    private void ResetRuntimeState()
+    {
+        _elapsed = 0f;
+        _killCount = 0;
+        _displayLevel = _player != null ? _player.Level : 1;
+        _gameOver = false;
+        _clearMode = false;
+        _timeLimitReached = false;
     }
 
     public void SetTimerConfig(float timeLimitSec, bool countDown)

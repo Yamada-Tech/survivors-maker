@@ -58,13 +58,13 @@ public class PlayerController : MonoBehaviour
     {
         if (_dead)
         {
-            _moveInput = Vector2.zero;
+            StopMovement();
             return;
         }
 
         if (!_controlsEnabled)
         {
-            _moveInput = Vector2.zero;
+            StopMovement();
             if (_animator != null)
                 _animator.SetState(PlayerAnimator.AnimState.Idle);
             return;
@@ -116,11 +116,7 @@ public class PlayerController : MonoBehaviour
     {
         _controlsEnabled = evt.NewState == AppState.Play;
         if (!_controlsEnabled)
-        {
-            _moveInput = Vector2.zero;
-            if (_rb != null)
-                _rb.linearVelocity = Vector2.zero;
-        }
+            StopMovement();
     }
 
     // ---- ダメージ / 経験値 ----
@@ -254,5 +250,12 @@ public class PlayerController : MonoBehaviour
     {
         _data = data ?? new PlayerData();
         CurrentHp = _data.MaxHp;
+    }
+
+    private void StopMovement()
+    {
+        _moveInput = Vector2.zero;
+        if (_rb != null)
+            _rb.linearVelocity = Vector2.zero;
     }
 }
