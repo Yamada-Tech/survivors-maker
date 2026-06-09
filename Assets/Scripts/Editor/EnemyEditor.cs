@@ -47,11 +47,13 @@ public class EnemyEditor : MonoBehaviour
         BuildUI();
         RefreshList();
         EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Subscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Unsubscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void BuildUI()
@@ -396,9 +398,23 @@ public class EnemyEditor : MonoBehaviour
         DataManager.Instance.Save(_enemyList, EnemyFileName);
     }
 
+    private void Load()
+    {
+        _enemyList = DataManager.Instance != null
+            ? DataManager.Instance.Load<EnemyListData>(EnemyFileName)
+            : new EnemyListData();
+        EnsureEnemyList();
+    }
+
     private void OnSaveAllRequested(SaveAllRequestedEvent _)
     {
         Save();
+    }
+
+    private void OnLoadAllRequested(LoadAllRequestedEvent _)
+    {
+        Load();
+        RefreshList();
     }
 
     private void EnsureEnemyList()

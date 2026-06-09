@@ -45,11 +45,13 @@ public class WeaponEditor : MonoBehaviour
         BuildUI();
         RefreshList();
         EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Subscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Unsubscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void BuildUI()
@@ -378,9 +380,23 @@ public class WeaponEditor : MonoBehaviour
         DataManager.Instance.Save(_weaponList, WeaponFileName);
     }
 
+    private void Load()
+    {
+        _weaponList = DataManager.Instance != null
+            ? DataManager.Instance.Load<WeaponListData>(WeaponFileName)
+            : new WeaponListData();
+        EnsureWeaponList();
+    }
+
     private void OnSaveAllRequested(SaveAllRequestedEvent _)
     {
         Save();
+    }
+
+    private void OnLoadAllRequested(LoadAllRequestedEvent _)
+    {
+        Load();
+        RefreshList();
     }
 
     private void EnsureWeaponList()

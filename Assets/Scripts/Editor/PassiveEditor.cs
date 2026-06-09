@@ -43,11 +43,13 @@ public class PassiveEditor : MonoBehaviour
         BuildUI();
         RefreshList();
         EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Subscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Unsubscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void BuildUI()
@@ -290,6 +292,14 @@ public class PassiveEditor : MonoBehaviour
         DataManager.Instance.Save(_passiveList, PassiveFileName);
     }
 
+    private void Load()
+    {
+        _passiveList = DataManager.Instance != null
+            ? DataManager.Instance.Load<PassiveListData>(PassiveFileName)
+            : new PassiveListData();
+        EnsurePassiveList();
+    }
+
     private void ShowDetail(int index)
     {
         _selectedIndex = index;
@@ -339,6 +349,12 @@ public class PassiveEditor : MonoBehaviour
     private void OnSaveAllRequested(SaveAllRequestedEvent _)
     {
         Save();
+    }
+
+    private void OnLoadAllRequested(LoadAllRequestedEvent _)
+    {
+        Load();
+        RefreshList();
     }
 
     private void EnsurePassiveList()

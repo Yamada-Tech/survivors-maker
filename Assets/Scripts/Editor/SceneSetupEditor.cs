@@ -189,6 +189,11 @@ public static class SceneSetupEditor
         passiveEditorPanelGo.AddComponent<UIDocument>();
         passiveEditorPanelGo.AddComponent<PassiveEditor>();
 
+        var presetEditorPanelGo = new GameObject("PresetEditorPanel");
+        presetEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        presetEditorPanelGo.AddComponent<UIDocument>();
+        presetEditorPanelGo.AddComponent<PresetEditor>();
+
         var waveEditorPanelGo = new GameObject("WaveEditorPanel");
         waveEditorPanelGo.transform.SetParent(editorRootGo.transform);
         waveEditorPanelGo.AddComponent<UIDocument>();

@@ -50,6 +50,11 @@ public struct SaveAllRequestedEvent
 {
 }
 
+// エディタ全体読み込み要求
+public struct LoadAllRequestedEvent
+{
+}
+
 // プレイモード開始
 public struct PlayModeStartedEvent
 {
