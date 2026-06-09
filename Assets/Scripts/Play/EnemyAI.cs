@@ -97,6 +97,8 @@ public class EnemyAI : MonoBehaviour
 
         var dir = ((Vector2)_player.position - (Vector2)transform.position).normalized;
         var go = Instantiate(_projectilePrefab, transform.position, Quaternion.identity);
+        if (!go.activeSelf)
+            go.SetActive(true);
         var proj = go.GetComponent<EnemyProjectile>();
         if (proj != null)
             proj.Initialize(_data.ProjectileDamage, dir, _data.ProjectileSpeed, _data.AttackRange);

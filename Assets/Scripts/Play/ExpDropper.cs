@@ -4,6 +4,11 @@ public class ExpDropper : MonoBehaviour
 {
     [SerializeField] private GameObject _expGemPrefab;
 
+    public void Configure(GameObject expGemPrefab)
+    {
+        _expGemPrefab = expGemPrefab;
+    }
+
     private void OnEnable()
     {
         EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
@@ -18,6 +23,8 @@ public class ExpDropper : MonoBehaviour
     {
         if (_expGemPrefab == null) return;
         // ドロップ率は EnemyKilledEvent に含まれないため常にドロップ（シンプル化）
-        Instantiate(_expGemPrefab, evt.Position, Quaternion.identity);
+        var go = Instantiate(_expGemPrefab, evt.Position, Quaternion.identity);
+        if (!go.activeSelf)
+            go.SetActive(true);
     }
 }

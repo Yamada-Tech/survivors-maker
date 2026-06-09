@@ -52,6 +52,13 @@ public class WaveSpawner : MonoBehaviour
         _earlyWaveTimer = 0f;
     }
 
+    public void Configure(GameObject enemyPrefab, GameObject enemyProjectilePrefab, Transform player)
+    {
+        _enemyPrefab = enemyPrefab;
+        _enemyProjectilePrefab = enemyProjectilePrefab;
+        _player = player;
+    }
+
     public void StopSpawning()
     {
         _isRunning = false;
@@ -109,6 +116,8 @@ public class WaveSpawner : MonoBehaviour
 
                 var pos = GetSpawnPosition(group.Position);
                 var go = Instantiate(_enemyPrefab, pos, Quaternion.identity);
+                if (!go.activeSelf)
+                    go.SetActive(true);
                 var ai = go.GetComponent<EnemyAI>();
                 if (ai == null)
                 {

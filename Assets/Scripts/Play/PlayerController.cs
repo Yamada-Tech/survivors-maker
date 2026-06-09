@@ -28,13 +28,26 @@ public class PlayerController : MonoBehaviour
     private float _moveSpeedMultiplier = 1f;
     private float _expMultiplier = 1f;
     private PlayerAnimator _animator;
+    private bool _controlsEnabled;
 
     private void Awake()
     {
-        gameObject.tag = "PlayObject";
+        _data ??= new PlayerData();
         _rb = GetComponent<Rigidbody2D>();
         _animator = GetComponent<PlayerAnimator>();
         CurrentHp = _data.MaxHp;
+    }
+
+    private void Start()
+    {
+        _animator ??= GetComponent<PlayerAnimator>();
+        EventBus.Subscribe<AppStateChangedEvent>(OnAppStateChanged);
+        _controlsEnabled = AppStateMachine.Instance != null && AppStateMachine.Instance.CurrentState == AppState.Play;
+    }
+
+    private void OnDestroy()
+    {
+        EventBus.Unsubscribe<AppStateChangedEvent>(OnAppStateChanged);
     }
 
     private void Update()
@@ -42,6 +55,14 @@ public class PlayerController : MonoBehaviour
         if (_dead)
         {
             _moveInput = Vector2.zero;
+            return;
+        }
+
+        if (!_controlsEnabled)
+        {
+            _moveInput = Vector2.zero;
+            if (_animator != null)
+                _animator.SetState(PlayerAnimator.AnimState.Idle);
             return;
         }
 
@@ -85,6 +106,17 @@ public class PlayerController : MonoBehaviour
     {
         // 32px = 1タイル = 1 Unity unit
         _rb.linearVelocity = _moveInput * _data.MoveSpeed * _moveSpeedMultiplier;
+    }
+
+    private void OnAppStateChanged(AppStateChangedEvent evt)
+    {
+        _controlsEnabled = evt.NewState == AppState.Play;
+        if (!_controlsEnabled)
+        {
+            _moveInput = Vector2.zero;
+            if (_rb != null)
+                _rb.linearVelocity = Vector2.zero;
+        }
     }
 
     // ---- ダメージ / 経験値 ----
@@ -212,5 +244,11 @@ public class PlayerController : MonoBehaviour
         _damageCooldown = Mathf.Clamp(invincibleSec, 0f, 5f);
         _expMultiplier = Mathf.Clamp(expMultiplier, 0.1f, 10f);
         CurrentHp = Mathf.Min(CurrentHp, MaxHp);
+    }
+
+    public void SetData(PlayerData data)
+    {
+        _data = data ?? new PlayerData();
+        CurrentHp = _data.MaxHp;
     }
 }

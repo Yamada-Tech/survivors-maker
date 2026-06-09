@@ -17,7 +17,6 @@ public class WeaponSystem : MonoBehaviour
 
     private void Awake()
     {
-        gameObject.tag = "PlayObject";
         int enemyLayer = LayerMask.NameToLayer("Enemy");
         _enemyLayerMask = enemyLayer >= 0 ? (1 << enemyLayer) : ~0;
     }
@@ -41,6 +40,12 @@ public class WeaponSystem : MonoBehaviour
     {
         if (_rangeIndicator == null)
             InitRangeIndicator();
+    }
+
+    public void Configure(Transform player, GameObject projectilePrefab)
+    {
+        _player = player;
+        _projectilePrefab = projectilePrefab;
     }
 
     public void EquipWeapon(WeaponData data)
@@ -114,6 +119,8 @@ public class WeaponSystem : MonoBehaviour
         if (_projectilePrefab == null) return;
 
         var go = Instantiate(_projectilePrefab, _player.position, Quaternion.identity);
+        if (!go.activeSelf)
+            go.SetActive(true);
         var proj = go.GetComponent<Projectile>();
         if (proj != null)
         {
