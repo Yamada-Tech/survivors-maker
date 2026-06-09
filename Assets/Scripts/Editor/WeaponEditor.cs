@@ -63,7 +63,14 @@ public class WeaponEditor : MonoBehaviour
             return;
         }
 
-        _listView = root.Q<ListView>("WeaponList");
+        QueryUiElements(root);
+
+        if (HasMissingUiElements())
+        {
+            BuildFallbackUI(root);
+            QueryUiElements(root);
+        }
+
         if (_listView != null)
         {
             _listView.makeItem = () => new Label();
@@ -79,15 +86,6 @@ public class WeaponEditor : MonoBehaviour
             _listView.selectionChanged += _ => ShowDetail(_listView.selectedIndex);
         }
 
-        _detailPanel = root.Q("DetailPanel");
-        _nameField = root.Q<TextField>("NameField");
-        _typeField = root.Q<EnumField>("TypeField");
-        _damageField = root.Q<IntegerField>("DamageField");
-        _cooldownField = root.Q<FloatField>("CooldownField");
-        _rangeField = root.Q<FloatField>("RangeField");
-        _projectileSpeedField = root.Q<FloatField>("ProjectileSpeedField");
-        _spriteIdField = root.Q<TextField>("SpriteIdField");
-
         RegisterCallbacks();
 
         var addBtn = root.Q<Button>("AddBtn");
@@ -98,6 +96,110 @@ public class WeaponEditor : MonoBehaviour
         if (saveBtn != null) saveBtn.clicked += Save;
 
         _isUiBuilt = true;
+    }
+
+    private void QueryUiElements(VisualElement root)
+    {
+        _listView = root.Q<ListView>("WeaponList");
+        _detailPanel = root.Q("DetailPanel");
+        _nameField = root.Q<TextField>("NameField");
+        _typeField = root.Q<EnumField>("TypeField");
+        _damageField = root.Q<IntegerField>("DamageField");
+        _cooldownField = root.Q<FloatField>("CooldownField");
+        _rangeField = root.Q<FloatField>("RangeField");
+        _projectileSpeedField = root.Q<FloatField>("ProjectileSpeedField");
+        _spriteIdField = root.Q<TextField>("SpriteIdField");
+    }
+
+    private bool HasMissingUiElements()
+    {
+        return _listView == null || _detailPanel == null || _nameField == null || _typeField == null ||
+               _damageField == null || _cooldownField == null || _rangeField == null ||
+               _projectileSpeedField == null || _spriteIdField == null;
+    }
+
+    private static void BuildFallbackUI(VisualElement root)
+    {
+        root.Clear();
+        root.style.flexDirection = FlexDirection.Row;
+        root.style.flexGrow = 1f;
+
+        var leftPane = new VisualElement
+        {
+            style =
+            {
+                width = 200f,
+                minWidth = 200f,
+                maxWidth = 200f,
+                flexDirection = FlexDirection.Column,
+                marginRight = 8f
+            }
+        };
+
+        var listView = new ListView
+        {
+            name = "WeaponList",
+            style =
+            {
+                flexGrow = 1f,
+                minHeight = 200f
+            }
+        };
+        leftPane.Add(listView);
+
+        var buttonRow = new VisualElement
+        {
+            style =
+            {
+                flexDirection = FlexDirection.Row,
+                marginTop = 6f
+            }
+        };
+        buttonRow.Add(new Button { name = "AddBtn", text = "追加", style = { flexGrow = 1f } });
+        buttonRow.Add(new Button { name = "DeleteBtn", text = "削除", style = { flexGrow = 1f } });
+        buttonRow.Add(new Button { name = "SaveBtn", text = "保存", style = { flexGrow = 1f } });
+        leftPane.Add(buttonRow);
+
+        var rightPane = new VisualElement
+        {
+            style =
+            {
+                flexGrow = 1f,
+                minWidth = 0f
+            }
+        };
+
+        var scrollView = new ScrollView
+        {
+            style =
+            {
+                flexGrow = 1f
+            }
+        };
+
+        var detailPanel = new VisualElement
+        {
+            name = "DetailPanel",
+            style =
+            {
+                flexDirection = FlexDirection.Column,
+                flexGrow = 1f
+            }
+        };
+
+        detailPanel.Add(new TextField("Name") { name = "NameField" });
+        detailPanel.Add(new EnumField("Type", WeaponType.Melee) { name = "TypeField" });
+        detailPanel.Add(new IntegerField("Damage") { name = "DamageField" });
+        detailPanel.Add(new FloatField("Cooldown") { name = "CooldownField" });
+        detailPanel.Add(new FloatField("Range") { name = "RangeField" });
+        detailPanel.Add(new FloatField("ProjectileSpeed") { name = "ProjectileSpeedField" });
+        detailPanel.Add(new TextField("SpriteId") { name = "SpriteIdField" });
+
+        scrollView.Add(detailPanel);
+        rightPane.Add(scrollView);
+
+        root.Add(leftPane);
+        root.Add(rightPane);
     }
 
     private void RegisterCallbacks()

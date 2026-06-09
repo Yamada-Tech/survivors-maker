@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class WaveEditor : MonoBehaviour
 {
     private const string WaveFileName = "waves.json";
-    private const string DefaultEnemyId = "Enemy_001";
+    private const string DefaultEnemyId = "enemy_slime";
     private const int DefaultSpawnCount = 5;
     private const float DefaultSpawnInterval = 0.5f;
     private const int MinSpawnCount = 1;
@@ -73,6 +73,11 @@ public class WaveEditor : MonoBehaviour
         {
             Debug.LogWarning("[WaveEditor] UIDocument root not found.");
             return;
+        }
+
+        if (root.Q<ListView>("WaveList") == null)
+        {
+            BuildFallbackUI(root);
         }
 
         _waveListView = root.Q<ListView>("WaveList");
@@ -206,6 +211,100 @@ public class WaveEditor : MonoBehaviour
         root.RegisterCallback<KeyDownEvent>(OnKeyDown);
 
         _isUiBuilt = true;
+    }
+
+    private static void BuildFallbackUI(VisualElement root)
+    {
+        root.Clear();
+        root.style.flexDirection = FlexDirection.Column;
+
+        var toolbar = new VisualElement
+        {
+            style =
+            {
+                flexDirection = FlexDirection.Row,
+                marginBottom = 8f
+            }
+        };
+        toolbar.Add(new Button { name = "UndoBtn", text = "Undo" });
+        toolbar.Add(new Button { name = "RedoBtn", text = "Redo" });
+        toolbar.Add(new Button { name = "SaveBtn", text = "保存" });
+        root.Add(toolbar);
+
+        var content = new VisualElement
+        {
+            style =
+            {
+                flexDirection = FlexDirection.Row,
+                flexGrow = 1f
+            }
+        };
+
+        var leftPane = new VisualElement
+        {
+            style =
+            {
+                width = 200f,
+                marginRight = 8f
+            }
+        };
+        leftPane.Add(new Label("Wave一覧") { style = { unityFontStyleAndWeight = FontStyle.Bold } });
+        leftPane.Add(new ListView
+        {
+            name = "WaveList",
+            style = { flexGrow = 1f, minHeight = 150f }
+        });
+        var waveButtonRow = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+        waveButtonRow.Add(new Button { name = "AddWaveBtn", text = "追加" });
+        waveButtonRow.Add(new Button { name = "DeleteWaveBtn", text = "削除" });
+        leftPane.Add(waveButtonRow);
+
+        var midPane = new VisualElement
+        {
+            style =
+            {
+                width = 240f,
+                marginRight = 8f
+            }
+        };
+        midPane.Add(new Label("Wave詳細") { style = { unityFontStyleAndWeight = FontStyle.Bold } });
+        midPane.Add(new IntegerField("Wave番号") { name = "WaveNumberField" });
+        midPane.Add(new FloatField("開始時刻 (秒)") { name = "StartTimeField" });
+        midPane.Add(new Label("スポーングループ") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 8f } });
+        midPane.Add(new ListView
+        {
+            name = "SpawnGroupList",
+            style = { flexGrow = 1f, minHeight = 100f }
+        });
+        var spawnGroupButtonRow = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+        spawnGroupButtonRow.Add(new Button { name = "AddSpawnGroupBtn", text = "追加" });
+        spawnGroupButtonRow.Add(new Button { name = "DeleteSpawnGroupBtn", text = "削除" });
+        midPane.Add(spawnGroupButtonRow);
+
+        var rightPane = new VisualElement
+        {
+            style =
+            {
+                flexGrow = 1f
+            }
+        };
+        rightPane.Add(new Label("スポーングループ詳細") { style = { unityFontStyleAndWeight = FontStyle.Bold } });
+        rightPane.Add(new TextField("敵ID") { name = "EnemyIdField" });
+        rightPane.Add(new IntegerField("スポーン数") { name = "SpawnCountField" });
+        rightPane.Add(new FloatField("間隔 (秒)") { name = "SpawnIntervalField" });
+        rightPane.Add(new Label("JSON") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 8f } });
+        rightPane.Add(new TextField
+        {
+            name = "JsonField",
+            multiline = true,
+            style = { flexGrow = 1f, minHeight = 80f }
+        });
+        rightPane.Add(new Button { name = "ApplyJsonBtn", text = "JSON適用" });
+
+        content.Add(leftPane);
+        content.Add(midPane);
+        content.Add(rightPane);
+        root.Add(content);
     }
 
     private void AddWave()

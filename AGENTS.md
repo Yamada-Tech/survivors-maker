@@ -97,7 +97,7 @@ Assets/
 - [x] `SurvivorsMaker/Setup Scene` メニューからワンクリックシーン構築
 - [x] マップ自動生成（`MapGenerator`）
 - [x] マップエディター（`MapEditor`）― グリッド描画・タイルペイント・レイヤー切替・Undo/Redo
-- [x] 敵エディター（`EnemyEditor`）― 敵データの追加・編集・削除
+- [x] 敵エディター（`EnemyEditor`）― フォールバックUIあり・デフォルト敵4種シード実装済み
 - [x] 武器エディター（`WeaponEditor`）― 武器データの追加・編集・削除
 - [x] Waveエディター（`WaveEditor`）― Wave・SpawnGroup設定・Undo/Redo・JSON入力
 - [x] アセットマネージャー（`AssetManager` + `AssetManagerPanel`）― 画像/音声/フォントのインポート・置換・削除
@@ -113,7 +113,7 @@ Assets/
 
 | 問題 | 状況 | 対応予定 |
 |---|---|---|
-| Wave間の空白時間（敵全滅後の中折れ） | 修正試みたが未解消 | Waveエディターと合わせて修正 |
+| Wave間の空白時間（敵全滅後の中折れ） | `WaveSpawner` の early-wave logic（`_earlyWaveDelay`）で解消済み | ✅ 解決済み |
 | 攻撃範囲が視覚的にわからない | 未対応 | フェーズ3-3で対応 |
 | プレイヤースプライト未設定 | アニメーターは実装済み・スプライト未設定 | スプライトシートをインスペクタから設定要 |
 

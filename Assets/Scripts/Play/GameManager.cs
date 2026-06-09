@@ -67,8 +67,8 @@ public class GameManager : MonoBehaviour
         _weaponSystem?.EquipWeapon(defaultWeapon);
 
         // デフォルトウェーブデータを生成して開始
-        var waveList = CreateDefaultWaveData();
-        var enemyList = CreateDefaultEnemyData();
+        var waveList = TryLoadWaveData();
+        var enemyList = TryLoadEnemyData();
         _waveSpawner.Initialize(waveList, enemyList, _player.transform);
 
         Debug.Log("[GameManager] Game started!");
@@ -97,6 +97,36 @@ public class GameManager : MonoBehaviour
         });
 
         AppStateMachine.Instance?.ChangeState(AppState.Editor);
+    }
+
+    private WaveListData TryLoadWaveData()
+    {
+        if (DataManager.Instance != null && DataManager.Instance.Exists("waves.json"))
+        {
+            var loaded = DataManager.Instance.Load<WaveListData>("waves.json");
+            if (loaded?.Waves != null && loaded.Waves.Count > 0)
+            {
+                Debug.Log("[GameManager] WaveData loaded from JSON.");
+                return loaded;
+            }
+        }
+        Debug.Log("[GameManager] WaveData: using built-in defaults.");
+        return CreateDefaultWaveData();
+    }
+
+    private EnemyListData TryLoadEnemyData()
+    {
+        if (DataManager.Instance != null && DataManager.Instance.Exists("enemies.json"))
+        {
+            var loaded = DataManager.Instance.Load<EnemyListData>("enemies.json");
+            if (loaded?.Enemies != null && loaded.Enemies.Count > 0)
+            {
+                Debug.Log("[GameManager] EnemyData loaded from JSON.");
+                return loaded;
+            }
+        }
+        Debug.Log("[GameManager] EnemyData: using built-in defaults.");
+        return CreateDefaultEnemyData();
     }
 
     private WaveListData CreateDefaultWaveData()
