@@ -71,6 +71,15 @@ public class GameManager : MonoBehaviour
         var enemyList = TryLoadEnemyData();
         _waveSpawner.Initialize(waveList, enemyList, _player.transform);
 
+        // パッシブデータをLevelUpUIに渡す
+        var levelUpUI = FindAnyObjectByType<LevelUpUI>();
+        if (levelUpUI != null)
+        {
+            var passiveList = TryLoadPassiveData();
+            if (passiveList?.Passives != null && passiveList.Passives.Count > 0)
+                levelUpUI.SetCustomPassives(passiveList.Passives);
+        }
+
         Debug.Log("[GameManager] Game started!");
     }
 
@@ -127,6 +136,21 @@ public class GameManager : MonoBehaviour
         }
         Debug.Log("[GameManager] EnemyData: using built-in defaults.");
         return CreateDefaultEnemyData();
+    }
+
+    private PassiveListData TryLoadPassiveData()
+    {
+        if (DataManager.Instance != null && DataManager.Instance.Exists("passives.json"))
+        {
+            var loaded = DataManager.Instance.Load<PassiveListData>("passives.json");
+            if (loaded?.Passives != null && loaded.Passives.Count > 0)
+            {
+                Debug.Log("[GameManager] PassiveData loaded from JSON.");
+                return loaded;
+            }
+        }
+        Debug.Log("[GameManager] PassiveData: using built-in defaults.");
+        return null;
     }
 
     private WaveListData CreateDefaultWaveData()

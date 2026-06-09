@@ -15,6 +15,7 @@ public class LevelUpUI : MonoBehaviour
     private bool _stylesInitialized;
     private bool _gameEnded;
     private readonly List<Texture2D> _textures = new();
+    private PassiveData[] _customPassives;
 
     private static readonly WeaponData[] WeaponPool = new WeaponData[]
     {
@@ -158,12 +159,19 @@ public class LevelUpUI : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+    public void SetCustomPassives(List<PassiveData> passives)
+    {
+        _customPassives = passives?.Count > 0 ? passives.ToArray() : null;
+    }
+
     private List<object> PickRandomChoices(int count)
     {
         var allPool = new List<object>(WeaponPool.Length + PassivePool.Length);
         foreach (var weapon in WeaponPool)
             allPool.Add(weapon);
-        foreach (var passive in PassivePool)
+
+        var activePassivePool = (_customPassives != null && _customPassives.Length > 0) ? _customPassives : PassivePool;
+        foreach (var passive in activePassivePool)
             allPool.Add(passive);
 
         var result = new List<object>();

@@ -70,6 +70,7 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel(GameSettingsPanelKey, GameSettingsPanelName, isSidePanel: false);
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
+        RegisterPanel("passive", "PassiveEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
         RegisterPanel("asset", "AssetManagerPanel");
         RegisterPanel("dotart", "DotArtEditorPanel");
@@ -79,6 +80,7 @@ public class EditorRootPanel : MonoBehaviour
         AddMenuButton(menuPane, GameSettingsPanelKey, "⚙️ 基本設定");
         AddMenuButton(menuPane, "enemy", "👾 敵");
         AddMenuButton(menuPane, "weapon", "⚔️ 武器");
+        AddMenuButton(menuPane, "passive", "🌀 パッシブ");
         AddMenuButton(menuPane, "wave", "🌊 Wave");
         AddMenuButton(menuPane, "asset", "🖼️ アセット");
         AddMenuButton(menuPane, "dotart", "🎨 ドット絵");
