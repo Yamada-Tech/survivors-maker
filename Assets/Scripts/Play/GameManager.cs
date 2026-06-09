@@ -4,6 +4,8 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    private const float LegacyStartDelaySec = 0.1f;
+
     public static GameManager Instance { get; private set; }
 
     [SerializeField] private PlayerController _player;
@@ -35,13 +37,18 @@ public class GameManager : MonoBehaviour
         var appStateMachine = AppStateMachine.Instance;
         if (appStateMachine == null)
         {
-            Invoke(nameof(StartGame), 0.1f);
+            ScheduleLegacyStart();
             return;
         }
 
         // 既に Play 状態で開始されるケースのみフォールバックで開始する
         if (appStateMachine.CurrentState == AppState.Play)
-            Invoke(nameof(StartGame), 0.1f);
+            ScheduleLegacyStart();
+    }
+
+    private void ScheduleLegacyStart()
+    {
+        Invoke(nameof(StartGame), LegacyStartDelaySec);
     }
 
     private void OnDestroy()
