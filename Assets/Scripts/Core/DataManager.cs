@@ -34,8 +34,7 @@ public class DataManager : MonoBehaviour
         var path = Path.Combine(dir, fileName);
         File.WriteAllText(path, json);
 
-        Debug.Log($"[DataManager] Saved → {path}");
-        Debug.Log($"[DataManager] Save complete: {fileName}");
+        Debug.Log($"[DataManager] Save complete: {fileName} ({path})");
         EventBus.Publish(new DataSavedEvent { FileName = fileName });
     }
 
