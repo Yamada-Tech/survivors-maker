@@ -29,8 +29,10 @@ public class GameManager : MonoBehaviour
         EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
         EventBus.Subscribe<RestartRequestedEvent>(OnRestartRequested);
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
-        // Playモードで直接Playした場合は即ゲーム開始
-        Invoke(nameof(StartGame), 0.1f);
+        // タイトル画面がある場合はプレイモード遷移イベントを待つ
+        // AppState.Title でない場合（直接Play実行など）は即ゲーム開始
+        if (AppStateMachine.Instance == null || AppStateMachine.Instance.CurrentState != AppState.Title)
+            Invoke(nameof(StartGame), 0.1f);
     }
 
     private void OnDestroy()
@@ -79,6 +81,9 @@ public class GameManager : MonoBehaviour
             if (passiveList?.Passives != null && passiveList.Passives.Count > 0)
                 levelUpUI.SetCustomPassives(passiveList.Passives);
         }
+
+        // スプライト設定を適用
+        ApplySpriteSettings();
 
         Debug.Log("[GameManager] Game started!");
     }
@@ -285,5 +290,33 @@ public class GameManager : MonoBehaviour
     {
         _timeLimitSec = Mathf.Clamp(timeLimitSec, 30, 3600);
         _gameHUD?.SetTimerConfig(_timeLimitSec, _countDown);
+    }
+
+    private void ApplySpriteSettings()
+    {
+        if (DataManager.Instance == null || !DataManager.Instance.Exists("sprite_settings.json"))
+            return;
+
+        var settings = DataManager.Instance.Load<SpriteSettingsData>("sprite_settings.json");
+        if (settings == null) return;
+
+        var assetManager = FindAnyObjectByType<AssetManager>();
+        if (assetManager == null) return;
+
+        // プレイヤースプライト適用
+        if (!string.IsNullOrWhiteSpace(settings.PlayerSpriteGuid))
+        {
+            var tex = assetManager.LoadTexture(settings.PlayerSpriteGuid);
+            if (tex != null && _player != null)
+            {
+                var sr = _player.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    const float PixelsPerUnit = 32f;
+                    sr.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, PixelsPerUnit);
+                    sr.color = Color.white;
+                }
+            }
+        }
     }
 }
