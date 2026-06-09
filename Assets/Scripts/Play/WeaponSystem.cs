@@ -9,6 +9,11 @@ public class WeaponSystem : MonoBehaviour
     private readonly List<WeaponRuntime> _equipped = new();
     private bool _frozen;
     private int _enemyLayerMask;
+    private WeaponRangeIndicator _rangeIndicator;
+
+    private static readonly Color MeleeIndicatorColor = new(1f, 0.3f, 0.3f);
+    private static readonly Color RangedIndicatorColor = new(0.3f, 0.8f, 1f);
+    private static readonly Color AreaIndicatorColor = new(1f, 0.8f, 0.2f);
 
     private void Awake()
     {
@@ -31,6 +36,12 @@ public class WeaponSystem : MonoBehaviour
 
     private void OnPlayerDied(PlayerDiedEvent _) => _frozen = true;
     private void OnGameEnded(TimeLimitReachedEvent _) => _frozen = true;
+
+    private void Start()
+    {
+        if (_rangeIndicator == null)
+            InitRangeIndicator();
+    }
 
     public void EquipWeapon(WeaponData data)
     {
@@ -59,6 +70,8 @@ public class WeaponSystem : MonoBehaviour
 
     private void Fire(WeaponRuntime weapon)
     {
+        if (_player == null) return;
+
         var target = FindClosestEnemy();
         if (target == null) return;
 
@@ -67,12 +80,15 @@ public class WeaponSystem : MonoBehaviour
         switch (weapon.Data.Type)
         {
             case WeaponType.Melee:
+                _rangeIndicator?.Show(weapon.Data.Range, MeleeIndicatorColor);
                 MeleeAttack(weapon.Data, dir);
                 break;
             case WeaponType.Projectile:
+                _rangeIndicator?.Show(weapon.Data.Range, RangedIndicatorColor);
                 ProjectileAttack(weapon.Data, dir);
                 break;
             case WeaponType.Area:
+                _rangeIndicator?.Show(weapon.Data.Range, AreaIndicatorColor);
                 AreaAttack(weapon.Data);
                 break;
         }
@@ -118,6 +134,8 @@ public class WeaponSystem : MonoBehaviour
 
     private Transform FindClosestEnemy()
     {
+        if (_player == null) return null;
+
         float minDist = float.MaxValue;
         Transform closest = null;
         var enemies = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
@@ -132,6 +150,15 @@ public class WeaponSystem : MonoBehaviour
             }
         }
         return closest;
+    }
+
+    private void InitRangeIndicator()
+    {
+        var parent = _player != null ? _player : transform;
+        var indicatorGo = new GameObject("WeaponRangeIndicator");
+        indicatorGo.transform.SetParent(parent);
+        indicatorGo.transform.localPosition = Vector3.zero;
+        _rangeIndicator = indicatorGo.AddComponent<WeaponRangeIndicator>();
     }
 
     private struct WeaponRuntime

@@ -138,6 +138,14 @@ public static class SceneSetupEditor
         gmSO.FindProperty("_gameHUD").objectReferenceValue = hud;
         gmSO.ApplyModifiedProperties();
 
+        // DataManager がなければ追加
+        var dm = Object.FindAnyObjectByType<DataManager>();
+        if (dm == null)
+        {
+            var dmGo = new GameObject("DataManager");
+            dmGo.AddComponent<DataManager>();
+        }
+
         // AppStateMachine がなければ追加
         var asm = Object.FindAnyObjectByType<AppStateMachine>();
         if (asm == null)
@@ -175,6 +183,11 @@ public static class SceneSetupEditor
         weaponEditorPanelGo.transform.SetParent(editorRootGo.transform);
         weaponEditorPanelGo.AddComponent<UIDocument>();
         weaponEditorPanelGo.AddComponent<WeaponEditor>();
+
+        var passiveEditorPanelGo = new GameObject("PassiveEditorPanel");
+        passiveEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        passiveEditorPanelGo.AddComponent<UIDocument>();
+        passiveEditorPanelGo.AddComponent<PassiveEditor>();
 
         var waveEditorPanelGo = new GameObject("WaveEditorPanel");
         waveEditorPanelGo.transform.SetParent(editorRootGo.transform);
