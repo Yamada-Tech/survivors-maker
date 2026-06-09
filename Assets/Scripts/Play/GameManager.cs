@@ -29,9 +29,18 @@ public class GameManager : MonoBehaviour
         EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
         EventBus.Subscribe<RestartRequestedEvent>(OnRestartRequested);
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
-        // タイトル画面がある場合はプレイモード遷移イベントを待つ
-        // AppState.Title でない場合（直接Play実行など）は即ゲーム開始
-        if (AppStateMachine.Instance == null || AppStateMachine.Instance.CurrentState != AppState.Title)
+
+        // AppState.Play への遷移イベント受信で開始するのが基本。
+        // ただし古いシーン互換のため、AppStateMachine が無い場合のみ即開始する。
+        var appStateMachine = AppStateMachine.Instance;
+        if (appStateMachine == null)
+        {
+            Invoke(nameof(StartGame), 0.1f);
+            return;
+        }
+
+        // 既に Play 状態で開始されるケースのみフォールバックで開始する
+        if (appStateMachine.CurrentState == AppState.Play)
             Invoke(nameof(StartGame), 0.1f);
     }
 
