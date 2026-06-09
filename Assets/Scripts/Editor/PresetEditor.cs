@@ -292,7 +292,13 @@ public class PresetEditor : MonoBehaviour
             }
         }
 
-        _customPresets.Sort((a, b) => string.Compare(a?.Name, b?.Name, StringComparison.Ordinal));
+        _customPresets.Sort((a, b) =>
+        {
+            if (ReferenceEquals(a, b)) return 0;
+            if (a == null) return -1;
+            if (b == null) return 1;
+            return string.Compare(a.Name, b.Name, StringComparison.Ordinal);
+        });
         _selectedCustomIndex = -1;
     }
 
