@@ -15,6 +15,7 @@ public class WaveSpawner : MonoBehaviour
     private int _currentWaveIndex;
     private bool _isRunning;
     private int _aliveEnemyCount;
+    private int _activeSpawnCount;
     private bool _waitingEarlyWave;
     private float _earlyWaveTimer;
 
@@ -46,6 +47,7 @@ public class WaveSpawner : MonoBehaviour
         _elapsedTime = 0f;
         _isRunning = true;
         _aliveEnemyCount = 0;
+        _activeSpawnCount = 0;
         _waitingEarlyWave = false;
         _earlyWaveTimer = 0f;
     }
@@ -53,6 +55,7 @@ public class WaveSpawner : MonoBehaviour
     public void StopSpawning()
     {
         _isRunning = false;
+        _activeSpawnCount = 0;
         _waitingEarlyWave = false;
     }
 
@@ -93,27 +96,35 @@ public class WaveSpawner : MonoBehaviour
 
     private IEnumerator SpawnGroup(SpawnGroup group)
     {
-        var enemyData = FindEnemyData(group.EnemyId);
-        if (enemyData == null) yield break;
-
-        for (int i = 0; i < group.Count; i++)
+        _activeSpawnCount++;
+        try
         {
-            if (!_isRunning)
-                yield break;
+            var enemyData = FindEnemyData(group.EnemyId);
+            if (enemyData == null) yield break;
 
-            var pos = GetSpawnPosition(group.Position);
-            var go = Instantiate(_enemyPrefab, pos, Quaternion.identity);
-            var ai = go.GetComponent<EnemyAI>();
-            if (ai == null)
+            for (int i = 0; i < group.Count; i++)
             {
-                Debug.LogError("[WaveSpawner] EnemyAI component not found on prefab.");
-                Destroy(go);
-                yield break;
-            }
-            ai.Initialize(enemyData, _player, _enemyProjectilePrefab);
-            _aliveEnemyCount++;
+                if (!_isRunning)
+                    yield break;
 
-            yield return new WaitForSeconds(group.SpawnInterval);
+                var pos = GetSpawnPosition(group.Position);
+                var go = Instantiate(_enemyPrefab, pos, Quaternion.identity);
+                var ai = go.GetComponent<EnemyAI>();
+                if (ai == null)
+                {
+                    Debug.LogError("[WaveSpawner] EnemyAI component not found on prefab.");
+                    Destroy(go);
+                    yield break;
+                }
+                ai.Initialize(enemyData, _player, _enemyProjectilePrefab);
+                _aliveEnemyCount++;
+
+                yield return new WaitForSeconds(group.SpawnInterval);
+            }
+        }
+        finally
+        {
+            _activeSpawnCount = Mathf.Max(0, _activeSpawnCount - 1);
         }
     }
 
@@ -125,7 +136,7 @@ public class WaveSpawner : MonoBehaviour
     {
         _aliveEnemyCount = Mathf.Max(0, _aliveEnemyCount - 1);
 
-        if (_aliveEnemyCount == 0 && _isRunning &&
+        if (_aliveEnemyCount == 0 && _activeSpawnCount == 0 && _isRunning &&
             _currentWaveIndex < (_waveData?.Waves.Count ?? 0) &&
             !_waitingEarlyWave)
         {

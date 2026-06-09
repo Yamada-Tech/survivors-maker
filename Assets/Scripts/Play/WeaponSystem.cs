@@ -105,6 +105,8 @@ public class WeaponSystem : MonoBehaviour
                 enemy.TakeDamage(data.Damage, dir);
             }
         }
+
+        SpawnRangeEffect(_player.position, data.Range, new Color(1f, 1f, 0.3f, 0.8f));
     }
 
     private void ProjectileAttack(WeaponData data, Vector2 dir)
@@ -130,6 +132,16 @@ public class WeaponSystem : MonoBehaviour
                 enemy.TakeDamage(data.Damage, knockDir);
             }
         }
+
+        SpawnRangeEffect(_player.position, data.Range, new Color(1f, 0.5f, 0f, 0.8f));
+    }
+
+    private void SpawnRangeEffect(Vector3 pos, float radius, Color color)
+    {
+        GameObject go = new GameObject("AttackRangeEffect");
+        go.transform.position = pos;
+        var effect = go.AddComponent<AttackRangeEffect>();
+        effect.Initialize(radius, color, 0.35f);
     }
 
     private Transform FindClosestEnemy()
