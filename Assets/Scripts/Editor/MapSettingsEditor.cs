@@ -11,9 +11,9 @@ public class MapSettingsEditor : MonoBehaviour
     private MapSettingsData _settingsData = new();
     private IntegerField _widthField;
     private IntegerField _heightField;
-    private FloatField _wallRatioField;
-    private ColorField _wallColorField;
-    private ColorField _floorColorField;
+    private FloatField   _wallRatioField;
+    private TextField    _wallColorField;
+    private TextField    _floorColorField;
     private MapGenerator _mapGenerator;
     private bool _isUiBuilt;
     private bool _isBinding;
@@ -46,9 +46,9 @@ public class MapSettingsEditor : MonoBehaviour
         }
 
         root.Clear();
-        root.style.paddingLeft = 12f;
-        root.style.paddingRight = 12f;
-        root.style.paddingTop = 12f;
+        root.style.paddingLeft   = 12f;
+        root.style.paddingRight  = 12f;
+        root.style.paddingTop    = 12f;
         root.style.paddingBottom = 12f;
         root.style.flexDirection = FlexDirection.Column;
 
@@ -57,11 +57,11 @@ public class MapSettingsEditor : MonoBehaviour
         title.style.marginBottom = 8f;
         root.Add(title);
 
-        _widthField = new IntegerField("Width");
-        _heightField = new IntegerField("Height");
-        _wallRatioField = new FloatField("Wall Ratio");
-        _wallColorField = new ColorField("Wall Color");
-        _floorColorField = new ColorField("Floor Color");
+        _widthField      = new IntegerField("Width");
+        _heightField     = new IntegerField("Height");
+        _wallRatioField  = new FloatField("Wall Ratio");
+        _wallColorField  = new TextField("Wall Color (hex)");
+        _floorColorField = new TextField("Floor Color (hex)");
 
         root.Add(_widthField);
         root.Add(_heightField);
@@ -79,49 +79,42 @@ public class MapSettingsEditor : MonoBehaviour
 
     private void RegisterCallbacks()
     {
-        if (_widthField != null)
+        _widthField?.RegisterValueChangedCallback(evt =>
         {
-            _widthField.RegisterValueChangedCallback(evt =>
-            {
-                if (_isBinding) return;
-                _settingsData.Width = Mathf.Clamp(evt.newValue, MinMapSize, MaxMapSize);
-                if (_settingsData.Width != evt.newValue)
-                    _widthField.SetValueWithoutNotify(_settingsData.Width);
-            });
-        }
+            if (_isBinding) return;
+            _settingsData.Width = Mathf.Clamp(evt.newValue, MinMapSize, MaxMapSize);
+            if (_settingsData.Width != evt.newValue)
+                _widthField.SetValueWithoutNotify(_settingsData.Width);
+        });
 
-        if (_heightField != null)
+        _heightField?.RegisterValueChangedCallback(evt =>
         {
-            _heightField.RegisterValueChangedCallback(evt =>
-            {
-                if (_isBinding) return;
-                _settingsData.Height = Mathf.Clamp(evt.newValue, MinMapSize, MaxMapSize);
-                if (_settingsData.Height != evt.newValue)
-                    _heightField.SetValueWithoutNotify(_settingsData.Height);
-            });
-        }
+            if (_isBinding) return;
+            _settingsData.Height = Mathf.Clamp(evt.newValue, MinMapSize, MaxMapSize);
+            if (_settingsData.Height != evt.newValue)
+                _heightField.SetValueWithoutNotify(_settingsData.Height);
+        });
 
-        if (_wallRatioField != null)
+        _wallRatioField?.RegisterValueChangedCallback(evt =>
         {
-            _wallRatioField.RegisterValueChangedCallback(evt =>
-            {
-                if (_isBinding) return;
-                _settingsData.WallRatio = Mathf.Clamp01(evt.newValue);
-                if (!Mathf.Approximately(_settingsData.WallRatio, evt.newValue))
-                    _wallRatioField.SetValueWithoutNotify(_settingsData.WallRatio);
-            });
-        }
+            if (_isBinding) return;
+            _settingsData.WallRatio = Mathf.Clamp01(evt.newValue);
+            if (!Mathf.Approximately(_settingsData.WallRatio, evt.newValue))
+                _wallRatioField.SetValueWithoutNotify(_settingsData.WallRatio);
+        });
 
         _wallColorField?.RegisterValueChangedCallback(evt =>
         {
             if (_isBinding) return;
-            _settingsData.WallColor = evt.newValue;
+            if (ColorUtility.TryParseHtmlString("#" + evt.newValue.TrimStart('#'), out var c))
+                _settingsData.WallColor = c;
         });
 
         _floorColorField?.RegisterValueChangedCallback(evt =>
         {
             if (_isBinding) return;
-            _settingsData.FloorColor = evt.newValue;
+            if (ColorUtility.TryParseHtmlString("#" + evt.newValue.TrimStart('#'), out var c))
+                _settingsData.FloorColor = c;
         });
     }
 
@@ -134,22 +127,17 @@ public class MapSettingsEditor : MonoBehaviour
             return;
         }
 
-        _mapGenerator.MapWidth = _settingsData.Width;
-        _mapGenerator.MapHeight = _settingsData.Height;
-        _mapGenerator.WallRatio = _settingsData.WallRatio;
-        _mapGenerator.WallColor = _settingsData.WallColor;
+        _mapGenerator.MapWidth   = _settingsData.Width;
+        _mapGenerator.MapHeight  = _settingsData.Height;
+        _mapGenerator.WallRatio  = _settingsData.WallRatio;
+        _mapGenerator.WallColor  = _settingsData.WallColor;
         _mapGenerator.FloorColor = _settingsData.FloorColor;
         _mapGenerator.Generate();
     }
 
     private void Save()
     {
-        if (DataManager.Instance == null)
-        {
-            Debug.LogWarning("[MapSettingsEditor] DataManager.Instance is null.");
-            return;
-        }
-
+        if (DataManager.Instance == null) return;
         DataManager.Instance.Save(_settingsData, MapSettingsFileName);
     }
 
@@ -160,8 +148,8 @@ public class MapSettingsEditor : MonoBehaviour
             : new MapSettingsData();
 
         _settingsData ??= new MapSettingsData();
-        _settingsData.Width = Mathf.Clamp(_settingsData.Width, MinMapSize, MaxMapSize);
-        _settingsData.Height = Mathf.Clamp(_settingsData.Height, MinMapSize, MaxMapSize);
+        _settingsData.Width     = Mathf.Clamp(_settingsData.Width, MinMapSize, MaxMapSize);
+        _settingsData.Height    = Mathf.Clamp(_settingsData.Height, MinMapSize, MaxMapSize);
         _settingsData.WallRatio = Mathf.Clamp01(_settingsData.WallRatio);
     }
 
@@ -171,19 +159,11 @@ public class MapSettingsEditor : MonoBehaviour
         _widthField?.SetValueWithoutNotify(_settingsData.Width);
         _heightField?.SetValueWithoutNotify(_settingsData.Height);
         _wallRatioField?.SetValueWithoutNotify(_settingsData.WallRatio);
-        _wallColorField?.SetValueWithoutNotify(_settingsData.WallColor);
-        _floorColorField?.SetValueWithoutNotify(_settingsData.FloorColor);
+        _wallColorField?.SetValueWithoutNotify(ColorUtility.ToHtmlStringRGB(_settingsData.WallColor));
+        _floorColorField?.SetValueWithoutNotify(ColorUtility.ToHtmlStringRGB(_settingsData.FloorColor));
         _isBinding = false;
     }
 
-    private void OnSaveAllRequested(SaveAllRequestedEvent _)
-    {
-        Save();
-    }
-
-    private void OnLoadAllRequested(LoadAllRequestedEvent _)
-    {
-        Load();
-        RefreshFields();
-    }
+    private void OnSaveAllRequested(SaveAllRequestedEvent _) => Save();
+    private void OnLoadAllRequested(LoadAllRequestedEvent _) { Load(); RefreshFields(); }
 }
