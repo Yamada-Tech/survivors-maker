@@ -166,7 +166,7 @@ public static class RuntimeSceneBootstrap
     private static GameObject EnsureEnemyPrefab(Transform parent)
     {
         var go = GetOrCreateChild(parent, "EnemyPrefab");
-        go.SetActive(true);
+        go.SetActive(false);
 
         var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
         spriteRenderer.sprite = CreateSolidSprite();
@@ -188,7 +188,7 @@ public static class RuntimeSceneBootstrap
     private static GameObject EnsureProjectilePrefab(Transform parent)
     {
         var go = GetOrCreateChild(parent, "ProjectilePrefab");
-        go.SetActive(true);
+        go.SetActive(false);
 
         var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
         spriteRenderer.sprite = CreateSolidSprite();
@@ -210,7 +210,7 @@ public static class RuntimeSceneBootstrap
     private static GameObject EnsureEnemyProjectilePrefab(Transform parent)
     {
         var go = GetOrCreateChild(parent, "EnemyProjectilePrefab");
-        go.SetActive(true);
+        go.SetActive(false);
 
         var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
         spriteRenderer.sprite = CreateSolidSprite();
@@ -231,7 +231,7 @@ public static class RuntimeSceneBootstrap
     private static GameObject EnsureExpGemPrefab(Transform parent)
     {
         var go = GetOrCreateChild(parent, "ExpGemPrefab");
-        go.SetActive(true);
+        go.SetActive(false);
 
         var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
         spriteRenderer.sprite = CreateSolidSprite();

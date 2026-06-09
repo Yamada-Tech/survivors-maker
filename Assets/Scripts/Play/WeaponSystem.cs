@@ -23,21 +23,25 @@ public class WeaponSystem : MonoBehaviour
 
     private void OnEnable()
     {
+        EventBus.Subscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
         EventBus.Subscribe<TimeLimitReachedEvent>(OnGameEnded);
     }
 
     private void OnDisable()
     {
+        EventBus.Unsubscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
         EventBus.Unsubscribe<TimeLimitReachedEvent>(OnGameEnded);
     }
 
+    private void OnAppStateChanged(AppStateChangedEvent evt) => _frozen = evt.NewState != AppState.Play;
     private void OnPlayerDied(PlayerDiedEvent _) => _frozen = true;
     private void OnGameEnded(TimeLimitReachedEvent _) => _frozen = true;
 
     private void Start()
     {
+        _frozen = AppStateMachine.Instance == null || AppStateMachine.Instance.CurrentState != AppState.Play;
         if (_rangeIndicator == null)
             InitRangeIndicator();
     }
