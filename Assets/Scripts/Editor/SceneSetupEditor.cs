@@ -295,8 +295,8 @@ public static class SceneSetupEditor
         var go = new GameObject("Player");
         var sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
-        // スプライトシートを使用する場合は Color.white に変更してください
-        sr.color = Color.cyan;
+        // ⚠️ デフォルトはプレースホルダー。PlayerAnimator インスペクタにスプライトシートを設定してください（36×24px/フレーム）
+        sr.color = new Color(0.3f, 0.8f, 1f);
 
         var rb = go.AddComponent<Rigidbody2D>();
         rb.gravityScale = 0f;

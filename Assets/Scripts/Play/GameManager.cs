@@ -264,6 +264,7 @@ public class GameManager : MonoBehaviour
                 new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 50,  SpawnInterval = 0.15f, Position = SpawnPosition.RandomEdge }
             });
 
+        waves.Sort((a, b) => a.StartTimeSec.CompareTo(b.StartTimeSec));
         waveList.Waves = waves;
         return waveList;
     }
