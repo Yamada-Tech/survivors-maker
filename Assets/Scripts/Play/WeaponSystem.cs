@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class WeaponSystem : MonoBehaviour
 {
+    private const int EnemyLayer = 9;
+
     [SerializeField] private Transform _player;
     [SerializeField] private GameObject _projectilePrefab;
 
@@ -17,8 +19,7 @@ public class WeaponSystem : MonoBehaviour
 
     private void Awake()
     {
-        int enemyLayer = LayerMask.NameToLayer("Enemy");
-        _enemyLayerMask = enemyLayer >= 0 ? (1 << enemyLayer) : ~0;
+        _enemyLayerMask = 1 << EnemyLayer;
     }
 
     private void OnEnable()
@@ -35,13 +36,13 @@ public class WeaponSystem : MonoBehaviour
         EventBus.Unsubscribe<TimeLimitReachedEvent>(OnGameEnded);
     }
 
-    private void OnAppStateChanged(AppStateChangedEvent evt) => _frozen = evt.NewState != AppState.Play;
+    private void OnAppStateChanged(AppStateChangedEvent evt) => UpdateFrozenState(evt.NewState);
     private void OnPlayerDied(PlayerDiedEvent _) => _frozen = true;
     private void OnGameEnded(TimeLimitReachedEvent _) => _frozen = true;
 
     private void Start()
     {
-        _frozen = AppStateMachine.Instance == null || AppStateMachine.Instance.CurrentState != AppState.Play;
+        UpdateFrozenState(AppStateMachine.Instance?.CurrentState ?? AppState.Title);
         if (_rangeIndicator == null)
             InitRangeIndicator();
     }
@@ -185,6 +186,11 @@ public class WeaponSystem : MonoBehaviour
         indicatorGo.transform.SetParent(parent);
         indicatorGo.transform.localPosition = Vector3.zero;
         _rangeIndicator = indicatorGo.AddComponent<WeaponRangeIndicator>();
+    }
+
+    private void UpdateFrozenState(AppState state)
+    {
+        _frozen = state != AppState.Play;
     }
 
     private struct WeaponRuntime

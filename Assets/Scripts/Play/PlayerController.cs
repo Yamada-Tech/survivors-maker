@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         _animator ??= GetComponent<PlayerAnimator>();
-        _controlsEnabled = AppStateMachine.Instance != null && AppStateMachine.Instance.CurrentState == AppState.Play;
+        UpdateControlsEnabled(AppStateMachine.Instance?.CurrentState ?? AppState.Title);
     }
 
     private void OnEnable()
@@ -114,7 +114,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnAppStateChanged(AppStateChangedEvent evt)
     {
-        _controlsEnabled = evt.NewState == AppState.Play;
+        UpdateControlsEnabled(evt.NewState);
         if (!_controlsEnabled)
             StopMovement();
     }
@@ -257,5 +257,10 @@ public class PlayerController : MonoBehaviour
         _moveInput = Vector2.zero;
         if (_rb != null)
             _rb.linearVelocity = Vector2.zero;
+    }
+
+    private void UpdateControlsEnabled(AppState state)
+    {
+        _controlsEnabled = state == AppState.Play;
     }
 }

@@ -12,6 +12,7 @@ public static class RuntimeSceneBootstrap
     private const int WallLayer = 11;
     private const string GameSettingsFileName = "game_settings.json";
     private static readonly System.Collections.Generic.Dictionary<int, PanelSettings> RuntimePanelSettings = new();
+    private static Sprite _solidSprite;
     private static Texture2D _solidTexture;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -59,13 +60,6 @@ public static class RuntimeSceneBootstrap
 
         cameraFollow?.SetTarget(player.transform);
         gameManager.Configure(player, waveSpawner, weaponSystem, gameHud);
-        gameManager.ApplyTimeLimitSec(gameSettings.TimeLimitSec);
-        player.ApplyGameSettings(
-            gameSettings.PlayerMaxHp,
-            gameSettings.PlayerMoveSpeed,
-            gameSettings.InvincibleSec,
-            gameSettings.ExpMultiplier);
-
     }
 
     private static void ConfigurePhysics()
@@ -380,8 +374,6 @@ public static class RuntimeSceneBootstrap
             component = go.AddComponent<T>();
         return component;
     }
-
-    private static Sprite _solidSprite;
 
     private static Sprite CreateSolidSprite()
     {

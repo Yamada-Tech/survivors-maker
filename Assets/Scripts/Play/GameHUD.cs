@@ -63,9 +63,7 @@ public class GameHUD : MonoBehaviour
     {
         if (_player == null)
             _player = FindAnyObjectByType<PlayerController>();
-        _isVisible = AppStateMachine.Instance != null && AppStateMachine.Instance.CurrentState == AppState.Play;
-        if (_isVisible)
-            ResetRuntimeState();
+        UpdateVisibility(AppStateMachine.Instance?.CurrentState ?? AppState.Title);
     }
 
     private void Update()
@@ -191,9 +189,7 @@ public class GameHUD : MonoBehaviour
 
     private void OnAppStateChanged(AppStateChangedEvent evt)
     {
-        _isVisible = evt.NewState == AppState.Play;
-        if (_isVisible)
-            ResetRuntimeState();
+        UpdateVisibility(evt.NewState);
     }
 
     private void ResetRuntimeState()
@@ -204,6 +200,13 @@ public class GameHUD : MonoBehaviour
         _gameOver = false;
         _clearMode = false;
         _timeLimitReached = false;
+    }
+
+    private void UpdateVisibility(AppState state)
+    {
+        _isVisible = state == AppState.Play;
+        if (_isVisible)
+            ResetRuntimeState();
     }
 
     public void SetTimerConfig(float timeLimitSec, bool countDown)
