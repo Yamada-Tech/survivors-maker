@@ -38,6 +38,8 @@ public static class SceneSetupEditor
         DestroyIfExists("MapGenerator");
         DestroyIfExists("DamageNumberSpawner");
         DestroyIfExists("EditorRoot");
+        DestroyIfExists("TitleScreen");
+        DestroyIfExists("AudioManager");
 
         // プレハブ保存先フォルダを確保
         if (!AssetDatabase.IsValidFolder(PrefabsFolder))
@@ -146,6 +148,18 @@ public static class SceneSetupEditor
             dmGo.AddComponent<DataManager>();
         }
 
+        // AudioManager がなければ追加
+        var am = Object.FindAnyObjectByType<AudioManager>();
+        if (am == null)
+        {
+            var amGo = new GameObject("AudioManager");
+            amGo.AddComponent<AudioManager>();
+        }
+
+        // TitleScreen（OnGUI タイトル表示）
+        var titleScreenGo = new GameObject("TitleScreen");
+        titleScreenGo.AddComponent<TitleScreen>();
+
         // AppStateMachine がなければ追加
         var asm = Object.FindAnyObjectByType<AppStateMachine>();
         if (asm == null)
@@ -193,6 +207,11 @@ public static class SceneSetupEditor
         presetEditorPanelGo.transform.SetParent(editorRootGo.transform);
         presetEditorPanelGo.AddComponent<UIDocument>();
         presetEditorPanelGo.AddComponent<PresetEditor>();
+
+        var spriteSettingsEditorPanelGo = new GameObject("SpriteSettingsEditorPanel");
+        spriteSettingsEditorPanelGo.transform.SetParent(editorRootGo.transform);
+        spriteSettingsEditorPanelGo.AddComponent<UIDocument>();
+        spriteSettingsEditorPanelGo.AddComponent<SpriteSettingsEditor>();
 
         var waveEditorPanelGo = new GameObject("WaveEditorPanel");
         waveEditorPanelGo.transform.SetParent(editorRootGo.transform);

@@ -76,6 +76,7 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel("asset", "AssetManagerPanel");
         RegisterPanel("dotart", "DotArtEditorPanel");
         RegisterPanel("spritesheet", "SpriteSheetEditorPanel");
+        RegisterPanel("spritesettings", "SpriteSettingsEditorPanel");
 
         AddMenuButton(menuPane, MapPanelKey, "🗺️ マップ");
         AddMenuButton(menuPane, GameSettingsPanelKey, "⚙️ 基本設定");
@@ -87,6 +88,7 @@ public class EditorRootPanel : MonoBehaviour
         AddMenuButton(menuPane, "asset", "🖼️ アセット");
         AddMenuButton(menuPane, "dotart", "🎨 ドット絵");
         AddMenuButton(menuPane, "spritesheet", "📋 スプライト");
+        AddMenuButton(menuPane, "spritesettings", "🎨 スプライト設定");
 
         var spacer = new VisualElement();
         spacer.style.flexGrow = 1f;

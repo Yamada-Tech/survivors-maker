@@ -5,7 +5,7 @@ public class AppStateMachine : MonoBehaviour
 {
     public static AppStateMachine Instance { get; private set; }
 
-    public AppState CurrentState { get; private set; } = AppState.Editor;
+    public AppState CurrentState { get; private set; } = AppState.Title;
 
     public event Action<AppState, AppState> OnStateChanged; // (oldState, newState)
 
@@ -34,6 +34,8 @@ public class AppStateMachine : MonoBehaviour
     {
         switch (to)
         {
+            case AppState.Title:
+                break;
             case AppState.Play:
                 EventBus.Publish(new PlayModeStartedEvent());
                 Time.timeScale = 1f;
