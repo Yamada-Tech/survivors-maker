@@ -65,33 +65,12 @@ public class EnemyEditor : MonoBehaviour
             return;
         }
 
-        _listView = root.Q<ListView>("EnemyList");
-        _detailPanel = root.Q("DetailPanel");
+        QueryUiElements(root);
 
-        _nameField = root.Q<TextField>("NameField");
-        _typeField = root.Q<EnumField>("TypeField");
-        _hpField = root.Q<IntegerField>("HpField");
-        _atkField = root.Q<IntegerField>("AtkField");
-        _moveSpeedField = root.Q<FloatField>("MoveSpeedField");
-        _dropRateField = root.Q<FloatField>("DropRateField");
-        _expValueField = root.Q<IntegerField>("ExpValueField");
-        _spriteIdField = root.Q<TextField>("SpriteIdField");
-
-        if (_listView == null || _detailPanel == null || _nameField == null || _typeField == null || _hpField == null ||
-            _atkField == null || _moveSpeedField == null || _dropRateField == null || _expValueField == null || _spriteIdField == null)
+        if (HasMissingUiElements())
         {
             BuildFallbackUI(root);
-
-            _listView = root.Q<ListView>("EnemyList");
-            _detailPanel = root.Q("DetailPanel");
-            _nameField = root.Q<TextField>("NameField");
-            _typeField = root.Q<EnumField>("TypeField");
-            _hpField = root.Q<IntegerField>("HpField");
-            _atkField = root.Q<IntegerField>("AtkField");
-            _moveSpeedField = root.Q<FloatField>("MoveSpeedField");
-            _dropRateField = root.Q<FloatField>("DropRateField");
-            _expValueField = root.Q<IntegerField>("ExpValueField");
-            _spriteIdField = root.Q<TextField>("SpriteIdField");
+            QueryUiElements(root);
         }
 
         if (_listView != null)
@@ -119,6 +98,26 @@ public class EnemyEditor : MonoBehaviour
         if (saveBtn != null) saveBtn.clicked += Save;
 
         _isUiBuilt = true;
+    }
+
+    private void QueryUiElements(VisualElement root)
+    {
+        _listView = root.Q<ListView>("EnemyList");
+        _detailPanel = root.Q("DetailPanel");
+        _nameField = root.Q<TextField>("NameField");
+        _typeField = root.Q<EnumField>("TypeField");
+        _hpField = root.Q<IntegerField>("HpField");
+        _atkField = root.Q<IntegerField>("AtkField");
+        _moveSpeedField = root.Q<FloatField>("MoveSpeedField");
+        _dropRateField = root.Q<FloatField>("DropRateField");
+        _expValueField = root.Q<IntegerField>("ExpValueField");
+        _spriteIdField = root.Q<TextField>("SpriteIdField");
+    }
+
+    private bool HasMissingUiElements()
+    {
+        return _listView == null || _detailPanel == null || _nameField == null || _typeField == null || _hpField == null ||
+               _atkField == null || _moveSpeedField == null || _dropRateField == null || _expValueField == null || _spriteIdField == null;
     }
 
     private static void BuildFallbackUI(VisualElement root)
