@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public static class RuntimeSceneBootstrap
@@ -10,10 +11,15 @@ public static class RuntimeSceneBootstrap
     private const int ProjectileLayer = 10;
     private const int WallLayer = 11;
     private const string GameSettingsFileName = "game_settings.json";
+    private static readonly System.Collections.Generic.Dictionary<int, PanelSettings> RuntimePanelSettings = new();
+    private static Texture2D _solidTexture;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
     {
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
+
         var bootstrapRoot = GetOrCreateSceneObject(BootstrapRootName);
         var templatesRoot = GetOrCreateChild(bootstrapRoot.transform, TemplatesRootName);
         templatesRoot.SetActive(false);
@@ -21,9 +27,9 @@ public static class RuntimeSceneBootstrap
         ConfigurePhysics();
 
         EnsurePersistentSingleton<DataManager>("DataManager");
-        EnsurePersistentSingleton<AudioManager>("AudioManager");
         var appStateMachine = EnsurePersistentSingleton<AppStateMachine>("AppStateMachine");
         appStateMachine.SetStateWithoutTransition(AppState.Title);
+        EnsurePersistentSingleton<AudioManager>("AudioManager");
 
         var playerData = LoadPlayerData();
         var mapData = LoadMapData();
@@ -60,7 +66,6 @@ public static class RuntimeSceneBootstrap
             gameSettings.InvincibleSec,
             gameSettings.ExpMultiplier);
 
-        appStateMachine.BroadcastCurrentState();
     }
 
     private static void ConfigurePhysics()
@@ -315,9 +320,13 @@ public static class RuntimeSceneBootstrap
 
     private static PanelSettings CreatePanelSettings(int sortingOrder)
     {
+        if (RuntimePanelSettings.TryGetValue(sortingOrder, out var existing) && existing != null)
+            return existing;
+
         var panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
         panelSettings.sortingOrder = sortingOrder;
         panelSettings.name = $"RuntimePanelSettings_{sortingOrder}";
+        RuntimePanelSettings[sortingOrder] = panelSettings;
         return panelSettings;
     }
 
@@ -379,10 +388,33 @@ public static class RuntimeSceneBootstrap
         if (_solidSprite != null)
             return _solidSprite;
 
-        var texture = new Texture2D(1, 1);
-        texture.SetPixel(0, 0, Color.white);
-        texture.Apply();
-        _solidSprite = Sprite.Create(texture, new Rect(0, 0, 1, 1), Vector2.one * 0.5f);
+        _solidTexture = new Texture2D(1, 1);
+        _solidTexture.SetPixel(0, 0, Color.white);
+        _solidTexture.Apply();
+        _solidSprite = Sprite.Create(_solidTexture, new Rect(0, 0, 1, 1), Vector2.one * 0.5f);
         return _solidSprite;
+    }
+
+    private static void OnSceneUnloaded(Scene _)
+    {
+        foreach (var panelSettings in RuntimePanelSettings.Values)
+        {
+            if (panelSettings != null)
+                Object.Destroy(panelSettings);
+        }
+
+        RuntimePanelSettings.Clear();
+
+        if (_solidSprite != null)
+        {
+            Object.Destroy(_solidSprite);
+            _solidSprite = null;
+        }
+
+        if (_solidTexture != null)
+        {
+            Object.Destroy(_solidTexture);
+            _solidTexture = null;
+        }
     }
 }

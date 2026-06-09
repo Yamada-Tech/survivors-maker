@@ -116,8 +116,7 @@ public class GameManager : MonoBehaviour
     private void OnRestartRequested(RestartRequestedEvent _)
     {
         Time.timeScale = 1f;
-        AppStateMachine.Instance?.SetStateWithoutTransition(AppState.Title);
-        AppStateMachine.Instance?.BroadcastCurrentState();
+        AppStateMachine.Instance?.ChangeState(AppState.Title);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 

@@ -16,11 +16,6 @@ public class AppStateMachine : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    private void Start()
-    {
-        BroadcastCurrentState();
-    }
-
     public void ChangeState(AppState newState)
     {
         if (CurrentState == newState) return;
@@ -39,12 +34,6 @@ public class AppStateMachine : MonoBehaviour
     {
         CurrentState = newState;
         Time.timeScale = 1f;
-    }
-
-    public void BroadcastCurrentState()
-    {
-        OnStateChanged?.Invoke(CurrentState, CurrentState);
-        EventBus.Publish(new AppStateChangedEvent(CurrentState, CurrentState));
     }
 
     private void HandleStateTransition(AppState from, AppState to)

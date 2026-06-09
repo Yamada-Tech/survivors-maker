@@ -198,7 +198,6 @@ public class GameHUD : MonoBehaviour
             _gameOver = false;
             _clearMode = false;
             _timeLimitReached = false;
-            Time.timeScale = 1f;
         }
     }
 

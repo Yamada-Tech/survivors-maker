@@ -41,11 +41,15 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         _animator ??= GetComponent<PlayerAnimator>();
-        EventBus.Subscribe<AppStateChangedEvent>(OnAppStateChanged);
         _controlsEnabled = AppStateMachine.Instance != null && AppStateMachine.Instance.CurrentState == AppState.Play;
     }
 
-    private void OnDestroy()
+    private void OnEnable()
+    {
+        EventBus.Subscribe<AppStateChangedEvent>(OnAppStateChanged);
+    }
+
+    private void OnDisable()
     {
         EventBus.Unsubscribe<AppStateChangedEvent>(OnAppStateChanged);
     }
