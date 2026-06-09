@@ -11,6 +11,7 @@ public class SpriteSettingsEditor : MonoBehaviour
     private SpriteSettingsData _data;
     private List<AssetRecord> _textureAssets = new();
     private List<string> _dropdownChoices = new();
+    private AssetManager _assetManager;
 
     private DropdownField _playerDropdown;
     private DropdownField _enemyMeleeDropdown;
@@ -26,6 +27,8 @@ public class SpriteSettingsEditor : MonoBehaviour
         _data = DataManager.Instance != null && DataManager.Instance.Exists(SettingsFileName)
             ? DataManager.Instance.Load<SpriteSettingsData>(SettingsFileName) ?? new SpriteSettingsData()
             : new SpriteSettingsData();
+
+        _assetManager = FindAnyObjectByType<AssetManager>();
 
         BuildUI();
         RefreshDropdowns();
@@ -117,10 +120,9 @@ public class SpriteSettingsEditor : MonoBehaviour
         _dropdownChoices.Clear();
         _dropdownChoices.Add(NoneLabel);
 
-        var assetManager = FindAnyObjectByType<AssetManager>();
-        if (assetManager != null)
+        if (_assetManager != null)
         {
-            foreach (var record in assetManager.GetAssets())
+            foreach (var record in _assetManager.GetAssets())
             {
                 if (record.Kind == AssetKind.Texture)
                 {
@@ -171,10 +173,9 @@ public class SpriteSettingsEditor : MonoBehaviour
         var record = _textureAssets.Find(r => r.OriginalFileName == selected);
         if (record == null) return;
 
-        var assetManager = FindAnyObjectByType<AssetManager>();
-        if (assetManager == null) return;
+        if (_assetManager == null) return;
 
-        var tex = assetManager.LoadTexture(record.Guid);
+        var tex = _assetManager.LoadTexture(record.Guid);
         if (tex != null)
             preview.style.backgroundImage = Background.FromTexture2D(tex);
     }

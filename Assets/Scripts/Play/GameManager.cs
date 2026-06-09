@@ -312,7 +312,8 @@ public class GameManager : MonoBehaviour
                 var sr = _player.GetComponent<SpriteRenderer>();
                 if (sr != null)
                 {
-                    sr.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 32f);
+                    const float PixelsPerUnit = 32f;
+                    sr.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, PixelsPerUnit);
                     sr.color = Color.white;
                 }
             }
