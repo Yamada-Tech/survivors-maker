@@ -43,6 +43,7 @@ public class EnemyEditor : MonoBehaviour
         }
 
         EnsureEnemyList();
+        SeedDefaultEnemies();
         BuildUI();
         RefreshList();
         EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
@@ -65,6 +66,34 @@ public class EnemyEditor : MonoBehaviour
         }
 
         _listView = root.Q<ListView>("EnemyList");
+        _detailPanel = root.Q("DetailPanel");
+
+        _nameField = root.Q<TextField>("NameField");
+        _typeField = root.Q<EnumField>("TypeField");
+        _hpField = root.Q<IntegerField>("HpField");
+        _atkField = root.Q<IntegerField>("AtkField");
+        _moveSpeedField = root.Q<FloatField>("MoveSpeedField");
+        _dropRateField = root.Q<FloatField>("DropRateField");
+        _expValueField = root.Q<IntegerField>("ExpValueField");
+        _spriteIdField = root.Q<TextField>("SpriteIdField");
+
+        if (_listView == null || _detailPanel == null || _nameField == null || _typeField == null || _hpField == null ||
+            _atkField == null || _moveSpeedField == null || _dropRateField == null || _expValueField == null || _spriteIdField == null)
+        {
+            BuildFallbackUI(root);
+
+            _listView = root.Q<ListView>("EnemyList");
+            _detailPanel = root.Q("DetailPanel");
+            _nameField = root.Q<TextField>("NameField");
+            _typeField = root.Q<EnumField>("TypeField");
+            _hpField = root.Q<IntegerField>("HpField");
+            _atkField = root.Q<IntegerField>("AtkField");
+            _moveSpeedField = root.Q<FloatField>("MoveSpeedField");
+            _dropRateField = root.Q<FloatField>("DropRateField");
+            _expValueField = root.Q<IntegerField>("ExpValueField");
+            _spriteIdField = root.Q<TextField>("SpriteIdField");
+        }
+
         if (_listView != null)
         {
             _listView.makeItem = () => new Label();
@@ -80,17 +109,6 @@ public class EnemyEditor : MonoBehaviour
             _listView.selectionChanged += _ => ShowDetail(_listView.selectedIndex);
         }
 
-        _detailPanel = root.Q("DetailPanel");
-
-        _nameField = root.Q<TextField>("NameField");
-        _typeField = root.Q<EnumField>("TypeField");
-        _hpField = root.Q<IntegerField>("HpField");
-        _atkField = root.Q<IntegerField>("AtkField");
-        _moveSpeedField = root.Q<FloatField>("MoveSpeedField");
-        _dropRateField = root.Q<FloatField>("DropRateField");
-        _expValueField = root.Q<IntegerField>("ExpValueField");
-        _spriteIdField = root.Q<TextField>("SpriteIdField");
-
         RegisterCallbacks();
 
         var addBtn = root.Q<Button>("AddBtn");
@@ -101,6 +119,92 @@ public class EnemyEditor : MonoBehaviour
         if (saveBtn != null) saveBtn.clicked += Save;
 
         _isUiBuilt = true;
+    }
+
+    private static void BuildFallbackUI(VisualElement root)
+    {
+        root.Clear();
+        root.style.flexDirection = FlexDirection.Row;
+        root.style.flexGrow = 1f;
+
+        var leftPane = new VisualElement
+        {
+            style =
+            {
+                width = 200f,
+                minWidth = 200f,
+                maxWidth = 200f,
+                flexDirection = FlexDirection.Column,
+                marginRight = 8f
+            }
+        };
+
+        var listView = new ListView
+        {
+            name = "EnemyList",
+            style =
+            {
+                flexGrow = 1f,
+                minHeight = 200f
+            }
+        };
+        leftPane.Add(listView);
+
+        var buttonRow = new VisualElement
+        {
+            style =
+            {
+                flexDirection = FlexDirection.Row,
+                marginTop = 6f
+            }
+        };
+
+        buttonRow.Add(new Button { name = "AddBtn", text = "追加", style = { flexGrow = 1f } });
+        buttonRow.Add(new Button { name = "DeleteBtn", text = "削除", style = { flexGrow = 1f } });
+        buttonRow.Add(new Button { name = "SaveBtn", text = "保存", style = { flexGrow = 1f } });
+        leftPane.Add(buttonRow);
+
+        var rightPane = new VisualElement
+        {
+            style =
+            {
+                flexGrow = 1f,
+                minWidth = 0f
+            }
+        };
+
+        var scrollView = new ScrollView
+        {
+            style =
+            {
+                flexGrow = 1f
+            }
+        };
+
+        var detailPanel = new VisualElement
+        {
+            name = "DetailPanel",
+            style =
+            {
+                flexDirection = FlexDirection.Column,
+                flexGrow = 1f
+            }
+        };
+
+        detailPanel.Add(new TextField("Name") { name = "NameField" });
+        detailPanel.Add(new EnumField("Type", EnemyType.Melee) { name = "TypeField" });
+        detailPanel.Add(new IntegerField("HP") { name = "HpField" });
+        detailPanel.Add(new IntegerField("ATK") { name = "AtkField" });
+        detailPanel.Add(new FloatField("MoveSpeed") { name = "MoveSpeedField" });
+        detailPanel.Add(new FloatField("DropRate") { name = "DropRateField" });
+        detailPanel.Add(new IntegerField("ExpValue") { name = "ExpValueField" });
+        detailPanel.Add(new TextField("SpriteId") { name = "SpriteIdField" });
+
+        scrollView.Add(detailPanel);
+        rightPane.Add(scrollView);
+
+        root.Add(leftPane);
+        root.Add(rightPane);
     }
 
     private void RegisterCallbacks()
@@ -302,5 +406,76 @@ public class EnemyEditor : MonoBehaviour
     {
         _enemyList ??= new EnemyListData();
         _enemyList.Enemies ??= new List<EnemyData>();
+    }
+
+    private void SeedDefaultEnemies()
+    {
+        EnsureEnemyList();
+
+        AddDefaultEnemyIfMissing(new EnemyData
+        {
+            Id = "enemy_slime",
+            Name = "スライム",
+            Type = EnemyType.Melee,
+            Hp = 30,
+            Atk = 10,
+            MoveSpeed = 2.5f,
+            DropRate = 0.8f,
+            ExpValue = 5,
+            SpriteId = string.Empty
+        });
+
+        AddDefaultEnemyIfMissing(new EnemyData
+        {
+            Id = "enemy_archer",
+            Name = "アーチャー",
+            Type = EnemyType.Ranged,
+            Hp = 20,
+            Atk = 15,
+            MoveSpeed = 1.5f,
+            DropRate = 0.6f,
+            ExpValue = 8,
+            SpriteId = string.Empty
+        });
+
+        AddDefaultEnemyIfMissing(new EnemyData
+        {
+            Id = "enemy_fast",
+            Name = "ダッシュスライム",
+            Type = EnemyType.Melee,
+            Hp = 15,
+            Atk = 8,
+            MoveSpeed = 5f,
+            DropRate = 0.5f,
+            ExpValue = 6,
+            SpriteId = string.Empty
+        });
+
+        AddDefaultEnemyIfMissing(new EnemyData
+        {
+            Id = "enemy_tank",
+            Name = "アーマースライム",
+            Type = EnemyType.Melee,
+            Hp = 120,
+            Atk = 20,
+            MoveSpeed = 1f,
+            DropRate = 0.4f,
+            ExpValue = 15,
+            SpriteId = string.Empty
+        });
+    }
+
+    private void AddDefaultEnemyIfMissing(EnemyData defaultEnemy)
+    {
+        if (defaultEnemy == null || string.IsNullOrWhiteSpace(defaultEnemy.Id))
+            return;
+
+        foreach (var enemy in _enemyList.Enemies)
+        {
+            if (enemy?.Id == defaultEnemy.Id)
+                return;
+        }
+
+        _enemyList.Enemies.Add(defaultEnemy);
     }
 }
