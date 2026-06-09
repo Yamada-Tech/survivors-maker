@@ -42,16 +42,16 @@ public static class RuntimeSceneBootstrap
         var player = EnsurePlayer(playerData, gameSettings);
         var cameraFollow = EnsureMainCamera(player.transform);
 
-        var enemyPrefab = EnsureEnemyPrefab(templatesRoot.transform);
-        var projectilePrefab = EnsureProjectilePrefab(templatesRoot.transform);
+        var enemyPrefab           = EnsureEnemyPrefab(templatesRoot.transform);
+        var projectilePrefab      = EnsureProjectilePrefab(templatesRoot.transform);
         var enemyProjectilePrefab = EnsureEnemyProjectilePrefab(templatesRoot.transform);
-        var expGemPrefab = EnsureExpGemPrefab(templatesRoot.transform);
+        var expGemPrefab          = EnsureExpGemPrefab(templatesRoot.transform);
 
         var weaponSystem = EnsureWeaponSystem(player.transform, projectilePrefab);
         EnsureComponentOnSceneObject<PassiveSystem>("PassiveSystem");
         var waveSpawner = EnsureWaveSpawner(player.transform, enemyPrefab, enemyProjectilePrefab);
         EnsureExpDropper(expGemPrefab);
-        var gameHud = EnsureComponentOnSceneObject<GameHUD>("GameHUD");
+        var gameHud     = EnsureComponentOnSceneObject<GameHUD>("GameHUD");
         EnsureComponentOnSceneObject<LevelUpUI>("LevelUpUI");
         var gameManager = EnsureGameManager(player, waveSpawner, weaponSystem, gameHud, gameSettings);
 
@@ -95,10 +95,9 @@ public static class RuntimeSceneBootstrap
         var mapGenerator = EnsureComponentOnSceneObject<MapGenerator>("MapGenerator");
         if (mapData != null)
         {
-            mapGenerator.MapWidth = mapData.Width;
+            mapGenerator.MapWidth  = mapData.Width;
             mapGenerator.MapHeight = mapData.Height;
         }
-
         return mapGenerator;
     }
 
@@ -112,16 +111,16 @@ public static class RuntimeSceneBootstrap
         playerGo.SetActive(false);
         playerGo.transform.position = Vector3.zero;
 
-        var spriteRenderer = GetOrAddComponent<SpriteRenderer>(playerGo);
-        spriteRenderer.sprite = CreateSolidSprite();
-        spriteRenderer.color = new Color(0.3f, 0.8f, 1f);
+        var sr = GetOrAddComponent<SpriteRenderer>(playerGo);
+        sr.sprite = CreateSolidSprite();
+        sr.color  = new Color(0.3f, 0.8f, 1f);
 
-        var rigidbody = GetOrAddComponent<Rigidbody2D>(playerGo);
-        rigidbody.gravityScale = 0f;
-        rigidbody.freezeRotation = true;
+        var rb = GetOrAddComponent<Rigidbody2D>(playerGo);
+        rb.gravityScale   = 0f;
+        rb.freezeRotation = true;
 
-        var collider = GetOrAddComponent<CircleCollider2D>(playerGo);
-        collider.radius = 0.4f;
+        var col = GetOrAddComponent<CircleCollider2D>(playerGo);
+        col.radius = 0.4f;
 
         GetOrAddComponent<PlayerAnimator>(playerGo);
         var player = GetOrAddComponent<PlayerController>(playerGo);
@@ -150,14 +149,14 @@ public static class RuntimeSceneBootstrap
             cameraGo.tag = "MainCamera";
         }
 
-        camera.orthographic = true;
+        camera.orthographic     = true;
         camera.orthographicSize = 10f;
-        camera.backgroundColor = new Color(0.1f, 0.1f, 0.15f);
+        camera.backgroundColor  = new Color(0.1f, 0.1f, 0.15f);
 
-        var cameraGoRef = camera.gameObject;
-        GetOrAddComponent<AudioListener>(cameraGoRef);
-        var follow = GetOrAddComponent<CameraFollow>(cameraGoRef);
-        GetOrAddComponent<CameraZoom>(cameraGoRef);
+        var camGo = camera.gameObject;
+        GetOrAddComponent<AudioListener>(camGo);
+        var follow = GetOrAddComponent<CameraFollow>(camGo);
+        GetOrAddComponent<CameraZoom>(camGo);
         follow.SetTarget(target);
         return follow;
     }
@@ -167,16 +166,16 @@ public static class RuntimeSceneBootstrap
         var go = GetOrCreateChild(parent, "EnemyPrefab");
         go.SetActive(false);
 
-        var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
-        spriteRenderer.sprite = CreateSolidSprite();
-        spriteRenderer.color = Color.red;
+        var sr = GetOrAddComponent<SpriteRenderer>(go);
+        sr.sprite = CreateSolidSprite();
+        sr.color  = Color.red;
 
-        var rigidbody = GetOrAddComponent<Rigidbody2D>(go);
-        rigidbody.gravityScale = 0f;
-        rigidbody.freezeRotation = true;
+        var rb = GetOrAddComponent<Rigidbody2D>(go);
+        rb.gravityScale   = 0f;
+        rb.freezeRotation = true;
 
-        var collider = GetOrAddComponent<CircleCollider2D>(go);
-        collider.radius = 0.4f;
+        var col = GetOrAddComponent<CircleCollider2D>(go);
+        col.radius = 0.4f;
 
         GetOrAddComponent<EnemyAI>(go);
         go.layer = EnemyLayer;
@@ -189,17 +188,17 @@ public static class RuntimeSceneBootstrap
         var go = GetOrCreateChild(parent, "ProjectilePrefab");
         go.SetActive(false);
 
-        var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
-        spriteRenderer.sprite = CreateSolidSprite();
-        spriteRenderer.color = Color.yellow;
-        spriteRenderer.transform.localScale = Vector3.one * 0.3f;
+        var sr = GetOrAddComponent<SpriteRenderer>(go);
+        sr.sprite = CreateSolidSprite();
+        sr.color  = Color.yellow;
+        sr.transform.localScale = Vector3.one * 0.3f;
 
-        var rigidbody = GetOrAddComponent<Rigidbody2D>(go);
-        rigidbody.gravityScale = 0f;
+        var rb = GetOrAddComponent<Rigidbody2D>(go);
+        rb.gravityScale = 0f;
 
-        var collider = GetOrAddComponent<CircleCollider2D>(go);
-        collider.radius = 0.15f;
-        collider.isTrigger = true;
+        var col = GetOrAddComponent<CircleCollider2D>(go);
+        col.radius   = 0.15f;
+        col.isTrigger = true;
 
         GetOrAddComponent<Projectile>(go);
         go.layer = ProjectileLayer;
@@ -211,17 +210,17 @@ public static class RuntimeSceneBootstrap
         var go = GetOrCreateChild(parent, "EnemyProjectilePrefab");
         go.SetActive(false);
 
-        var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
-        spriteRenderer.sprite = CreateSolidSprite();
-        spriteRenderer.color = new Color(1f, 0.5f, 0f);
-        spriteRenderer.transform.localScale = Vector3.one * 0.25f;
+        var sr = GetOrAddComponent<SpriteRenderer>(go);
+        sr.sprite = CreateSolidSprite();
+        sr.color  = new Color(1f, 0.5f, 0f);
+        sr.transform.localScale = Vector3.one * 0.25f;
 
-        var rigidbody = GetOrAddComponent<Rigidbody2D>(go);
-        rigidbody.gravityScale = 0f;
+        var rb = GetOrAddComponent<Rigidbody2D>(go);
+        rb.gravityScale = 0f;
 
-        var collider = GetOrAddComponent<CircleCollider2D>(go);
-        collider.radius = 0.12f;
-        collider.isTrigger = true;
+        var col = GetOrAddComponent<CircleCollider2D>(go);
+        col.radius    = 0.12f;
+        col.isTrigger = true;
 
         GetOrAddComponent<EnemyProjectile>(go);
         return go;
@@ -232,14 +231,14 @@ public static class RuntimeSceneBootstrap
         var go = GetOrCreateChild(parent, "ExpGemPrefab");
         go.SetActive(false);
 
-        var spriteRenderer = GetOrAddComponent<SpriteRenderer>(go);
-        spriteRenderer.sprite = CreateSolidSprite();
-        spriteRenderer.color = Color.green;
-        spriteRenderer.transform.localScale = Vector3.one * 0.3f;
+        var sr = GetOrAddComponent<SpriteRenderer>(go);
+        sr.sprite = CreateSolidSprite();
+        sr.color  = Color.green;
+        sr.transform.localScale = Vector3.one * 0.3f;
 
-        var collider = GetOrAddComponent<CircleCollider2D>(go);
-        collider.radius = 0.15f;
-        collider.isTrigger = true;
+        var col = GetOrAddComponent<CircleCollider2D>(go);
+        col.radius    = 0.15f;
+        col.isTrigger = true;
 
         GetOrAddComponent<ExpGem>(go);
         return go;
@@ -285,28 +284,30 @@ public static class RuntimeSceneBootstrap
 
     private static void EnsureEditorUi()
     {
-        var editorRoot = GetOrCreateSceneObject("EditorRoot");
-        var rootDocument = GetOrAddComponent<UIDocument>(editorRoot);
-        rootDocument.panelSettings = CreatePanelSettings(100);
+        var editorRoot  = GetOrCreateSceneObject("EditorRoot");
+        var rootDoc     = GetOrAddComponent<UIDocument>(editorRoot);
+        rootDoc.panelSettings = CreatePanelSettings(100);
         GetOrAddComponent<EditorRootPanel>(editorRoot);
 
-        EnsureEditorPanel<MapEditor>(editorRoot.transform, "MapEditorPanel", 101);
-        EnsureEditorPanel<MapSettingsEditor>(editorRoot.transform, "MapSettingsEditorPanel", 102);
-        EnsureEditorPanel<GameSettingsEditor>(editorRoot.transform, "GameSettingsEditorPanel", 102);
-        EnsureEditorPanel<EnemyEditor>(editorRoot.transform, "EnemyEditorPanel", 102);
-        EnsureEditorPanel<WeaponEditor>(editorRoot.transform, "WeaponEditorPanel", 102);
-        EnsureEditorPanel<PassiveEditor>(editorRoot.transform, "PassiveEditorPanel", 102);
-        EnsureEditorPanel<PresetEditor>(editorRoot.transform, "PresetEditorPanel", 102);
-        EnsureEditorPanel<WaveEditor>(editorRoot.transform, "WaveEditorPanel", 102);
-        EnsureEditorPanel<AssetManagerPanel>(editorRoot.transform, "AssetManagerPanel", 102);
-        EnsureEditorPanel<DotArtEditor>(editorRoot.transform, "DotArtEditorPanel", 102);
-        EnsureEditorPanel<SpriteSheetEditor>(editorRoot.transform, "SpriteSheetEditorPanel", 102);
-        EnsureEditorPanel<SpriteSettingsEditor>(editorRoot.transform, "SpriteSettingsEditorPanel", 102);
+        // ---- エディターパネル（UIElements）----
+        // ※ SpriteSheetEditor / SpriteSettingsEditor は Assembly-CSharp-Editor に属するため
+        //    ランタイムから直接 AddComponent できない。SceneSetupEditor 経由でシーンに配置済みの
+        //    場合はそのまま使用される。
+        EnsureEditorPanel<MapEditor>       (editorRoot.transform, "MapEditorPanel",          101);
+        EnsureEditorPanel<MapSettingsEditor>(editorRoot.transform, "MapSettingsEditorPanel",  102);
+        EnsureEditorPanel<GameSettingsEditor>(editorRoot.transform, "GameSettingsEditorPanel",102);
+        EnsureEditorPanel<EnemyEditor>     (editorRoot.transform, "EnemyEditorPanel",         102);
+        EnsureEditorPanel<WeaponEditor>    (editorRoot.transform, "WeaponEditorPanel",         102);
+        EnsureEditorPanel<PassiveEditor>   (editorRoot.transform, "PassiveEditorPanel",        102);
+        EnsureEditorPanel<PresetEditor>    (editorRoot.transform, "PresetEditorPanel",         102);
+        EnsureEditorPanel<WaveEditor>      (editorRoot.transform, "WaveEditorPanel",           102);
+        EnsureEditorPanel<AssetManagerPanel>(editorRoot.transform, "AssetManagerPanel",       102);
+        EnsureEditorPanel<DotArtEditor>    (editorRoot.transform, "DotArtEditorPanel",         102);
     }
 
     private static void EnsureEditorPanel<T>(Transform parent, string panelName, int sortingOrder) where T : Component
     {
-        var panelGo = GetOrCreateChild(parent, panelName);
+        var panelGo  = GetOrCreateChild(parent, panelName);
         var document = GetOrAddComponent<UIDocument>(panelGo);
         document.panelSettings = CreatePanelSettings(sortingOrder);
         GetOrAddComponent<T>(panelGo);
@@ -317,18 +318,17 @@ public static class RuntimeSceneBootstrap
         if (RuntimePanelSettings.TryGetValue(sortingOrder, out var existing) && existing != null)
             return existing;
 
-        var panelSettings = ScriptableObject.CreateInstance<PanelSettings>();
-        panelSettings.sortingOrder = sortingOrder;
-        panelSettings.name = $"RuntimePanelSettings_{sortingOrder}";
-        RuntimePanelSettings[sortingOrder] = panelSettings;
-        return panelSettings;
+        var ps = ScriptableObject.CreateInstance<PanelSettings>();
+        ps.sortingOrder = sortingOrder;
+        ps.name = $"RuntimePanelSettings_{sortingOrder}";
+        RuntimePanelSettings[sortingOrder] = ps;
+        return ps;
     }
 
     private static PlayerData LoadPlayerData()
     {
         if (DataManager.Instance != null && DataManager.Instance.Exists("player.json"))
             return DataManager.Instance.Load<PlayerData>("player.json");
-
         return new PlayerData();
     }
 
@@ -336,7 +336,6 @@ public static class RuntimeSceneBootstrap
     {
         if (DataManager.Instance != null && DataManager.Instance.Exists("map.json"))
             return DataManager.Instance.Load<MapData>("map.json");
-
         return new MapData();
     }
 
@@ -344,7 +343,6 @@ public static class RuntimeSceneBootstrap
     {
         if (DataManager.Instance != null && DataManager.Instance.Exists(GameSettingsFileName))
             return DataManager.Instance.Load<GameSettingsData>(GameSettingsFileName);
-
         return new GameSettingsData();
     }
 
@@ -393,24 +391,14 @@ public static class RuntimeSceneBootstrap
 
     private static void OnSceneUnloaded(Scene _)
     {
-        foreach (var panelSettings in RuntimePanelSettings.Values)
+        foreach (var ps in RuntimePanelSettings.Values)
         {
-            if (panelSettings != null)
-                Object.Destroy(panelSettings);
+            if (ps != null)
+                Object.Destroy(ps);
         }
-
         RuntimePanelSettings.Clear();
 
-        if (_solidSprite != null)
-        {
-            Object.Destroy(_solidSprite);
-            _solidSprite = null;
-        }
-
-        if (_solidTexture != null)
-        {
-            Object.Destroy(_solidTexture);
-            _solidTexture = null;
-        }
+        if (_solidSprite != null)  { Object.Destroy(_solidSprite);  _solidSprite  = null; }
+        if (_solidTexture != null) { Object.Destroy(_solidTexture); _solidTexture = null; }
     }
 }
