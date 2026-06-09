@@ -29,8 +29,26 @@ public class EditorRootPanel : MonoBehaviour
 
     private void OnEnable()
     {
+        EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
         BuildUi();
-        SelectPanel(MapPanelKey);
+
+        var currentState = AppStateMachine.Instance?.CurrentState ?? AppState.Editor;
+        UpdateVisibility(currentState);
+
+        if (currentState == AppState.Editor)
+            SelectPanel(MapPanelKey);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<AppStateChangedEvent>(OnStateChanged);
+    }
+
+    private void OnStateChanged(AppStateChangedEvent evt)
+    {
+        UpdateVisibility(evt.NewState);
+        if (evt.NewState == AppState.Editor)
+            SelectPanel(MapPanelKey);
     }
 
     private void BuildUi()
@@ -117,7 +135,14 @@ public class EditorRootPanel : MonoBehaviour
 
     private void OnPlayClicked()
     {
-        EventBus.Publish(new AppStateChangedEvent { NewState = AppState.Play });
+        AppStateMachine.Instance?.ChangeState(AppState.Play);
+    }
+
+    private void UpdateVisibility(AppState state)
+    {
+        var root = GetComponent<UIDocument>()?.rootVisualElement;
+        if (root == null) return;
+        root.style.display = state == AppState.Editor ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     private void RegisterPanel(string key, string panelName, bool isSidePanel = false)
