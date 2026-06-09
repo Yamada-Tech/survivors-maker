@@ -35,6 +35,9 @@ public class AppStateMachine : MonoBehaviour
         switch (to)
         {
             case AppState.Title:
+                EventBus.Publish(new EditorModeRestoredEvent());
+                DestroyPlayTaggedObjects();
+                Time.timeScale = 1f;
                 break;
             case AppState.Play:
                 EventBus.Publish(new PlayModeStartedEvent());

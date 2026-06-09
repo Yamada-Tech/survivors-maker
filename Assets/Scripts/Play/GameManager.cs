@@ -4,6 +4,9 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    // Legacy scenes may need one frame for object references/event wiring before StartGame.
+    private const float LegacyStartDelaySec = 0.1f;
+
     public static GameManager Instance { get; private set; }
 
     [SerializeField] private PlayerController _player;
@@ -29,10 +32,24 @@ public class GameManager : MonoBehaviour
         EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
         EventBus.Subscribe<RestartRequestedEvent>(OnRestartRequested);
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
-        // タイトル画面がある場合はプレイモード遷移イベントを待つ
-        // AppState.Title でない場合（直接Play実行など）は即ゲーム開始
-        if (AppStateMachine.Instance == null || AppStateMachine.Instance.CurrentState != AppState.Title)
-            Invoke(nameof(StartGame), 0.1f);
+
+        // AppState.Play への遷移イベント受信で開始するのが基本。
+        // ただし古いシーン互換のため、AppStateMachine が無い場合のみ即開始する。
+        var appStateMachine = AppStateMachine.Instance;
+        if (appStateMachine == null)
+        {
+            ScheduleLegacyStart();
+            return;
+        }
+
+        // 既に Play 状態で開始されるケースのみフォールバックで開始する
+        if (appStateMachine.CurrentState == AppState.Play)
+            ScheduleLegacyStart();
+    }
+
+    private void ScheduleLegacyStart()
+    {
+        Invoke(nameof(StartGame), LegacyStartDelaySec);
     }
 
     private void OnDestroy()
