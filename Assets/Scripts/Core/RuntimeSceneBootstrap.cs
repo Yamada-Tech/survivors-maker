@@ -1,2 +1,2 @@
-// RuntimeSceneBootstrap は削除されました。
-// シーンのセットアップは SurvivorsMaker > Setup Scene (初回セットアップ) で行ってください。
+// RuntimeSceneBootstrap は無効化されました。
+// シーンのセットアップは SurvivorsMaker > Setup Scene メニューから行ってください。

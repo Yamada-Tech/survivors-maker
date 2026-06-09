@@ -11,9 +11,9 @@ public class MapSettingsEditor : MonoBehaviour
     private MapSettingsData _settingsData = new();
     private IntegerField _widthField;
     private IntegerField _heightField;
-    private FloatField   _wallRatioField;
-    private TextField    _wallColorField;
-    private TextField    _floorColorField;
+    private FloatField _wallRatioField;
+    private TextField _wallColorField;
+    private TextField _floorColorField;
     private MapGenerator _mapGenerator;
     private bool _isUiBuilt;
     private bool _isBinding;
@@ -46,9 +46,9 @@ public class MapSettingsEditor : MonoBehaviour
         }
 
         root.Clear();
-        root.style.paddingLeft   = 12f;
-        root.style.paddingRight  = 12f;
-        root.style.paddingTop    = 12f;
+        root.style.paddingLeft = 12f;
+        root.style.paddingRight = 12f;
+        root.style.paddingTop = 12f;
         root.style.paddingBottom = 12f;
         root.style.flexDirection = FlexDirection.Column;
 
@@ -57,10 +57,10 @@ public class MapSettingsEditor : MonoBehaviour
         title.style.marginBottom = 8f;
         root.Add(title);
 
-        _widthField      = new IntegerField("Width");
-        _heightField     = new IntegerField("Height");
-        _wallRatioField  = new FloatField("Wall Ratio");
-        _wallColorField  = new TextField("Wall Color (hex)");
+        _widthField = new IntegerField("Width");
+        _heightField = new IntegerField("Height");
+        _wallRatioField = new FloatField("Wall Ratio");
+        _wallColorField = new TextField("Wall Color (hex)");
         _floorColorField = new TextField("Floor Color (hex)");
 
         root.Add(_widthField);
@@ -69,7 +69,7 @@ public class MapSettingsEditor : MonoBehaviour
         root.Add(_wallColorField);
         root.Add(_floorColorField);
 
-        var applyButton = new Button(ApplyToMapGenerator) { text = "適用" };
+        var applyButton = new Button(ApplyToMapGenerator) { text = "\u9069\u7528" };
         applyButton.style.marginTop = 8f;
         root.Add(applyButton);
 
@@ -106,14 +106,14 @@ public class MapSettingsEditor : MonoBehaviour
         _wallColorField?.RegisterValueChangedCallback(evt =>
         {
             if (_isBinding) return;
-            if (ColorUtility.TryParseHtmlString("#" + evt.newValue.TrimStart('#'), out var c))
+            if (ColorUtility.TryParseHtmlString(evt.newValue, out var c))
                 _settingsData.WallColor = c;
         });
 
         _floorColorField?.RegisterValueChangedCallback(evt =>
         {
             if (_isBinding) return;
-            if (ColorUtility.TryParseHtmlString("#" + evt.newValue.TrimStart('#'), out var c))
+            if (ColorUtility.TryParseHtmlString(evt.newValue, out var c))
                 _settingsData.FloorColor = c;
         });
     }
@@ -148,9 +148,9 @@ public class MapSettingsEditor : MonoBehaviour
             : new MapSettingsData();
 
         _settingsData ??= new MapSettingsData();
-        _settingsData.Width     = Mathf.Clamp(_settingsData.Width, MinMapSize, MaxMapSize);
-        _settingsData.Height    = Mathf.Clamp(_settingsData.Height, MinMapSize, MaxMapSize);
-        _settingsData.WallRatio = Mathf.Clamp01(_settingsData.WallRatio);
+        _settingsData.Width      = Mathf.Clamp(_settingsData.Width, MinMapSize, MaxMapSize);
+        _settingsData.Height     = Mathf.Clamp(_settingsData.Height, MinMapSize, MaxMapSize);
+        _settingsData.WallRatio  = Mathf.Clamp01(_settingsData.WallRatio);
     }
 
     private void RefreshFields()
@@ -159,8 +159,8 @@ public class MapSettingsEditor : MonoBehaviour
         _widthField?.SetValueWithoutNotify(_settingsData.Width);
         _heightField?.SetValueWithoutNotify(_settingsData.Height);
         _wallRatioField?.SetValueWithoutNotify(_settingsData.WallRatio);
-        _wallColorField?.SetValueWithoutNotify(ColorUtility.ToHtmlStringRGB(_settingsData.WallColor));
-        _floorColorField?.SetValueWithoutNotify(ColorUtility.ToHtmlStringRGB(_settingsData.FloorColor));
+        _wallColorField?.SetValueWithoutNotify("#" + ColorUtility.ToHtmlStringRGB(_settingsData.WallColor));
+        _floorColorField?.SetValueWithoutNotify("#" + ColorUtility.ToHtmlStringRGB(_settingsData.FloorColor));
         _isBinding = false;
     }
 
