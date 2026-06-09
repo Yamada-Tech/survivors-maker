@@ -27,12 +27,39 @@ public class EditorRootPanel : MonoBehaviour
     private bool _isUiBuilt;
     private string _selectedKey;
 
+    private void Awake()
+    {
+        // PanelSettings が未設定の場合はランタイムで生成して割り当てる
+        EnsurePanelSettings(GetComponent<UIDocument>(), 100);
+
+        // 子パネルの UIDocument にも PanelSettings を割り当てる
+        int order = 101;
+        foreach (Transform child in transform)
+        {
+            var doc = child.GetComponent<UIDocument>();
+            if (doc != null)
+                EnsurePanelSettings(doc, order++);
+        }
+    }
+
+    private static void EnsurePanelSettings(UIDocument doc, int sortingOrder)
+    {
+        if (doc == null) return;
+        if (doc.panelSettings != null) return;
+
+        var ps = ScriptableObject.CreateInstance<PanelSettings>();
+        ps.sortingOrder = sortingOrder;
+        ps.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+        ps.referenceResolution = new Vector2Int(1920, 1080);
+        ps.name = $"RuntimePS_{sortingOrder}";
+        doc.panelSettings = ps;
+    }
+
     private void OnEnable()
     {
         EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
         BuildUi();
 
-        // 現在の状態に合わせて即座に表示/非表示を決める
         var currentState = AppStateMachine.Instance != null
             ? AppStateMachine.Instance.CurrentState
             : AppState.Title;
