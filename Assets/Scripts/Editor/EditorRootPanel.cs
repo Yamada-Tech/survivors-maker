@@ -32,7 +32,11 @@ public class EditorRootPanel : MonoBehaviour
         EventBus.Subscribe<AppStateChangedEvent>(OnStateChanged);
         BuildUi();
 
-        var currentState = AppStateMachine.Instance?.CurrentState ?? AppState.Editor;
+        // 現在の状態に合わせて即座に表示/非表示を決める
+        var currentState = AppStateMachine.Instance != null
+            ? AppStateMachine.Instance.CurrentState
+            : AppState.Title;
+
         UpdateVisibility(currentState);
 
         if (currentState == AppState.Editor)
@@ -83,30 +87,30 @@ public class EditorRootPanel : MonoBehaviour
         contentPane.style.backgroundColor = RootBackgroundColor;
         root.Add(contentPane);
 
-        RegisterPanel(MapPanelKey, "MapEditorPanel");
-        RegisterPanel(MapSettingsPanelKey, MapSettingsPanelName, isSidePanel: true);
+        RegisterPanel(MapPanelKey,          "MapEditorPanel");
+        RegisterPanel(MapSettingsPanelKey,  MapSettingsPanelName,  isSidePanel: true);
         RegisterPanel(GameSettingsPanelKey, GameSettingsPanelName, isSidePanel: false);
-        RegisterPanel("enemy", "EnemyEditorPanel");
-        RegisterPanel("weapon", "WeaponEditorPanel");
-        RegisterPanel("passive", "PassiveEditorPanel");
-        RegisterPanel("preset", "PresetEditorPanel");
-        RegisterPanel("wave", "WaveEditorPanel");
-        RegisterPanel("asset", "AssetManagerPanel");
-        RegisterPanel("dotart", "DotArtEditorPanel");
-        RegisterPanel("spritesheet", "SpriteSheetEditorPanel");
-        RegisterPanel("spritesettings", "SpriteSettingsEditorPanel");
+        RegisterPanel("enemy",              "EnemyEditorPanel");
+        RegisterPanel("weapon",             "WeaponEditorPanel");
+        RegisterPanel("passive",            "PassiveEditorPanel");
+        RegisterPanel("preset",             "PresetEditorPanel");
+        RegisterPanel("wave",               "WaveEditorPanel");
+        RegisterPanel("asset",              "AssetManagerPanel");
+        RegisterPanel("dotart",             "DotArtEditorPanel");
+        RegisterPanel("spritesheet",        "SpriteSheetEditorPanel");
+        RegisterPanel("spritesettings",     "SpriteSettingsEditorPanel");
 
-        AddMenuButton(menuPane, MapPanelKey, "🗺️ マップ");
+        AddMenuButton(menuPane, MapPanelKey,          "🗺️ マップ");
         AddMenuButton(menuPane, GameSettingsPanelKey, "⚙️ 基本設定");
-        AddMenuButton(menuPane, "enemy", "👾 敵");
-        AddMenuButton(menuPane, "weapon", "⚔️ 武器");
-        AddMenuButton(menuPane, "passive", "🌀 パッシブ");
-        AddMenuButton(menuPane, "preset", "🗂️ プリセット");
-        AddMenuButton(menuPane, "wave", "🌊 Wave");
-        AddMenuButton(menuPane, "asset", "🖼️ アセット");
-        AddMenuButton(menuPane, "dotart", "🎨 ドット絵");
-        AddMenuButton(menuPane, "spritesheet", "📋 スプライト");
-        AddMenuButton(menuPane, "spritesettings", "🎨 スプライト設定");
+        AddMenuButton(menuPane, "enemy",              "👾 敵");
+        AddMenuButton(menuPane, "weapon",             "⚔️ 武器");
+        AddMenuButton(menuPane, "passive",            "🌀 パッシブ");
+        AddMenuButton(menuPane, "preset",             "🗂️ プリセット");
+        AddMenuButton(menuPane, "wave",               "🌊 Wave");
+        AddMenuButton(menuPane, "asset",              "🖼️ アセット");
+        AddMenuButton(menuPane, "dotart",             "🎨 ドット絵");
+        AddMenuButton(menuPane, "spritesheet",        "📋 スプライト");
+        AddMenuButton(menuPane, "spritesettings",     "🎨 スプライト設定");
 
         var spacer = new VisualElement();
         spacer.style.flexGrow = 1f;
@@ -140,7 +144,9 @@ public class EditorRootPanel : MonoBehaviour
 
     private void UpdateVisibility(AppState state)
     {
-        var root = GetComponent<UIDocument>()?.rootVisualElement;
+        var doc = GetComponent<UIDocument>();
+        if (doc == null) return;
+        var root = doc.rootVisualElement;
         if (root == null) return;
         root.style.display = state == AppState.Editor ? DisplayStyle.Flex : DisplayStyle.None;
     }
@@ -166,13 +172,12 @@ public class EditorRootPanel : MonoBehaviour
             panelRoot.style.bottom = 0f;
             panelRoot.style.backgroundColor = RootBackgroundColor;
             if (isSidePanel)
-            {
                 panelRoot.style.width = 320f;
-            }
         }
     }
 
-    private void AddMenuButton(VisualElement parent, string key, string label, System.Action clickAction = null, bool shouldSelectPanel = true)
+    private void AddMenuButton(VisualElement parent, string key, string label,
+        System.Action clickAction = null, bool shouldSelectPanel = true)
     {
         var button = new Button(() =>
         {
@@ -180,9 +185,7 @@ public class EditorRootPanel : MonoBehaviour
             if (shouldSelectPanel)
                 SelectPanel(key);
         })
-        {
-            text = label
-        };
+        { text = label };
 
         button.style.width = Length.Percent(100);
         button.style.height = 48f;
@@ -197,11 +200,7 @@ public class EditorRootPanel : MonoBehaviour
 
     private void AddActionButton(VisualElement parent, string label, System.Action clickAction, float height)
     {
-        var button = new Button(() => clickAction?.Invoke())
-        {
-            text = label
-        };
-
+        var button = new Button(() => clickAction?.Invoke()) { text = label };
         button.style.width = Length.Percent(100);
         button.style.height = height;
         button.style.backgroundColor = MenuButtonColor;
@@ -228,14 +227,13 @@ public class EditorRootPanel : MonoBehaviour
             pair.Value?.SetActive(ShouldShowPanel(key, pair.Key));
 
         foreach (var pair in _menuButtons)
-            pair.Value.style.backgroundColor = pair.Key == _selectedKey ? MenuButtonSelectedColor : MenuButtonColor;
+            pair.Value.style.backgroundColor =
+                pair.Key == _selectedKey ? MenuButtonSelectedColor : MenuButtonColor;
     }
 
     private bool ShouldShowPanel(string selectedKey, string panelKey)
     {
-        if (panelKey == selectedKey)
-            return true;
-
-        return _linkedPanels.TryGetValue(selectedKey, out var linkedPanelKeys) && linkedPanelKeys.Contains(panelKey);
+        if (panelKey == selectedKey) return true;
+        return _linkedPanels.TryGetValue(selectedKey, out var linked) && linked.Contains(panelKey);
     }
 }
