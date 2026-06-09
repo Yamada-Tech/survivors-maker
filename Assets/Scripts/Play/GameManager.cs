@@ -107,9 +107,6 @@ public class GameManager : MonoBehaviour
                 levelUpUI.SetCustomPassives(passiveList.Passives);
         }
 
-        // スプライト設定を適用
-        ApplySpriteSettings();
-
         Debug.Log("[GameManager] Game started!");
     }
 
@@ -186,10 +183,10 @@ public class GameManager : MonoBehaviour
 
     private WaveListData CreateDefaultWaveData()
     {
-        const float loopWaveIntervalSec = 30f;  // 30秒ごと
-        const float scaleIntervalSec = 600f;    // 10分で2倍
-        const float maxDifficultyScale = 3f;    // 最大3倍
-        const float lateGameThresholdSec = 300f; // 残り5分
+        const float loopWaveIntervalSec = 30f;
+        const float scaleIntervalSec = 600f;
+        const float maxDifficultyScale = 3f;
+        const float lateGameThresholdSec = 300f;
 
         var waveList = new WaveListData();
         var waves = new System.Collections.Generic.List<WaveEntry>();
@@ -198,19 +195,13 @@ public class GameManager : MonoBehaviour
         void AddEliteWave(float startTimeSec, System.Collections.Generic.List<SpawnGroup> spawnGroups)
         {
             if (startTimeSec > _timeLimitSec) return;
-            waves.Add(new WaveEntry
-            {
-                StartTimeSec = startTimeSec,
-                SpawnGroups = spawnGroups
-            });
+            waves.Add(new WaveEntry { StartTimeSec = startTimeSec, SpawnGroups = spawnGroups });
         }
 
-        // --- 基本ループウェーブ (0秒〜ゲーム制限時間まで、30秒ごと) ---
         for (int i = 0; i < loopWaveCount; i++)
         {
             float t = i * loopWaveIntervalSec;
-            float scale = 1f + (t / scaleIntervalSec);
-            scale = Mathf.Clamp(scale, 1f, maxDifficultyScale);
+            float scale = Mathf.Clamp(1f + (t / scaleIntervalSec), 1f, maxDifficultyScale);
 
             int meleeCount = Mathf.RoundToInt(6 * scale);
             float meleeInterval = Mathf.Max(0.2f, 0.8f / scale);
@@ -229,7 +220,6 @@ public class GameManager : MonoBehaviour
                 }
             };
 
-            // 60秒以降はRanged敵も追加
             if (t >= 60f)
             {
                 int rangedCount = Mathf.RoundToInt(2 * scale);
@@ -248,30 +238,29 @@ public class GameManager : MonoBehaviour
             waves.Add(new WaveEntry { StartTimeSec = t, SpawnGroups = groups });
         }
 
-        // --- エリートウェーブ（大量スポーン） ---
         AddEliteWave(600f, new System.Collections.Generic.List<SpawnGroup>
-            {
-                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 30, SpawnInterval = 0.15f, Position = SpawnPosition.RandomEdge },
-                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 10, SpawnInterval = 0.5f,  Position = SpawnPosition.RandomEdge }
-            });
+        {
+            new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 30,  SpawnInterval = 0.15f, Position = SpawnPosition.RandomEdge },
+            new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 10,  SpawnInterval = 0.5f,  Position = SpawnPosition.RandomEdge }
+        });
 
         AddEliteWave(900f, new System.Collections.Generic.List<SpawnGroup>
-            {
-                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 50, SpawnInterval = 0.1f,  Position = SpawnPosition.RandomEdge },
-                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 20, SpawnInterval = 0.3f,  Position = SpawnPosition.RandomEdge }
-            });
+        {
+            new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 50,  SpawnInterval = 0.1f,  Position = SpawnPosition.RandomEdge },
+            new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 20,  SpawnInterval = 0.3f,  Position = SpawnPosition.RandomEdge }
+        });
 
         AddEliteWave(1200f, new System.Collections.Generic.List<SpawnGroup>
-            {
-                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 80, SpawnInterval = 0.08f, Position = SpawnPosition.RandomEdge },
-                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 30, SpawnInterval = 0.2f,  Position = SpawnPosition.RandomEdge }
-            });
+        {
+            new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 80,  SpawnInterval = 0.08f, Position = SpawnPosition.RandomEdge },
+            new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 30,  SpawnInterval = 0.2f,  Position = SpawnPosition.RandomEdge }
+        });
 
         AddEliteWave(1500f, new System.Collections.Generic.List<SpawnGroup>
-            {
-                new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 120, SpawnInterval = 0.05f, Position = SpawnPosition.RandomEdge },
-                new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 50,  SpawnInterval = 0.15f, Position = SpawnPosition.RandomEdge }
-            });
+        {
+            new SpawnGroup { EnemyId = "enemy_melee_01",  Count = 120, SpawnInterval = 0.05f, Position = SpawnPosition.RandomEdge },
+            new SpawnGroup { EnemyId = "enemy_ranged_01", Count = 50,  SpawnInterval = 0.15f, Position = SpawnPosition.RandomEdge }
+        });
 
         waves.Sort((a, b) => a.StartTimeSec.CompareTo(b.StartTimeSec));
         waveList.Waves = waves;
@@ -317,33 +306,5 @@ public class GameManager : MonoBehaviour
     {
         _timeLimitSec = Mathf.Clamp(timeLimitSec, 30, 3600);
         _gameHUD?.SetTimerConfig(_timeLimitSec, _countDown);
-    }
-
-    private void ApplySpriteSettings()
-    {
-        if (DataManager.Instance == null || !DataManager.Instance.Exists("sprite_settings.json"))
-            return;
-
-        var settings = DataManager.Instance.Load<SpriteSettingsData>("sprite_settings.json");
-        if (settings == null) return;
-
-        var assetManager = FindAnyObjectByType<AssetManager>();
-        if (assetManager == null) return;
-
-        // プレイヤースプライト適用
-        if (!string.IsNullOrWhiteSpace(settings.PlayerSpriteGuid))
-        {
-            var tex = assetManager.LoadTexture(settings.PlayerSpriteGuid);
-            if (tex != null && _player != null)
-            {
-                var sr = _player.GetComponent<SpriteRenderer>();
-                if (sr != null)
-                {
-                    const float PixelsPerUnit = 32f;
-                    sr.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, PixelsPerUnit);
-                    sr.color = Color.white;
-                }
-            }
-        }
     }
 }
