@@ -4,6 +4,7 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
+    // Legacy scenes may need one frame for object references/event wiring before StartGame.
     private const float LegacyStartDelaySec = 0.1f;
 
     public static GameManager Instance { get; private set; }
