@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class WeaponSystem : MonoBehaviour
 {
+    private const int EnemyLayer = 9;
+
     [SerializeField] private Transform _player;
     [SerializeField] private GameObject _projectilePrefab;
 
@@ -17,30 +19,38 @@ public class WeaponSystem : MonoBehaviour
 
     private void Awake()
     {
-        gameObject.tag = "PlayObject";
-        int enemyLayer = LayerMask.NameToLayer("Enemy");
-        _enemyLayerMask = enemyLayer >= 0 ? (1 << enemyLayer) : ~0;
+        _enemyLayerMask = 1 << EnemyLayer;
     }
 
     private void OnEnable()
     {
+        EventBus.Subscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
         EventBus.Subscribe<TimeLimitReachedEvent>(OnGameEnded);
     }
 
     private void OnDisable()
     {
+        EventBus.Unsubscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
         EventBus.Unsubscribe<TimeLimitReachedEvent>(OnGameEnded);
     }
 
+    private void OnAppStateChanged(AppStateChangedEvent evt) => UpdateFrozenState(evt.NewState);
     private void OnPlayerDied(PlayerDiedEvent _) => _frozen = true;
     private void OnGameEnded(TimeLimitReachedEvent _) => _frozen = true;
 
     private void Start()
     {
+        UpdateFrozenState(AppStateMachine.Instance?.CurrentState ?? AppState.Title);
         if (_rangeIndicator == null)
             InitRangeIndicator();
+    }
+
+    public void Configure(Transform player, GameObject projectilePrefab)
+    {
+        _player = player;
+        _projectilePrefab = projectilePrefab;
     }
 
     public void EquipWeapon(WeaponData data)
@@ -114,6 +124,8 @@ public class WeaponSystem : MonoBehaviour
         if (_projectilePrefab == null) return;
 
         var go = Instantiate(_projectilePrefab, _player.position, Quaternion.identity);
+        if (!go.activeSelf)
+            go.SetActive(true);
         var proj = go.GetComponent<Projectile>();
         if (proj != null)
         {
@@ -174,6 +186,11 @@ public class WeaponSystem : MonoBehaviour
         indicatorGo.transform.SetParent(parent);
         indicatorGo.transform.localPosition = Vector3.zero;
         _rangeIndicator = indicatorGo.AddComponent<WeaponRangeIndicator>();
+    }
+
+    private void UpdateFrozenState(AppState state)
+    {
+        _frozen = state != AppState.Play;
     }
 
     private struct WeaponRuntime

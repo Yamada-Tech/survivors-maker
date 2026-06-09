@@ -24,6 +24,7 @@ public class WaveSpawner : MonoBehaviour
 
     private void OnEnable()
     {
+        EventBus.Subscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Subscribe<GameOverEvent>(OnGameEnded);
         EventBus.Subscribe<TimeLimitReachedEvent>(OnGameEnded);
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
@@ -32,6 +33,7 @@ public class WaveSpawner : MonoBehaviour
 
     private void OnDisable()
     {
+        EventBus.Unsubscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Unsubscribe<GameOverEvent>(OnGameEnded);
         EventBus.Unsubscribe<TimeLimitReachedEvent>(OnGameEnded);
         EventBus.Unsubscribe<PlayerDiedEvent>(OnPlayerDied);
@@ -50,6 +52,13 @@ public class WaveSpawner : MonoBehaviour
         _activeSpawnCount = 0;
         _waitingEarlyWave = false;
         _earlyWaveTimer = 0f;
+    }
+
+    public void Configure(GameObject enemyPrefab, GameObject enemyProjectilePrefab, Transform player)
+    {
+        _enemyPrefab = enemyPrefab;
+        _enemyProjectilePrefab = enemyProjectilePrefab;
+        _player = player;
     }
 
     public void StopSpawning()
@@ -109,6 +118,8 @@ public class WaveSpawner : MonoBehaviour
 
                 var pos = GetSpawnPosition(group.Position);
                 var go = Instantiate(_enemyPrefab, pos, Quaternion.identity);
+                if (!go.activeSelf)
+                    go.SetActive(true);
                 var ai = go.GetComponent<EnemyAI>();
                 if (ai == null)
                 {
@@ -131,6 +142,12 @@ public class WaveSpawner : MonoBehaviour
     private void OnGameEnded(GameOverEvent _) => StopSpawning();
     private void OnGameEnded(TimeLimitReachedEvent _) => StopSpawning();
     private void OnPlayerDied(PlayerDiedEvent _) => StopSpawning();
+
+    private void OnAppStateChanged(AppStateChangedEvent evt)
+    {
+        if (evt.NewState != AppState.Play)
+            StopSpawning();
+    }
 
     private void OnEnemyKilled(EnemyKilledEvent _)
     {

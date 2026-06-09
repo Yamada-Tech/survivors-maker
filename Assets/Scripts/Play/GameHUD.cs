@@ -25,6 +25,7 @@ public class GameHUD : MonoBehaviour
     private int _finalKillCount;
     private int _finalLevel;
     private int _maxDamageDealt;
+    private bool _isVisible;
 
     private GUIStyle _labelStyle;
     private GUIStyle _expLabelStyle;
@@ -42,6 +43,7 @@ public class GameHUD : MonoBehaviour
 
     private void OnEnable()
     {
+        EventBus.Subscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Subscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Subscribe<GameOverEvent>(OnGameOver);
@@ -50,6 +52,7 @@ public class GameHUD : MonoBehaviour
 
     private void OnDisable()
     {
+        EventBus.Unsubscribe<AppStateChangedEvent>(OnAppStateChanged);
         EventBus.Unsubscribe<EnemyKilledEvent>(OnEnemyKilled);
         EventBus.Unsubscribe<LevelUpEvent>(OnLevelUp);
         EventBus.Unsubscribe<GameOverEvent>(OnGameOver);
@@ -60,11 +63,12 @@ public class GameHUD : MonoBehaviour
     {
         if (_player == null)
             _player = FindAnyObjectByType<PlayerController>();
+        UpdateVisibility(AppStateMachine.Instance?.CurrentState ?? AppState.Title);
     }
 
     private void Update()
     {
-        if (_gameOver) return;
+        if (!_isVisible || _gameOver) return;
 
         _elapsed += Time.deltaTime;
 
@@ -83,6 +87,9 @@ public class GameHUD : MonoBehaviour
 
     private void OnGUI()
     {
+        if (!_isVisible)
+            return;
+
         // スタイル初期化（初回のみ）
         if (_labelStyle == null)
         {
@@ -178,6 +185,28 @@ public class GameHUD : MonoBehaviour
         _survivedSec = evt.SurvivedTimeSec;
         _finalKillCount = evt.KillCount;
         _finalLevel = evt.ReachedLevel;
+    }
+
+    private void OnAppStateChanged(AppStateChangedEvent evt)
+    {
+        UpdateVisibility(evt.NewState);
+    }
+
+    private void ResetRuntimeState()
+    {
+        _elapsed = 0f;
+        _killCount = 0;
+        _displayLevel = _player != null ? _player.Level : 1;
+        _gameOver = false;
+        _clearMode = false;
+        _timeLimitReached = false;
+    }
+
+    private void UpdateVisibility(AppState state)
+    {
+        _isVisible = state == AppState.Play;
+        if (_isVisible)
+            ResetRuntimeState();
     }
 
     public void SetTimerConfig(float timeLimitSec, bool countDown)

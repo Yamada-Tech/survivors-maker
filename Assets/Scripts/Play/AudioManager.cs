@@ -51,6 +51,9 @@ public class AudioManager : MonoBehaviour
         EventBus.Subscribe<PlayerDiedEvent>(OnPlayerDied);
         EventBus.Subscribe<GameOverEvent>(OnGameOver);
         EventBus.Subscribe<TimeLimitReachedEvent>(OnTimeLimitReached);
+
+        if (AppStateMachine.Instance != null)
+            PlayBgmForState(AppStateMachine.Instance.CurrentState);
     }
 
     private void OnDisable()
@@ -97,7 +100,12 @@ public class AudioManager : MonoBehaviour
 
     private void OnStateChanged(AppStateChangedEvent evt)
     {
-        switch (evt.NewState)
+        PlayBgmForState(evt.NewState);
+    }
+
+    private void PlayBgmForState(AppState state)
+    {
+        switch (state)
         {
             case AppState.Title:
                 PlayBgm(_titleBgm);

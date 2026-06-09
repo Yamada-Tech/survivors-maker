@@ -30,6 +30,12 @@ public class AppStateMachine : MonoBehaviour
         EventBus.Publish(new AppStateChangedEvent(old, newState));
     }
 
+    public void SetStateWithoutTransition(AppState newState)
+    {
+        CurrentState = newState;
+        Time.timeScale = 1f;
+    }
+
     private void HandleStateTransition(AppState from, AppState to)
     {
         switch (to)

@@ -47,6 +47,14 @@ public class GameManager : MonoBehaviour
             ScheduleLegacyStart();
     }
 
+    public void Configure(PlayerController player, WaveSpawner waveSpawner, WeaponSystem weaponSystem, GameHUD gameHUD)
+    {
+        _player = player;
+        _waveSpawner = waveSpawner;
+        _weaponSystem = weaponSystem;
+        _gameHUD = gameHUD;
+    }
+
     private void ScheduleLegacyStart()
     {
         Invoke(nameof(StartGame), LegacyStartDelaySec);
@@ -108,6 +116,7 @@ public class GameManager : MonoBehaviour
     private void OnRestartRequested(RestartRequestedEvent _)
     {
         Time.timeScale = 1f;
+        AppStateMachine.Instance?.ChangeState(AppState.Title);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
