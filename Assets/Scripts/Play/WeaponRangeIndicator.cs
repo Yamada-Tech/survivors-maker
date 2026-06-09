@@ -13,6 +13,7 @@ public class WeaponRangeIndicator : MonoBehaviour
 
     private LineRenderer _lineRenderer;
     private Coroutine _hideCoroutine;
+    private Material _indicatorMaterial;
 
     private void Awake()
     {
@@ -23,7 +24,30 @@ public class WeaponRangeIndicator : MonoBehaviour
         _lineRenderer.startWidth = 0.08f;
         _lineRenderer.endWidth = 0.08f;
         _lineRenderer.enabled = false;
-        _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+
+        var defaultShader = Shader.Find("Sprites/Default");
+        if (defaultShader != null)
+        {
+            _indicatorMaterial = new Material(defaultShader);
+            _lineRenderer.material = _indicatorMaterial;
+        }
+        else
+        {
+            Debug.LogWarning("[WeaponRangeIndicator] Shader 'Sprites/Default' not found.");
+
+            var fallbackShader = Shader.Find("Unlit/Color");
+            if (fallbackShader != null)
+            {
+                _indicatorMaterial = new Material(fallbackShader);
+                _lineRenderer.material = _indicatorMaterial;
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_indicatorMaterial != null)
+            Destroy(_indicatorMaterial);
     }
 
     /// <summary>

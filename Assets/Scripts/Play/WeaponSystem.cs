@@ -154,6 +154,9 @@ public class WeaponSystem : MonoBehaviour
 
     private void InitRangeIndicator()
     {
+        if (_player == null)
+            Debug.LogWarning("[WeaponSystem] _player is null. WeaponRangeIndicator will be parented to WeaponSystem.");
+
         var parent = _player != null ? _player : transform;
         var indicatorGo = new GameObject("WeaponRangeIndicator");
         indicatorGo.transform.SetParent(parent);
