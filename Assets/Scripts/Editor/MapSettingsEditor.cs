@@ -25,11 +25,13 @@ public class MapSettingsEditor : MonoBehaviour
         RefreshFields();
         _mapGenerator ??= FindAnyObjectByType<MapGenerator>();
         EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Subscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Unsubscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void BuildUi()
@@ -177,5 +179,11 @@ public class MapSettingsEditor : MonoBehaviour
     private void OnSaveAllRequested(SaveAllRequestedEvent _)
     {
         Save();
+    }
+
+    private void OnLoadAllRequested(LoadAllRequestedEvent _)
+    {
+        Load();
+        RefreshFields();
     }
 }

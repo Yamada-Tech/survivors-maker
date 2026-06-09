@@ -31,11 +31,13 @@ public class GameSettingsEditor : MonoBehaviour
         Load();
         RefreshFields();
         EventBus.Subscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Subscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<SaveAllRequestedEvent>(OnSaveAllRequested);
+        EventBus.Unsubscribe<LoadAllRequestedEvent>(OnLoadAllRequested);
     }
 
     private void BuildUi()
@@ -186,5 +188,11 @@ public class GameSettingsEditor : MonoBehaviour
     private void OnSaveAllRequested(SaveAllRequestedEvent _)
     {
         Save();
+    }
+
+    private void OnLoadAllRequested(LoadAllRequestedEvent _)
+    {
+        Load();
+        RefreshFields();
     }
 }

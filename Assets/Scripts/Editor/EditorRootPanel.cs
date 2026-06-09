@@ -71,6 +71,7 @@ public class EditorRootPanel : MonoBehaviour
         RegisterPanel("enemy", "EnemyEditorPanel");
         RegisterPanel("weapon", "WeaponEditorPanel");
         RegisterPanel("passive", "PassiveEditorPanel");
+        RegisterPanel("preset", "PresetEditorPanel");
         RegisterPanel("wave", "WaveEditorPanel");
         RegisterPanel("asset", "AssetManagerPanel");
         RegisterPanel("dotart", "DotArtEditorPanel");
@@ -81,13 +82,35 @@ public class EditorRootPanel : MonoBehaviour
         AddMenuButton(menuPane, "enemy", "👾 敵");
         AddMenuButton(menuPane, "weapon", "⚔️ 武器");
         AddMenuButton(menuPane, "passive", "🌀 パッシブ");
+        AddMenuButton(menuPane, "preset", "🗂️ プリセット");
         AddMenuButton(menuPane, "wave", "🌊 Wave");
         AddMenuButton(menuPane, "asset", "🖼️ アセット");
         AddMenuButton(menuPane, "dotart", "🎨 ドット絵");
         AddMenuButton(menuPane, "spritesheet", "📋 スプライト");
+
+        var spacer = new VisualElement();
+        spacer.style.flexGrow = 1f;
+        menuPane.Add(spacer);
+
+        menuPane.Add(CreateHorizontalDivider());
+        AddActionButton(menuPane, "💾 全保存", OnSaveAllClicked, 44f);
+        AddActionButton(menuPane, "📂 全読込", OnLoadAllClicked, 44f);
+        menuPane.Add(CreateHorizontalDivider());
         AddMenuButton(menuPane, "play", "▶️ プレイ", OnPlayClicked, false);
 
         _isUiBuilt = true;
+    }
+
+    private void OnSaveAllClicked()
+    {
+        EventBus.Publish(new SaveAllRequestedEvent());
+        Debug.Log("[EditorRootPanel] Save All requested.");
+    }
+
+    private void OnLoadAllClicked()
+    {
+        EventBus.Publish(new LoadAllRequestedEvent());
+        Debug.Log("[EditorRootPanel] Load All requested.");
     }
 
     private void OnPlayClicked()
@@ -143,6 +166,31 @@ public class EditorRootPanel : MonoBehaviour
         parent.Add(button);
 
         _menuButtons[key] = button;
+    }
+
+    private void AddActionButton(VisualElement parent, string label, System.Action clickAction, float height)
+    {
+        var button = new Button(() => clickAction?.Invoke())
+        {
+            text = label
+        };
+
+        button.style.width = Length.Percent(100);
+        button.style.height = height;
+        button.style.backgroundColor = MenuButtonColor;
+        button.style.color = Color.white;
+        button.style.unityTextAlign = TextAnchor.MiddleLeft;
+        button.style.paddingLeft = 12f;
+        parent.Add(button);
+    }
+
+    private static VisualElement CreateHorizontalDivider()
+    {
+        var divider = new VisualElement();
+        divider.style.width = Length.Percent(100);
+        divider.style.height = 1f;
+        divider.style.backgroundColor = DividerColor;
+        return divider;
     }
 
     private void SelectPanel(string key)
